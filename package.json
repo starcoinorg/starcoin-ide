@@ -1,0 +1,124 @@
+{
+	"name": "ide",
+	"version": "0.1.0",
+	"description": "Starcoin IDE for VSCode",
+	"publisher": "starcoin",
+	"displayName": "Starcoin IDE",
+	"categories": [
+		"Programming Languages",
+		"Snippets",
+		"Other"
+	],
+	"engines": {
+		"vscode": "^1.43.0"
+	},
+	"activationEvents": [
+		"onLanguage:move"
+	],
+	"main": "./dist/extension.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "starcoin.check",
+				"title": "Starcoin: Check"
+			},
+			{
+				"command": "starcoin.clean",
+				"title": "Starcoin: Clean"
+			},
+			{
+				"command": "starcoin.doctor",
+				"title": "Starcoin: Doctor"
+			},
+			{
+				"command": "starcoin.testFunctional",
+				"title": "Starcoin: Test Functional"
+			},
+			{
+				"command": "starcoin.publish",
+				"title": "Starcoin: Publish"
+			},
+			{
+				"command": "starcoin.run",
+				"title": "Starcoin: Run"
+			},
+			{
+				"command": "starcoin.testUnit",
+				"title": "Starcoin: Test Unit"
+			},
+			{
+				"command": "starcoin.publishAll",
+				"title": "Starcoin: Publish All"
+			}
+		],
+		"configuration": {
+			"title": "Starcoin IDE",
+			"properties": {
+				"starcoin.buildDirectory": {
+					"type": "string",
+					"default": "build",
+					"description": "Directory to store build artifacts"
+				},
+				"starcoin.storageDirectory": {
+					"type": "string",
+					"default": "storage",
+					"description": "Directory to store chain storage"
+				},
+				"starcoin.mode": {
+					"type": "string",
+					"enum": [
+						"stdlib"
+					],
+					"default": "stdlib",
+					"description": "Mode to use when running move-cli"
+				},
+				"starcoin.starcoinRPC": {
+					"type": "string",
+					"default": "http://main.seed.starcoin.org:9850",
+					"description": "Starcoin chain RPC to access"
+				}
+			}
+		}
+	},
+	"scripts": {
+		"vscode:prepublish": "rm bin/*; npm run compile",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+ssh://git@github.com/damirka/starcoin-ide.git"
+	},
+	"keywords": [
+		"libra",
+		"move",
+		"ide",
+		"move syntax",
+		"move ide",
+		"move-ide",
+		"libra-ide",
+		"diem",
+		"diem-ide",
+		"starcoin",
+		"starcoin-ide"
+	],
+	"author": "Starcoin Team <starcoin.org>",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/starcoin/starcoin-ide/issues"
+	},
+	"homepage": "https://github.com/starcoin/starcoin-ide#readme",
+	"extensionDependencies": [
+		"damirka.move-syntax"
+	],
+	"devDependencies": {
+		"@types/node": "^14.0.1",
+		"@types/vscode": "^1.43.0",
+		"standard-version": "^8.0.2",
+		"typescript": "^3.9.10",
+		"vsce": "^1.77.0"
+	},
+	"dependencies": {
+		"unzipper": "^0.10.11"
+	}
+}
