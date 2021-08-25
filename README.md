@@ -8,4 +8,4 @@ See available configuration options in the extension settings window.
 
 ## License
 
-.
+MIT
