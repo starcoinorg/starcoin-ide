@@ -55,6 +55,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         registerCommand('starcoin.run', () => runCommand().then(console.log)),
         registerCommand('starcoin.testUnit', () => testUnitCommand().then(console.log)),
         registerCommand('starcoin.publishAll', () => publishAllCommand().then(console.log)),
+        registerCommand('starcoin.view', () => viewCommand().then(console.log)),
     );
 }
 
@@ -83,6 +84,7 @@ function publishCommand(): Thenable<any> { return execute('publish', 'publish', 
 function runCommand(): Thenable<any> { return execute('run', 'run', Marker.ThisFile); }
 function testUnitCommand(): Thenable<any> { return execute('testUnit', 'unit-test', Marker.ThisFile); }
 function publishAllCommand(): Thenable<any> { return execute('publishAll', 'publish', Marker.SrcDir); }
+function viewCommand(): Thenable<any> { return execute('view', 'view', Marker.ThisFile); }
 
 
 /**
