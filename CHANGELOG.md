@@ -1,8 +1,8 @@
 # Change Log
 
-This is a changelog file for the Starcoin IDE.
+This is a changelog file for the Starcoin IDE starting with version 0.5.0.
 
-## v0.1.0 - Fresh Start
+## v0.5.0 - Fresh Start
 
 This update sets the new version of Starcoin IDE as a replacement to the previous one.
 

@@ -20,7 +20,7 @@ const NAMESPACE = 'starcoin';
 /**
  * Name of the extension to get context.
  */
-const EXTENSION = 'starcoin.ide';
+const EXTENSION = 'starcoinorg.starcoin-ide';
 
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
