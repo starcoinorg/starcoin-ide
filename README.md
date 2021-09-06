@@ -1,6 +1,6 @@
 # Starcoin IDE
 
-This is the repository for the Starcoin IDE.
+This is the repository for [the Starcoin IDE](https://marketplace.visualstudio.com/items?itemName=starcoinorg.starcoin-ide).
 
 ## Configuration
 
