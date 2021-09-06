@@ -4,7 +4,7 @@
 	"description": "Starcoin IDE for VSCode",
 	"publisher": "starcoinorg",
 	"displayName": "Starcoin IDE",
-	"icon": "img/starcoin.logo.png",
+	"icon": "img/icon-128.png",
 	"categories": [
 		"Programming Languages",
 		"Snippets",
