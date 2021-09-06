@@ -1,9 +1,10 @@
 {
-	"name": "ide",
-	"version": "0.1.0",
+	"name": "starcoin-ide",
+	"version": "0.5.0",
 	"description": "Starcoin IDE for VSCode",
-	"publisher": "starcoin",
+	"publisher": "starcoinorg",
 	"displayName": "Starcoin IDE",
+	"icon": "img/icon-128.png",
 	"categories": [
 		"Programming Languages",
 		"Snippets",
@@ -91,7 +92,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+ssh://git@github.com/damirka/starcoin-ide.git"
+		"url": "https://github.com/starcoinorg/starcoin-ide.git"
 	},
 	"keywords": [
 		"libra",
@@ -109,9 +110,9 @@
 	"author": "Starcoin Team <starcoin.org>",
 	"license": "MIT",
 	"bugs": {
-		"url": "https://github.com/starcoin/starcoin-ide/issues"
+		"url": "https://github.com/starcoinorg/starcoin-ide/issues"
 	},
-	"homepage": "https://github.com/starcoin/starcoin-ide#readme",
+	"homepage": "https://github.com/starcoinorg/starcoin-ide#readme",
 	"extensionDependencies": [
 		"damirka.move-syntax"
 	],
