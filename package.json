@@ -88,7 +88,9 @@
 	"scripts": {
 		"vscode:prepublish": "rm bin/*; npm run compile",
 		"compile": "tsc -p ./",
-		"watch": "tsc -watch -p ./"
+		"watch": "tsc -watch -p ./",
+		"publish": "vsce publish -p",
+		"package": "vsce package"
 	},
 	"repository": {
 		"type": "git",
@@ -119,7 +121,7 @@
 	"devDependencies": {
 		"@types/node": "^14.0.1",
 		"@types/vscode": "^1.43.0",
-		"standard-version": "^8.0.2",
+		"standard-version": "^9.3.1",
 		"typescript": "^3.9.10",
 		"vsce": "^1.77.0"
 	},
