@@ -91,7 +91,8 @@
 		"watch": "tsc -watch -p ./",
 		"publish": "vsce publish -p",
 		"package": "vsce package",
-		"test": "tsc -p ./ && node ./dist/test/runTest.js"
+		"test:unit": "tsc -p ./ && node ./dist/test/unit/runTest.js",
+		"test:functional": "tsc -p ./ && node ./dist/test/functional/runTest.js"
 	},
 	"repository": {
 		"type": "git",
@@ -132,6 +133,7 @@
 		"vsce": "^1.77.0"
 	},
 	"dependencies": {
+		"mkdirs": "^0.0.3",
 		"unzipper": "^0.10.11",
 		"wget-improved": "^3.3.0"
 	}

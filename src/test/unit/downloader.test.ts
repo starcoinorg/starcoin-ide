@@ -4,9 +4,11 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as os from 'os'
+import * as fs from 'fs';
 import * as path from 'path';
 import * as assert from 'assert';
-import { Downloader } from '../downloader';
+import { Downloader } from '../../downloader';
+import { mkdirsSync } from '../../utils'
 
 suite("Downloader", () => {
     suite("#checkNewRelease", () => {
@@ -25,21 +27,17 @@ suite("Downloader", () => {
             const loader = new Downloader(path.join(os.tmpdir(), 'starcoin-ide', "test", "" + new Date().getTime()));
             const result = loader.hasBinary()
 
-            assert.equal(result, false, 'Check new release latest tag should be ok');
+            assert.equal(result, false);
         });
-    });
 
-    suite("#installRelease", () => {
-        test("check update and force install release should be ok", async () => {
-            const loader = new Downloader(os.tmpdir());
-            let {latest, release} = await loader.checkNewRelease()
-
-            try {
-                await loader.installRelease(latest, release);
-            } catch(err) {
-                console.error(err);
-                assert.fail("install release should be ok, error:" + err)
-            }
+        test("after installRelease hasBinary should be true", async () => {
+            const devPath = path.join(os.tmpdir(), 'starcoin-ide', "test", "" + new Date().getTime())
+            const loader = new Downloader(devPath);
+            mkdirsSync(loader.binPath(""))
+            
+            fs.writeFileSync(loader.binPath("move"), "xxx");
+            const result = loader.hasBinary()
+            assert.equal(result, true);
         });
     });
     

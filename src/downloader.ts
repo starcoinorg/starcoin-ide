@@ -9,9 +9,10 @@ import * as url from 'url';
 import * as path from 'path';
 import * as https from 'https';
 import * as wget from 'wget-improved';
-
 // @ts-ignore
 import * as unzip from 'unzipper';
+
+import {mkdirsSync} from './utils'
 
 // @ts-ignore
 const PLATFORM = {
@@ -91,6 +92,12 @@ export class Downloader {
  * @param release 
  */
 async function installRelease(this: Downloader, version: string, release: Release) {
+    // Create bin dirs
+    let binDir = this.binPath("")
+    if (!fs.existsSync(binDir)) {
+        mkdirsSync(binDir)
+    }
+
     // Remove the old binaries and the zip archive if there were.
     {
         if (fs.existsSync(this.binPath('move'))) {
@@ -106,12 +113,6 @@ async function installRelease(this: Downloader, version: string, release: Releas
         }
     };
     
-    // Create bin dir
-    let binDir = this.binPath("")
-    if (!fs.existsSync(binDir)) {
-        fs.mkdirSync(binDir)
-    }
-
     // Pull the release zip file from the GitHub releases.
     await new Promise((resolve, reject) => {
         const dest = this.zipPath;
@@ -155,6 +156,7 @@ async function installRelease(this: Downloader, version: string, release: Releas
     fs.rmSync(this.zipPath);
 }
 
+
 /**
  * Compare the version file with the latest update from GitHub.
  * Turn semvers into numbers by removing non-digits.
@@ -182,7 +184,6 @@ function hasBinary(this: Downloader): boolean {
     return fs.existsSync(this.binPath('move'))
         || fs.existsSync(this.binPath('move.exe'));
 }
-
 
 /**
  * Fetch latest release information from GitHub. 
