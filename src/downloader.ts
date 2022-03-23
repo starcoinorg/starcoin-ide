@@ -8,6 +8,7 @@ import * as fs from 'fs';
 import * as url from 'url';
 import * as path from 'path';
 import * as https from 'https';
+import * as wget from 'wget-improved';
 
 // @ts-ignore
 import * as unzip from 'unzipper';
@@ -49,7 +50,11 @@ export class Downloader {
     }
 
     binPath(file: string): string {
-        return path.join(this.extensionPath, 'bin', file);
+        if (file!="") {
+            return path.join(this.extensionPath, 'bin', file);
+        } else  {
+            return path.join(this.extensionPath, 'bin');
+        }
     }
     
     constructor(extPath: string) {
@@ -86,13 +91,6 @@ export class Downloader {
  * @param release 
  */
 async function installRelease(this: Downloader, version: string, release: Release) {
-    const parsed = new url.URL(release.browser_download_url);
-    const options = {
-        host: parsed.host,
-        path: parsed.pathname,
-        headers: {'user-agent': 'node.js'}
-    };
-
     // Remove the old binaries and the zip archive if there were.
     {
         if (fs.existsSync(this.binPath('move'))) {
@@ -108,28 +106,31 @@ async function installRelease(this: Downloader, version: string, release: Releas
         }
     };
     
+    // Create bin dir
+    let binDir = this.binPath("")
+    if (!fs.existsSync(binDir)) {
+        fs.mkdirSync(binDir)
+    }
 
     // Pull the release zip file from the GitHub releases.
-    await new Promise((resolve) => {
-        https.get(options, (res) => {
-            const dest = this.zipPath;
+    await new Promise((resolve, reject) => {
+        const dest = this.zipPath;
 
-            if (!res.headers.location) {
-                return resolve(null);
-            }
-
-            const parsed = new url.URL(res.headers.location);
-            const options = {
-                host: parsed.host,
-                path: parsed.pathname + parsed.search,
-                headers: {'user-agent': 'node.js'}
-            };
-
-            https.get(options, (res) => {
-                res.pipe(fs.createWriteStream(dest, {mode: 777}));
-                res.on('end', () => resolve(null));
-            });
-        })
+        wget.download(release.browser_download_url, dest, {})
+            .on('error', function(err) {
+                console.log(err);
+                reject(err);
+            })
+            .on('start', function(fileSize) {
+                console.log(fileSize);
+            })
+            .on('end', function(output) {
+                console.log(output);
+                resolve(null)
+            })
+            .on('progress', function(progress) {
+                console.log("download progress: " + (progress*100).toFixed(2) + "%");
+            })
     });
 
     // Unzip this file and do a cleanup.
@@ -192,16 +193,19 @@ function hasBinary(this: Downloader): boolean {
 async function checkNewRelease(this: Downloader): Promise<any> {
     const options = {
         host: 'api.github.com',
-        path: `/repos/starcoinorg/starcoin/releases/latest`,
+        path: `/repos/starcoinorg/starcoin/releases/tags/v1.9.2`,
         method: 'GET',
         headers: {'user-agent': 'node.js'}
     };
     
-    let stats = await new Promise((resolve) => {
+    let stats = await new Promise((resolve, reject) => {
         https.get(options, (res) => {
             let body = '';
             res.on('data', (data) => body += data.toString());
             res.on('end', () => resolve(JSON.parse(body)));
+        })
+        .on('error', (e) => {
+            reject(e);
         });
     });
 
