@@ -5,14 +5,13 @@
  */
 
 import * as fs from 'fs';
-import * as url from 'url';
+import * as fse from 'fs-extra';
 import * as path from 'path';
 import * as https from 'https';
 import * as wget from 'wget-improved';
+
 // @ts-ignore
 import * as unzip from 'unzipper';
-
-import {mkdirsSync} from './utils'
 
 // @ts-ignore
 const PLATFORM = {
@@ -42,6 +41,10 @@ interface Release {
 export class Downloader {
     extensionPath: string
 
+    constructor(extPath: string) {
+        this.extensionPath = extPath;
+    }
+
     get zipPath(): string {
         return this.binPath('fethed.zip');
     }
@@ -51,17 +54,13 @@ export class Downloader {
     }
 
     binPath(file: string): string {
-        if (file!="") {
+        if (file != "") {
             return path.join(this.extensionPath, 'bin', file);
         } else  {
             return path.join(this.extensionPath, 'bin');
         }
     }
     
-    constructor(extPath: string) {
-        this.extensionPath = extPath;
-    }
-
     async installRelease(version: string, release: Release): Promise<void> {
         return installRelease.call(this, version, release);
     }
@@ -95,7 +94,7 @@ async function installRelease(this: Downloader, version: string, release: Releas
     // Create bin dirs
     let binDir = this.binPath("")
     if (!fs.existsSync(binDir)) {
-        mkdirsSync(binDir)
+        fse.mkdirsSync(binDir)
     }
 
     // Remove the old binaries and the zip archive if there were.
