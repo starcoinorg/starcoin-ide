@@ -5,16 +5,28 @@
 
 // You can import and use all API from the 'vscode' module
 // as well as import your extension to test it
+import * as os from 'os';
 import * as vscode from 'vscode';
 import * as assert from 'assert';
 import * as fse from 'fs-extra';
 import * as path from 'path';
-import { sleep, getTaskResult } from './utils'
+
+import { sleep, getTaskResult, executeStarcoinCheckCommandWithFixed } from './utils'
+import { Downloader } from '../../downloader';
 
 suite("Starcoin-IDE.functional.test", () => {
     vscode.window.showInformationMessage('Start all tests.');
 
-    suite("Move Upgrade", () => {
+    suite("Move Upgrade Test", () => {
+        test("check new relase should be ok", async () => {
+            const loader = new Downloader(os.tmpdir());
+            const result = await loader.checkNewRelease()
+
+            assert.ok(result.latest, 'Check new release latest tag should be ok');
+            assert.ok(result.release, 'Check new release should be ok');
+            assert.ok(result.release.browser_download_url, 'Check new release browser_download_url should be ok');
+        });
+
         test("New install should download move cli", async () => {
             const ext = vscode.extensions.getExtension("starcoinorg.starcoin-ide");
             assert.ok(ext)
@@ -30,8 +42,8 @@ suite("Starcoin-IDE.functional.test", () => {
             await ext.activate();
         });
     });
-
-    suite("Move commands", () => {
+   
+    suite("Move commands Test", () => {
         test("test starcoin commands", async () => {
             const ext = vscode.extensions.getExtension("starcoinorg.starcoin-ide");
             assert.ok(ext)
@@ -41,13 +53,13 @@ suite("Starcoin-IDE.functional.test", () => {
                 // 1. open doc
                 let docs = await vscode.workspace.openTextDocument( path.resolve(__dirname,  './my-counter/src/MyCounter.move'))
                 await vscode.window.showTextDocument(docs);
-                sleep(1000)
+                await sleep(1000)
 
                 // 2. clean & prepare stdlib
                 await vscode.commands.executeCommand("starcoin.clean");
-                await vscode.commands.executeCommand("starcoin.check");
+                await executeStarcoinCheckCommandWithFixed();
                 await vscode.commands.executeCommand("starcoin.publishStdLib");
-                sleep(1000)
+                await sleep(1000)
 
                 // 3. check MyCounter.move
                 let exec:vscode.TaskExecution = await vscode.commands.executeCommand("starcoin.check");

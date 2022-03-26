@@ -89,13 +89,13 @@
 		"clean": "rimraf dist/",
 		"copy-files": "copyfiles -u 1 src/**/*.move src/**/*.code-workspace dist/",
 		"vscode:prepublish": "rm bin/*; npm run compile",
-		"compile": "tsc -p ./ && yarn copy-files && find ./dist/ | xargs dos2unix",
+		"compile": "tsc -p ./ && yarn copy-files",
 		"watch": "tsc -watch -p ./",
 		"publish": "vsce publish -p",
 		"package": "vsce package",
 		"test:unit": "yarn compile && node ./dist/test/unit/runTest.js",
 		"test:functional": "yarn compile && node ./dist/test/functional/runTest.js",
-		"test": "yarn test:unit && yarn test:functional"
+		"test": "yarn clean && yarn compile && node ./dist/test/unit/runTest.js && node ./dist/test/functional/runTest.js"
 	},
 	"repository": {
 		"type": "git",
@@ -131,7 +131,7 @@
 		"@types/vscode": "1.64.0",
 		"@vscode/test-electron": "^2.0.0",
 		"copyfiles": "^2.4.1",
-		"dos2unix": "^1.1.2",
+		"glob-array": "^1.0.0",
 		"glob": "^7.1.6",
 		"mocha": "^8.2.1",
 		"rimraf": "^3.0.2",
