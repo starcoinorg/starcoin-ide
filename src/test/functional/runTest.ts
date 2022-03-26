@@ -24,7 +24,7 @@ async function main(): Promise<void> {
     const extensionTestsPath = path.resolve(__dirname,  './index');
 
     // The workspace
-    const testWorkspacePath = path.resolve(__dirname, './test.code-workspace');
+    const testWorkspacePath = path.resolve(__dirname, './my-counter/my-counter.code-workspace');
 
     // Install vscode and depends extend
     const vscodeExecutablePath = await downloadAndUnzipVSCode('1.40.1');

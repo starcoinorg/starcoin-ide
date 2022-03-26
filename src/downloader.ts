@@ -24,7 +24,7 @@ const PLATFORM = {
 /**
  * GitHub Release information interface.
  */
-interface Release {
+export interface Release {
     id: string,
     url: string,
     tag_name: string,
@@ -61,8 +61,8 @@ export class Downloader {
         }
     }
     
-    async installRelease(version: string, release: Release): Promise<void> {
-        return installRelease.call(this, version, release);
+    async installRelease(version: string, release: Release, progressCallback: (progress:number) => void): Promise<void> {
+        return installRelease.call(this, version, release, progressCallback);
     }
 
     async checkNewRelease(): Promise<any> {
@@ -90,7 +90,7 @@ export class Downloader {
  * @param version 
  * @param release 
  */
-async function installRelease(this: Downloader, version: string, release: Release) {
+async function installRelease(this: Downloader, version: string, release: Release, progressCallback: (progress:number) => void) {
     // Create bin dirs
     let binDir = this.binPath("")
     if (!fs.existsSync(binDir)) {
@@ -118,18 +118,20 @@ async function installRelease(this: Downloader, version: string, release: Releas
 
         wget.download(release.browser_download_url, dest, {})
             .on('error', function(err) {
-                console.log(err);
                 reject(err);
             })
             .on('start', function(fileSize) {
-                console.log(fileSize);
+                if (progressCallback != null) {
+                    progressCallback(0)
+                }
             })
             .on('end', function(output) {
-                console.log(output);
                 resolve(null)
             })
             .on('progress', function(progress) {
-                console.log("download progress: " + (progress*100).toFixed(2) + "%");
+                if (progressCallback != null) {
+                    progressCallback(progress)
+                }
             })
     });
 

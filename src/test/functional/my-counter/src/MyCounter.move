@@ -1,5 +1,4 @@
-module MyCounter {
-
+module 0xABCDE::MyCounter {
      use 0x1::Signer;
 
      struct Counter has key, store {
@@ -20,5 +19,4 @@ module MyCounter {
      public(script) fun incr_counter(account: signer)  acquires Counter {
         Self::incr(&account)
      }
-
 }
