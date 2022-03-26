@@ -42,7 +42,7 @@ suite("Starcoin-IDE.functional.test", () => {
             await ext.activate();
         });
     });
-   
+
     suite("Move commands Test", () => {
         test("test starcoin commands", async () => {
             const ext = vscode.extensions.getExtension("starcoinorg.starcoin-ide");

@@ -154,7 +154,7 @@ async function installRelease(this: Downloader, version: string, release: Releas
     fs.writeFileSync(this.versionPath, version);
 
     // Do a cleanup
-    fs.rmSync(this.zipPath);
+    await fs.promises.rm(this.zipPath);
 }
 
 
