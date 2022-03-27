@@ -48,7 +48,8 @@ suite("Starcoin-IDE.functional.test", () => {
             const ext = vscode.extensions.getExtension("starcoinorg.starcoin-ide");
             assert.ok(ext)
             await ext.activate();
-
+            await sleep(1000)
+            
             try {
                 // 1. open doc
                 let docs = await vscode.workspace.openTextDocument( path.resolve(__dirname,  './my-counter/src/MyCounter.move'))

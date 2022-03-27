@@ -6,7 +6,8 @@
 // Adapted from https://code.visualstudio.com/api/working-with-extensions/testing-extension
 
 import * as path from 'path';
-import { runTests } from '@vscode/test-electron';
+import * as cp from 'child_process';
+import { runTests, downloadAndUnzipVSCode, resolveCliArgsFromVSCodeExecutablePath } from '@vscode/test-electron';
 import { TestOptions } from '@vscode/test-electron/out/runTest';
 
 async function main(): Promise<void> {
@@ -21,8 +22,17 @@ async function main(): Promise<void> {
     // The workspace
     const testWorkspacePath = path.resolve(__dirname, './my-counter/my-counter.code-workspace');
 
+    // Install vscode and depends extension
+    const vscodeVersion = '1.64.0'
+    const vscodeExecutablePath = await downloadAndUnzipVSCode(vscodeVersion);
+    const [cli, ..._] = resolveCliArgsFromVSCodeExecutablePath(vscodeExecutablePath);
+    cp.spawnSync(cli, ['--install-extension', 'damirka.move-syntax', '--force'], {
+        encoding: 'utf-8',
+        stdio: 'inherit'
+    });
+
     const options: TestOptions = {
-        version: "1.65.1",
+        vscodeExecutablePath: vscodeExecutablePath,
         extensionDevelopmentPath,
         extensionTestsPath,
         launchArgs: [testWorkspacePath, '--install-extension', 'damirka.move-syntax'],

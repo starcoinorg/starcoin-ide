@@ -138,7 +138,7 @@
 		"request-progress": "^3.0.0",
 		"standard-version": "^9.3.1",
 		"typescript": "^4.1.3",
-		"vsce": "^1.77.0"
+		"vsce": "^1.97.0"
 	},
 	"dependencies": {
 		"fs-extra": "^10.0.1",
