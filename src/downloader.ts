@@ -91,6 +91,9 @@ export class Downloader {
  * @param release 
  */
 async function installRelease(this: Downloader, version: string, release: Release, progressCallback: (progress:number) => void) {
+    // fs.rmSync Added in: v14.14.0
+    const rimraf = require('rimraf')
+
     // Create bin dirs
     let binDir = this.binPath("")
     if (!fs.existsSync(binDir)) {
@@ -100,15 +103,15 @@ async function installRelease(this: Downloader, version: string, release: Releas
     // Remove the old binaries and the zip archive if there were.
     {
         if (fs.existsSync(this.binPath('move'))) {
-            fs.rmSync(this.binPath('move'));
+            rimraf.sync(this.binPath('move'));
         } 
         
         if (fs.existsSync(this.binPath('move.exe'))) {
-            fs.rmSync(this.binPath('move.exe'));
+            rimraf.sync(this.binPath('move.exe'));
         }
     
         if (fs.existsSync(this.zipPath)) {
-            fs.rmSync(this.zipPath);
+            rimraf.sync(this.zipPath);
         }
     };
     
@@ -116,14 +119,22 @@ async function installRelease(this: Downloader, version: string, release: Releas
     await new Promise((resolve, reject) => {
         const dest = this.zipPath;
 
-        wget.download(release.browser_download_url, dest, {})
+        let downloader:any = wget.download(release.browser_download_url, dest, {})
             .on('error', function(err) {
-                reject(err);
+                console.log("download error: ", err)
+                reject(err)
             })
             .on('start', function(fileSize) {
                 if (progressCallback != null) {
                     progressCallback(0)
                 }
+
+                // Set network read timeout 20s
+                downloader.req.setTimeout(20000, () => {
+                    downloader.req.abort()
+                    console.log("download timeout")
+                    reject("Network read timeout error")
+                });
             })
             .on('end', function(output) {
                 resolve(null)
@@ -151,10 +162,10 @@ async function installRelease(this: Downloader, version: string, release: Releas
             }
         });
 
-    fs.writeFileSync(this.versionPath, version);
+    await fs.promises.writeFile(this.versionPath, version);
 
     // Do a cleanup
-    await fs.promises.rm(this.zipPath);
+    rimraf.sync(this.zipPath);
 }
 
 

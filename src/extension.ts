@@ -35,14 +35,26 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         vscode.window.showWarningMessage('No move binary found. Fetching latest version...');
         
         let {latest, release} = await loader.checkNewRelease();
-        await installReleaseWithProgress(loader, latest, release);
-        vscode.window.showInformationMessage('Move binary ' + latest + ' installed!');
+
+        try {
+            await installReleaseWithProgress(loader, latest, release);
+            vscode.window.showInformationMessage('Move binary ' + latest + ' installed!');
+        } catch(err:any) {
+            vscode.window.showErrorMessage('Move binary ' + latest + ' install failed, error: ' + err);
+            return
+        }
     } else {
         let {latest, release} = await loader.checkNewRelease();
+
         if (loader.isBinaryOutdated(latest)) {
             vscode.window.showInformationMessage('Newer move binary found: ' + latest + '; Pulling...');
-            await installReleaseWithProgress(loader, latest, release);
-            vscode.window.showInformationMessage('Move binary updated!');
+            
+            try {
+                await installReleaseWithProgress(loader, latest, release);
+                vscode.window.showInformationMessage('Move binary updated!');
+            } catch(err:any) {
+                vscode.window.showErrorMessage('Move binary update failed, error: ', err);
+            }
         }
     }
 
@@ -71,25 +83,20 @@ export function deactivate(context: vscode.ExtensionContext): void {}
  * @param release 
  * @returns 
  */
-async function installReleaseWithProgress(loader: Downloader, version: string, release: Release) :Promise<any> {
-    return new Promise((resolve, reject) => {
-        let lastVal: number = 0
+function installReleaseWithProgress(loader: Downloader, version: string, release: Release) :Thenable<void> {
+    let lastVal: number = 0
 
-        vscode.window.withProgress({
-            location: vscode.ProgressLocation.Notification,
-            title: "Downloading Move binary " + version,
-            cancellable: false
-        }, (progress) => {
-            return loader.installRelease(version, release, function(val:number){
-                let offset = val - lastVal
-                lastVal = val
+    return vscode.window.withProgress<void>({
+        location: vscode.ProgressLocation.Window,
+        title: "Downloading Move binary " + version,
+        cancellable: false
+    }, (progress) => {
+        return loader.installRelease(version, release, function(val:number){
+            let offset = val - lastVal
+            lastVal = val
 
-                progress.report({ increment: offset * 100, message: "Progress: " +  (val*100).toFixed(2) + "%" });
-            });
-        })
-        .then(() => {
-            resolve(null)
-        })
+            progress.report({ increment: offset * 100, message: "Progress: " +  (val*100).toFixed(2) + "%" });
+        });
     })
 }
 
