@@ -91,8 +91,7 @@ export class Downloader {
  * @param release 
  */
 async function installRelease(this: Downloader, version: string, release: Release, progressCallback: (progress:number) => void) {
-    // fs.rmSync Added in: v14.14.0
-    const rimraf = require('rimraf')
+    var destroy = require('destroy')
 
     // Create bin dirs
     let binDir = this.binPath("")
@@ -103,15 +102,15 @@ async function installRelease(this: Downloader, version: string, release: Releas
     // Remove the old binaries and the zip archive if there were.
     {
         if (fs.existsSync(this.binPath('move'))) {
-            rimraf.sync(this.binPath('move'));
+            fse.rmSync(this.binPath('move'));
         } 
         
         if (fs.existsSync(this.binPath('move.exe'))) {
-            rimraf.sync(this.binPath('move.exe'));
+            fse.rmSync(this.binPath('move.exe'));
         }
     
         if (fs.existsSync(this.zipPath)) {
-            rimraf.sync(this.zipPath);
+            fse.rmSync(this.zipPath);
         }
     };
     
@@ -147,25 +146,34 @@ async function installRelease(this: Downloader, version: string, release: Releas
     });
 
     // Unzip this file and do a cleanup.
-    fs.createReadStream(this.zipPath)
-        .pipe(unzip.Parse())
-        // @ts-ignore
-        .on('entry', (entry) => {
-            const fileName = entry.path.split('/')[1];
+    let rs = fs.createReadStream(this.zipPath)
 
-            if (fileName === 'move' || fileName === 'move.exe') {
-                entry.pipe(fs.createWriteStream(this.binPath(fileName)));
-                entry.on('end', () => fs.chmodSync(this.binPath(fileName), '777'));
+    try {
+        await new Promise((resolve, reject) => {
+            rs.pipe(unzip.Parse())
+            // @ts-ignore
+            .on('entry', (entry) => {
+                const fileName = entry.path.split('/')[1];
 
-            } else {
-                entry.autodrain();
-            }
+                if (fileName === 'move' || fileName === 'move.exe') {
+                    entry.pipe(fs.createWriteStream(this.binPath(fileName)));
+                    entry.on('end', () => fs.chmodSync(this.binPath(fileName), '777'));
+                    entry.on('error', reject);
+                } else {
+                    entry.autodrain();
+                }
+            })
+            .on('close', resolve)
+            .on('error', reject);
         });
+    } finally {
+        destroy(rs)
+    }
 
     await fs.promises.writeFile(this.versionPath, version);
 
     // Do a cleanup
-    rimraf.sync(this.zipPath);
+    fse.rmSync(this.zipPath);
 }
 
 

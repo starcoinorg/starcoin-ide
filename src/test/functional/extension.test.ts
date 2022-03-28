@@ -5,7 +5,6 @@
 
 // You can import and use all API from the 'vscode' module
 // as well as import your extension to test it
-import * as os from 'os';
 import * as vscode from 'vscode';
 import * as assert from 'assert';
 import * as fse from 'fs-extra';
@@ -13,37 +12,63 @@ import * as path from 'path';
 
 import { sleep, getTaskResult, executeStarcoinCheckCommandWithFixed } from './utils'
 import { Downloader } from '../../downloader';
+import { installReleaseWithProgress } from '../../extension';
 
 suite("Starcoin-IDE.functional.test", () => {
     vscode.window.showInformationMessage('Start all tests.');
 
-    suite("Move Upgrade Test", () => {
-        test("check new relase should be ok", async () => {
-            const loader = new Downloader(os.tmpdir());
-            const result = await loader.checkNewRelease()
-
-            assert.ok(result.latest, 'Check new release latest tag should be ok');
-            assert.ok(result.release, 'Check new release should be ok');
-            assert.ok(result.release.browser_download_url, 'Check new release browser_download_url should be ok');
-        });
-
-        test("New install should download move cli", async () => {
+    suite("Move binary install test", () => {
+        test("First install should download latest move binary", async () => {
             const ext = vscode.extensions.getExtension("starcoinorg.starcoin-ide");
             assert.ok(ext)
+            assert.strictEqual(ext.isActive, false)
 
-            fse.emptyDirSync(path.join(ext.extensionPath, "bin"))
+            // remove move binary
+            const downloader = new Downloader(ext.extensionPath)
+            fse.emptyDirSync(downloader.binPath(""))
+
+            // activate extension trigger install lastest move binary
             await ext.activate();
+
+            // check version
+            const version = fse.readFileSync(downloader.versionPath, {
+                encoding: "utf-8"
+            })
+
+            assert.strictEqual(version, "v1.9.2")
         });
 
-        test("The second lanch should not download", async () => {
+
+        test("Upgrade should be ok", async () => {
             const ext = vscode.extensions.getExtension("starcoinorg.starcoin-ide");
             assert.ok(ext)
+            assert.strictEqual(ext.isActive, false)
 
+            // remove move binary
+            const downloader = new Downloader(ext.extensionPath)
+            fse.emptyDirSync(downloader.binPath(""))
+
+            // download older version move binary
+            await installReleaseWithProgress(downloader, "v1.9.0", {
+                id: "8bd8af24-30ce-409f-bc07-b0918ec14380",
+                url: "https://github.com",
+                tag_name: "v1.9.0",
+                browser_download_url: "https://github.com/starcoinorg/starcoin/releases/download/v1.9.0/starcoin-windows-latest.zip"
+            })
+
+            const olderVersion = fse.readFileSync(downloader.versionPath, {encoding: "utf-8"})
+            assert.strictEqual(olderVersion, "v1.9.0")
+
+            // active trigger upgrade
             await ext.activate();
+
+            // check version
+            const newVersion = fse.readFileSync(downloader.versionPath, {encoding: "utf-8"})
+            assert.strictEqual(newVersion, "v1.9.2")
         });
     });
 
-    suite("Move commands Test", () => {
+    suite("Move commands test", () => {
         test("test starcoin commands", async () => {
             const ext = vscode.extensions.getExtension("starcoinorg.starcoin-ide");
             assert.ok(ext)

@@ -25,17 +25,18 @@ async function main(): Promise<void> {
     // Install vscode and depends extension
     const vscodeVersion = '1.64.0'
     const vscodeExecutablePath = await downloadAndUnzipVSCode(vscodeVersion);
-    const [cli, ..._] = resolveCliArgsFromVSCodeExecutablePath(vscodeExecutablePath);
-    cp.spawnSync(cli, ['--install-extension', 'damirka.move-syntax', '--force'], {
+    const [cli, ...args] = resolveCliArgsFromVSCodeExecutablePath(vscodeExecutablePath);
+    cp.spawnSync(cli, [...args,'--install-extension', 'damirka.move-syntax', '--force'], {
         encoding: 'utf-8',
         stdio: 'inherit'
     });
 
+    // Run vscode tests
     const options: TestOptions = {
         vscodeExecutablePath: vscodeExecutablePath,
         extensionDevelopmentPath,
         extensionTestsPath,
-        launchArgs: [testWorkspacePath, '--install-extension', 'damirka.move-syntax'],
+        launchArgs: [testWorkspacePath],
         extensionTestsEnv: {
             DEBUGTELEMETRY: '1',
             // eslint-disable-next-line @typescript-eslint/naming-convention

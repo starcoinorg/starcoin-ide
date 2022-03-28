@@ -83,7 +83,7 @@ export function deactivate(context: vscode.ExtensionContext): void {}
  * @param release 
  * @returns 
  */
-function installReleaseWithProgress(loader: Downloader, version: string, release: Release) :Thenable<void> {
+ export function installReleaseWithProgress(loader: Downloader, version: string, release: Release) :Thenable<void> {
     let lastVal: number = 0
 
     return vscode.window.withProgress<void>({
