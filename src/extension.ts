@@ -69,6 +69,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         registerCommand('starcoin.publishAll', () => publishAllCommand().then(console.log)),
         registerCommand('starcoin.publishStdLib', () => publishStdLibCommand().then(console.log)),
         registerCommand('starcoin.view', () => viewCommand().then(console.log)),
+        registerCommand('starcoin.reloadExtension', () => reloadExtensionCommand(context)),
     );
 }
 
@@ -98,6 +99,23 @@ export function deactivate(context: vscode.ExtensionContext): void {}
             progress.report({ increment: offset * 100, message: "Progress: " +  (val*100).toFixed(2) + "%" });
         });
     })
+}
+
+/**
+ * Reload current extension
+ */
+ async function reloadExtensionCommand(context: vscode.ExtensionContext): Promise<void> {
+    await deactivate(context);
+
+	for (const sub of context.subscriptions) {
+		try {
+			sub.dispose();
+		} catch (e) {
+			console.error(e);
+		}
+	}
+    
+	await activate(context);
 }
 
 /**
