@@ -16,8 +16,6 @@ suite("Downloader", () => {
         test("check new relase should be ok", async () => {
             const loader = new Downloader(os.tmpdir());
             const result = await loader.checkNewRelease()
-
-            console.log(result.release.browser_download_url)
             
             assert.ok(result.latest, 'Check new release latest tag should be ok');
             assert.ok(result.release, 'Check new release should be ok');
