@@ -87,14 +87,14 @@
 	},
 	"scripts": {
 		"clean": "rimraf dist/",
-		"copy-files": "copyfiles -u 1 src/**/*.move src/**/*.code-workspace dist/",
+		"copy-files": "copyfiles -u 1 src/**/*.* dist/",
 		"vscode:prepublish": "rm bin/*; npm run compile",
 		"compile": "tsc -p ./ && yarn copy-files",
 		"watch": "tsc -watch -p ./",
 		"publish": "vsce publish -p",
 		"package": "vsce package",
 		"test:unit": "yarn compile && node ./dist/test/unit/runTest.js",
-		"test:functional": "yarn compile && node ./dist/test/functional/runTest.js",
+		"test:functional": "yarn clean && yarn compile && node ./dist/test/functional/runTest.js",
 		"test": "yarn clean && yarn compile && node ./dist/test/unit/runTest.js && node ./dist/test/functional/runTest.js"
 	},
 	"repository": {
@@ -143,6 +143,7 @@
 	"dependencies": {
 		"destroy": "^1.2.0",
 		"fs-extra": "^10.0.1",
+		"node-version-compare": "^1.0.3",
 		"rimraf": "^3.0.2",
 		"unzipper": "^0.10.11",
 		"wget-improved": "^3.3.0"

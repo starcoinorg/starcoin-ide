@@ -5,9 +5,8 @@
  */
 
 import * as Path from 'path';
-import * as url from 'url';
 import * as vscode from 'vscode';
-import { Downloader, Release } from './downloader';
+import { Downloader, Release, currentDownloader } from './downloader';
     
 const {commands, window, tasks, Task, ShellExecution} = vscode;
 const {registerCommand} = commands;
@@ -25,52 +24,64 @@ const EXTENSION = 'starcoinorg.starcoin-ide';
 
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
-
-    const loader = new Downloader(context.extensionPath);
+    const loader:Downloader = currentDownloader(context.extensionPath);
 
     // Check for the binary every time extension is activated. Either install latest
     // version if binary is not found or fetch for newer version. If it is found, then
     // pull and install it.
     if (!loader.hasBinary()) {
-        vscode.window.showWarningMessage('No move binary found. Fetching latest version...');
+        vscode.window.showWarningMessage('No ' + loader.executateDesc + ' found. Fetching latest version...');
         
-        let {latest, release} = await loader.checkNewRelease();
+        let {tag, release} = await loader.checkRelease(loader.latestVersion);
 
         try {
-            await installReleaseWithProgress(loader, latest, release);
-            vscode.window.showInformationMessage('Move binary ' + latest + ' installed!');
+            await installReleaseWithProgress(loader, tag, release);
+            vscode.window.showInformationMessage(loader.executateDesc + ' ' + tag + ' installed!');
         } catch(err:any) {
-            vscode.window.showErrorMessage('Move binary ' + latest + ' install failed, error: ' + err);
+            vscode.window.showErrorMessage(loader.executateDesc + ' ' + tag + ' install failed, error: ' + err);
             return
         }
     } else {
-        let {latest, release} = await loader.checkNewRelease();
+        let {tag, release} = await loader.checkRelease(loader.latestVersion);
 
-        if (loader.isBinaryOutdated(latest)) {
-            vscode.window.showInformationMessage('Newer move binary found: ' + latest + '; Pulling...');
+        if (loader.isBinaryOutdated(tag)) {
+            vscode.window.showInformationMessage('Newer ' + loader.executateDesc + ' found: ' + tag + '; Pulling...');
             
             try {
-                await installReleaseWithProgress(loader, latest, release);
-                vscode.window.showInformationMessage('Move binary updated!');
+                await installReleaseWithProgress(loader, tag, release);
+                vscode.window.showInformationMessage(loader.executateDesc + ' updated!');
             } catch(err:any) {
-                vscode.window.showErrorMessage('Move binary update failed, error: ', err);
+                vscode.window.showErrorMessage(loader.executateDesc + ' update failed, error: ', err);
             }
         }
     }
 
     context.subscriptions.push(
-        registerCommand('starcoin.check', checkCommand),
-        registerCommand('starcoin.clean', () => cleanCommand().then(console.log)),
-        registerCommand('starcoin.doctor', () => doctorCommand().then(console.log)),
-        registerCommand('starcoin.testFunctional', () => testFunctionalCommand().then(console.log)),
-        registerCommand('starcoin.publish', () => publishCommand().then(console.log)),
-        registerCommand('starcoin.run', () => runCommand().then(console.log)),
-        registerCommand('starcoin.testUnit', () => testUnitCommand().then(console.log)),
-        registerCommand('starcoin.publishAll', () => publishAllCommand().then(console.log)),
-        registerCommand('starcoin.publishStdLib', () => publishStdLibCommand().then(console.log)),
-        registerCommand('starcoin.view', () => viewCommand().then(console.log)),
         registerCommand('starcoin.reloadExtension', () => reloadExtensionCommand(context)),
     );
+
+    if (loader.executateName == "move") {
+        context.subscriptions.push(
+            registerCommand('starcoin.check', () => checkCommand().then(console.log)),
+            registerCommand('starcoin.clean', () => cleanCommand().then(console.log)),
+            registerCommand('starcoin.doctor', () => doctorCommand().then(console.log)),
+            registerCommand('starcoin.testUnit', () => testUnitCommand().then(console.log)),
+            registerCommand('starcoin.testFunctional', () => testFunctionalCommand().then(console.log)),
+            registerCommand('starcoin.run', () => runCommand().then(console.log)),
+            registerCommand('starcoin.publish', () => publishCommand().then(console.log)),
+            registerCommand('starcoin.publishAll', () => publishAllCommand().then(console.log)),
+            registerCommand('starcoin.publishStdLib', () => publishStdLibCommand().then(console.log)),
+            registerCommand('starcoin.view', () => viewCommand().then(console.log)),
+        );
+    } else if (loader.executateName == "mpm") {
+        context.subscriptions.push(
+            registerCommand('starcoin.check', mpmCheckCommand),
+            registerCommand('starcoin.testUnit', mpmTestUnitCommand),
+            registerCommand('starcoin.testFunctional', mpmTestFunctionalCommand),
+            registerCommand('starcoin.package', mpmPackageCommand),
+            registerCommand('starcoin.release', mpmReleaseCommand),
+        );
+    }
 }
 
 export function deactivate(context: vscode.ExtensionContext): void {}
@@ -89,7 +100,7 @@ export function deactivate(context: vscode.ExtensionContext): void {}
 
     return vscode.window.withProgress<void>({
         location: vscode.ProgressLocation.Window,
-        title: "Downloading Move binary " + version,
+        title: "Downloading " + loader.executateDesc + " " + version,
         cancellable: false
     }, (progress) => {
         return loader.installRelease(version, release, function(val:number){
@@ -134,20 +145,28 @@ enum Marker {
 // Block of function definitions for each command of the extension. All these functions use the 
 // same interface execute(), so see it below for the details.
 
-function checkCommand(): Thenable<any> { return execute('check', 'check', Marker.None); }
-function cleanCommand(): Thenable<any> { return execute('clean', 'clean', Marker.ThisFile); }
-function doctorCommand(): Thenable<any> { return execute('doctor', 'doctor', Marker.None); }
-function testFunctionalCommand(): Thenable<any> { return execute('testFunctional', 'functional-test', Marker.ThisFile); }
-function publishCommand(): Thenable<any> { return execute('publish', 'publish', Marker.ThisFile); }
-function runCommand(): Thenable<any> { return execute('run', 'run', Marker.ThisFile); }
-function testUnitCommand(): Thenable<any> { return execute('testUnit', 'unit-test', Marker.ThisFile); }
-function publishAllCommand(): Thenable<any> { return execute('publishAll', 'publish', Marker.SrcDir); }
-function publishStdLibCommand(): Thenable<any> { return execute('publishStdLib', 'publish', Marker.StdLibDir); }
-function viewCommand(): Thenable<any> { return execute('view', 'view', Marker.ThisFile); }
+// move commands
+function checkCommand(): Thenable<any> { return moveExecute('check', 'check', Marker.None); }
+function cleanCommand(): Thenable<any> { return moveExecute('clean', 'clean', Marker.ThisFile); }
+function doctorCommand(): Thenable<any> { return moveExecute('doctor', 'doctor', Marker.None); }
+function testFunctionalCommand(): Thenable<any> { return moveExecute('testFunctional', 'functional-test', Marker.ThisFile); }
+function publishCommand(): Thenable<any> { return moveExecute('publish', 'publish', Marker.ThisFile); }
+function runCommand(): Thenable<any> { return moveExecute('run', 'run', Marker.ThisFile); }
+function testUnitCommand(): Thenable<any> { return moveExecute('testUnit', 'unit-test', Marker.ThisFile); }
+function publishAllCommand(): Thenable<any> { return moveExecute('publishAll', 'publish', Marker.SrcDir); }
+function publishStdLibCommand(): Thenable<any> { return moveExecute('publishStdLib', 'publish', Marker.StdLibDir); }
+function viewCommand(): Thenable<any> { return moveExecute('view', 'view', Marker.ThisFile); }
+
+// mpm commands
+function mpmCheckCommand(): Thenable<any> { return mpmExecute('check', 'check-compatibility', Marker.None); }
+function mpmTestUnitCommand(): Thenable<any> { return mpmExecute('testUnit', 'package test', Marker.None); }
+function mpmTestFunctionalCommand(): Thenable<any> { return mpmExecute('testFunctional', 'spectest', Marker.None); }
+function mpmPackageCommand(): Thenable<any> { return mpmExecute('package', 'package build', Marker.None); }
+function mpmReleaseCommand(): Thenable<any> { return mpmExecute('mpm-release', 'release', Marker.None); }
 
 
 /**
- * Main function of this extension. Runs the given command as a VSCode task,
+ * Main function of this extension. Runs the given move command as a VSCode task,
  * optionally include the current file as an argument for the binary.
  * 
  * @param task 
@@ -155,8 +174,7 @@ function viewCommand(): Thenable<any> { return execute('view', 'view', Marker.Th
  * @param useFile 
  * @returns 
  */
-function execute(task: string, command: string, fileMarker: Marker): Thenable<any> {
-
+function moveExecute(task: string, command: string, fileMarker: Marker): Thenable<any> {
     const document = window.activeTextEditor?.document;
     const extPath  = vscode.extensions.getExtension(EXTENSION)?.extensionPath;
 
@@ -200,6 +218,67 @@ function execute(task: string, command: string, fileMarker: Marker): Thenable<an
         case Marker.WorkDir: path = dir; break;
         case Marker.SrcDir: path = Path.join(dir, 'src'); break;
         case Marker.StdLibDir: path = Path.join(dir, 'build/package/starcoin/source_files'); break;
+    }
+    
+    return tasks.executeTask(new Task(
+        {task, type: NAMESPACE},
+        workdir,
+        task,
+        NAMESPACE,
+        new ShellExecution([bin, command, path, commonArgs.join(' ')].join(' '))
+    ));
+}
+
+/**
+ * Main function of this extension. Runs the given mpm command as a VSCode task,
+ * optionally include the current file as an argument for the binary.
+ * 
+ * @param task 
+ * @param command 
+ * @param useFile 
+ * @returns 
+ */
+function mpmExecute(task: string, command: string, fileMarker: Marker): Thenable<any> {
+    const document = window.activeTextEditor?.document;
+    const extPath  = vscode.extensions.getExtension(EXTENSION)?.extensionPath;
+
+    if (!extPath) {
+        return Promise.reject('Unable to find the extension');
+    }
+
+    if (!document) {
+        return Promise.reject('No document opened');
+    }
+
+    const workdir = vscode.workspace.getWorkspaceFolder(document.uri);
+    const configuration = vscode.workspace.getConfiguration(NAMESPACE, document.uri);
+
+    if (!workdir || !configuration) {
+        return Promise.reject('Unable to read workspace folder');
+    }
+
+    // Current working (project) directory to set absolute paths.
+    const dir = workdir.uri.fsPath;
+    
+    // @ts-ignore
+    const commonArgs: string[] = [
+        ['--path', Path.join(dir, configuration.get<string>('packagePath') || '.')],
+        ['--install-dir', Path.join(dir, configuration.get<string>('installDir') || '.')],
+    ]
+        .filter((a) => (a[1] !== null))
+        .map((param) => param.join(' '));
+
+    // Get binary path which is always inside `extension/bin` directory.
+    const bin = Path.join(extPath, 'bin', (process.platform === 'win32') ? 'mpm.exe' : 'mpm');
+    
+    // Set path using the passed Marker. Each binary command has  
+    // its own requirements for the path to pass into it. 
+    let path = '';
+    switch (fileMarker) {
+        case Marker.None: path = ''; break;
+        case Marker.ThisFile: path = document.uri.fsPath.toString() || ''; break;
+        case Marker.WorkDir: path = dir; break;
+        case Marker.SrcDir: path = Path.join(dir, 'sources'); break;
     }
     
     return tasks.executeTask(new Task(

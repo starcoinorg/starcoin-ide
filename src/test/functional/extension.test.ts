@@ -7,87 +7,206 @@
 // as well as import your extension to test it
 import * as vscode from 'vscode';
 import * as assert from 'assert';
-import * as fse from 'fs-extra';
 import * as path from 'path';
+import * as fse from 'fs-extra';
 
-import { sleep, getTaskResult, executeStarcoinCheckCommandWithFixed } from './utils'
-import { Downloader } from '../../downloader';
+import { sleep, getTaskResult } from './utils'
+import { Downloader, currentDownloader } from '../../downloader';
 import { installReleaseWithProgress } from '../../extension';
 
 suite("Starcoin-IDE.functional.test", () => {
     
     suite("Move binary install test", () => {
+ 
         test("First install should download latest move binary", async () => {
             const ext = vscode.extensions.getExtension("starcoinorg.starcoin-ide");
             assert.ok(ext)
 
-            // remove move binary
-            const downloader = new Downloader(ext.extensionPath)
-            fse.emptyDirSync(downloader.binPath(""))
+            const loader:Downloader = currentDownloader(ext.extensionPath);
+            fse.emptyDirSync(loader.binPath(""))
 
             // activate extension trigger install lastest move binary
             await ext.activate();
 
             // check version
-            const version = fse.readFileSync(downloader.versionPath, {
+            const version = fse.readFileSync(loader.versionPath, {
                 encoding: "utf-8"
             })
 
-            assert.strictEqual(version, "v1.9.2")
+            let {tag} = await loader.checkRelease(loader.latestVersion);
+            assert.strictEqual(version, tag)
         });
-
 
         test("Upgrade should be ok", async () => {
             const ext = vscode.extensions.getExtension("starcoinorg.starcoin-ide");
             assert.ok(ext)
 
-            // remove move binary
-            const downloader = new Downloader(ext.extensionPath)
-            fse.emptyDirSync(downloader.binPath(""))
+            const loader:Downloader = currentDownloader(ext.extensionPath);
+            fse.emptyDirSync(loader.binPath(""))
 
-            // download older version move binary
-            await installReleaseWithProgress(downloader, "v1.9.0", {
-                id: "8bd8af24-30ce-409f-bc07-b0918ec14380",
-                url: "https://github.com",
-                tag_name: "v1.9.0",
-                browser_download_url: "https://github.com/starcoinorg/starcoin/releases/download/v1.9.0/starcoin-windows-latest.zip"
-            })
+            // download older stable version
+            let {tag, release} = await loader.checkRelease(loader.latestStableVersion);
+            await installReleaseWithProgress(loader, tag, release)
 
-            const olderVersion = fse.readFileSync(downloader.versionPath, {encoding: "utf-8"})
-            assert.strictEqual(olderVersion, "v1.9.0")
+            const olderVersion = fse.readFileSync(loader.versionPath, {encoding: "utf-8"})
+            assert.strictEqual(olderVersion, tag)
 
             // reload extension active trigger upgrade
-            await vscode.commands.executeCommand("starcoin.reloadExtension");
-
+            if (!ext.isActive) {
+                await ext.activate();
+            } else {
+                await vscode.commands.executeCommand("starcoin.reloadExtension");
+            }
+            
             // check version
-            const newVersion = fse.readFileSync(downloader.versionPath, {encoding: "utf-8"})
-            assert.strictEqual(newVersion, "v1.9.2")
+            let version = await loader.checkRelease(loader.latestVersion);
+            const newVersion = fse.readFileSync(loader.versionPath, {encoding: "utf-8"})
+            assert.strictEqual(newVersion, version.tag)
         });
     });
 
     suite("Move commands test", () => {
-        test("test starcoin commands", async () => {
+        test("test starcoin mpm check commands", async () => {
             const ext = vscode.extensions.getExtension("starcoinorg.starcoin-ide");
             assert.ok(ext)
+            
+            const loader:Downloader = currentDownloader(ext.extensionPath);
+
+            if (loader.executateName != "mpm") {
+                return
+            }
             
             await ext.activate();
             await sleep(1000)
             
             try {
                 // 1. open doc
-                let docs = await vscode.workspace.openTextDocument( path.resolve(__dirname,  './my-counter/src/MyCounter.move'))
+                let docs = await vscode.workspace.openTextDocument( path.resolve(__dirname,  './demos/simple-nft/sources/SimpleNFT.move'))
                 await vscode.window.showTextDocument(docs);
                 await sleep(1000)
 
-                // 2. clean & prepare stdlib
-                await vscode.commands.executeCommand("starcoin.clean");
-                await executeStarcoinCheckCommandWithFixed();
-                await vscode.commands.executeCommand("starcoin.publishStdLib");
-                await sleep(1000)
-
-                // 3. check MyCounter.move
+                // 2. execute command
                 let exec:vscode.TaskExecution = await vscode.commands.executeCommand("starcoin.check");
                 let exitCode = await getTaskResult(exec)
+                await sleep(1000)
+                assert.strictEqual(0, exitCode)
+            } catch(err) {
+                assert.fail("Error in executeCommand starcoin.check, error: " + err)
+            }
+        });
+        
+        test("test starcoin mpm unit test commands", async () => {
+            const ext = vscode.extensions.getExtension("starcoinorg.starcoin-ide");
+            assert.ok(ext)
+            
+            const loader:Downloader = currentDownloader(ext.extensionPath);
+
+            if (loader.executateName != "mpm") {
+                return
+            }
+            
+            await ext.activate();
+            await sleep(1000)
+            
+            try {
+                // 1. open doc
+                let docs = await vscode.workspace.openTextDocument( path.resolve(__dirname,  './demos/simple-nft/sources/SimpleNFT.move'))
+                await vscode.window.showTextDocument(docs);
+                await sleep(1000)
+
+                // 2. execute command
+                let exec:vscode.TaskExecution = await vscode.commands.executeCommand("starcoin.testUnit");
+                let exitCode = await getTaskResult(exec)
+                await sleep(1000)
+                assert.strictEqual(0, exitCode)
+            } catch(err) {
+                assert.fail("Error in executeCommand starcoin.check, error: " + err)
+            }
+        });
+        
+
+        test("test starcoin mpm functional test commands", async () => {
+            const ext = vscode.extensions.getExtension("starcoinorg.starcoin-ide");
+            assert.ok(ext)
+            
+            const loader:Downloader = currentDownloader(ext.extensionPath);
+
+            if (loader.executateName != "mpm") {
+                return
+            }
+            
+            await ext.activate();
+            await sleep(1000)
+            
+            try {
+                // 1. open doc
+                let docs = await vscode.workspace.openTextDocument( path.resolve(__dirname,  './demos/simple-nft/sources/SimpleNFT.move'))
+                await vscode.window.showTextDocument(docs);
+                await sleep(1000)
+
+                // 2. execute command
+                let exec:vscode.TaskExecution = await vscode.commands.executeCommand("starcoin.testFunctional");
+                let exitCode = await getTaskResult(exec)
+                await sleep(1000)
+                assert.strictEqual(0, exitCode)
+            } catch(err) {
+                assert.fail("Error in executeCommand starcoin.check, error: " + err)
+            }
+        });
+
+ 
+        test("test starcoin mpm package commands", async () => {
+            const ext = vscode.extensions.getExtension("starcoinorg.starcoin-ide");
+            assert.ok(ext)
+            
+            const loader:Downloader = currentDownloader(ext.extensionPath);
+
+            if (loader.executateName != "mpm") {
+                return
+            }
+            
+            await ext.activate();
+            await sleep(1000)
+            
+            try {
+                // 1. open doc
+                let docs = await vscode.workspace.openTextDocument( path.resolve(__dirname,  './demos/simple-nft/sources/SimpleNFT.move'))
+                await vscode.window.showTextDocument(docs);
+                await sleep(1000)
+
+                // 2. execute command
+                let exec:vscode.TaskExecution = await vscode.commands.executeCommand("starcoin.package");
+                let exitCode = await getTaskResult(exec)
+                await sleep(1000)
+                assert.strictEqual(0, exitCode)
+            } catch(err) {
+                assert.fail("Error in executeCommand starcoin.check, error: " + err)
+            }
+        });
+
+        test("test starcoin mpm release commands", async () => {
+            const ext = vscode.extensions.getExtension("starcoinorg.starcoin-ide");
+            assert.ok(ext)
+            
+            const loader:Downloader = currentDownloader(ext.extensionPath);
+
+            if (loader.executateName != "mpm") {
+                return
+            }
+            
+            await ext.activate();
+            await sleep(1000)
+            
+            try {
+                // 1. open doc
+                let docs = await vscode.workspace.openTextDocument( path.resolve(__dirname,  './demos/simple-nft/sources/SimpleNFT.move'))
+                await vscode.window.showTextDocument(docs);
+                await sleep(1000)
+
+                // 2. execute command
+                let exec:vscode.TaskExecution = await vscode.commands.executeCommand("starcoin.release");
+                let exitCode = await getTaskResult(exec)
+                await sleep(1000)
                 assert.strictEqual(0, exitCode)
             } catch(err) {
                 assert.fail("Error in executeCommand starcoin.check, error: " + err)
