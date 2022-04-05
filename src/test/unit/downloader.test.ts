@@ -8,7 +8,7 @@ import * as fs from 'fs';
 import * as fse from 'fs-extra';
 import * as path from 'path';
 import * as assert from 'assert';
-import { MoveDownloader, MPMDownloader } from '../../downloader';
+import { MoveDownloader } from '../../downloader';
 
 suite("Downloader", () => {
 

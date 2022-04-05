@@ -155,7 +155,7 @@ export class MPMDownloader {
     }
 
     get latestStableVersion(): string {
-        return 'v1.10.1'
+        return 'v1.10.0-rc.2'
     }
 
     get executatePath(): string {
