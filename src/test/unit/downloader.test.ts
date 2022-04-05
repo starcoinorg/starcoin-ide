@@ -21,15 +21,6 @@ suite("Downloader", () => {
             assert.ok(result.release, 'Check new release should be ok');
             assert.ok(result.release.browser_download_url, 'Check new release browser_download_url should be ok');
         });
-
-        test("check mpm new relase should be ok", async () => {
-            const loader = new MPMDownloader(os.tmpdir());
-            const result = await loader.checkRelease(loader.latestVersion)
-            
-            assert.ok(result.tag, 'Check new release latest tag should be ok');
-            assert.ok(result.release, 'Check new release should be ok');
-            assert.ok(result.release.browser_download_url, 'Check new release browser_download_url should be ok');
-        });
     })
 
     suite("#hasBinary", () => {
@@ -46,7 +37,7 @@ suite("Downloader", () => {
 
             // make faker move
             fse.mkdirsSync(loader.binPath(""))
-            fs.writeFileSync(loader.binPath("move"), "xxx");
+            fse.writeFileSync(loader.executatePath, "xxx");
 
             const result = loader.hasBinary()
             assert.strictEqual(result, true);
