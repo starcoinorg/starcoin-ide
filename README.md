@@ -10,11 +10,11 @@ See available configuration options in the extension's settings window.
 
 This extension wraps around Starcoin's `mpm` and provides quick access to the folllowing commands:
 
-- Starcoin: Check - `mpm check-compatibility` - checks and verifies the opened project
+- Starcoin: Check - `mpm check-compatibility` - checks and verifies the current project
 - Starcoin: Test Unit - `mpm package test` - runs unit tests in the current project
 - Starcoin: Test Functional - `mpm spectest` - runs functional tests in the current project
-- Starcoin: Run - `mpm package build` - compile the projct
-- Starcoin: Publish - `mpm release` - publishes the project module
+- Starcoin: Build - `mpm package build` - build the current project
+- Starcoin: Publish - `mpm release` - publishes the current project
 
 To run any of these commands, use [VSCode's command palette](https://code.visualstudio.com/docs/getstarted/userinterface#_command-palette). 
 
