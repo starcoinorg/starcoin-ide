@@ -69,17 +69,18 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
             registerCommand('starcoin.testFunctional', () => testFunctionalCommand().then(console.log)),
             registerCommand('starcoin.run', () => runCommand().then(console.log)),
             registerCommand('starcoin.publish', () => publishCommand().then(console.log)),
-            registerCommand('starcoin.publishAll', () => publishAllCommand().then(console.log)),
-            registerCommand('starcoin.publishStdLib', () => publishStdLibCommand().then(console.log)),
             registerCommand('starcoin.view', () => viewCommand().then(console.log)),
         );
     } else if (loader.executateName == "mpm") {
         context.subscriptions.push(
             registerCommand('starcoin.check', mpmCheckCommand),
+            registerCommand('starcoin.clean', mpmCleanCommand),
+            registerCommand('starcoin.doctor', mpmDoctorCommand),
             registerCommand('starcoin.testUnit', mpmTestUnitCommand),
             registerCommand('starcoin.testFunctional', mpmTestFunctionalCommand),
-            registerCommand('starcoin.package', mpmPackageCommand),
-            registerCommand('starcoin.release', mpmReleaseCommand),
+            registerCommand('starcoin.run', mpmRunCommand),
+            registerCommand('starcoin.publish', mpmPublishCommand),
+            registerCommand('starcoin.view', mpmViewCommand),
         );
     }
 }
@@ -153,17 +154,17 @@ function testFunctionalCommand(): Thenable<any> { return moveExecute('testFuncti
 function publishCommand(): Thenable<any> { return moveExecute('publish', 'publish', Marker.ThisFile); }
 function runCommand(): Thenable<any> { return moveExecute('run', 'run', Marker.ThisFile); }
 function testUnitCommand(): Thenable<any> { return moveExecute('testUnit', 'unit-test', Marker.ThisFile); }
-function publishAllCommand(): Thenable<any> { return moveExecute('publishAll', 'publish', Marker.SrcDir); }
-function publishStdLibCommand(): Thenable<any> { return moveExecute('publishStdLib', 'publish', Marker.StdLibDir); }
 function viewCommand(): Thenable<any> { return moveExecute('view', 'view', Marker.ThisFile); }
 
 // mpm commands
 function mpmCheckCommand(): Thenable<any> { return mpmExecute('check', 'check-compatibility', Marker.None); }
+function mpmCleanCommand(): Thenable<any> { return mpmExecute('clean', 'sandbox clean', Marker.None); }
+function mpmDoctorCommand(): Thenable<any> { return mpmExecute('doctor', 'sandbox doctor', Marker.None); }
 function mpmTestUnitCommand(): Thenable<any> { return mpmExecute('testUnit', 'package test', Marker.None); }
 function mpmTestFunctionalCommand(): Thenable<any> { return mpmExecute('testFunctional', 'spectest', Marker.None); }
-function mpmPackageCommand(): Thenable<any> { return mpmExecute('package', 'package build', Marker.None); }
-function mpmReleaseCommand(): Thenable<any> { return mpmExecute('mpm-release', 'release', Marker.None); }
-
+function mpmRunCommand(): Thenable<any> { return mpmExecute('run', 'sandbox run', Marker.ThisFile); }
+function mpmPublishCommand(): Thenable<any> { return mpmExecute('publish', 'sandbox publish', Marker.None); }
+function mpmViewCommand(): Thenable<any> { return mpmExecute('view', 'sandbox view', Marker.ThisFile); }
 
 /**
  * Main function of this extension. Runs the given move command as a VSCode task,
@@ -200,8 +201,6 @@ function moveExecute(task: string, command: string, fileMarker: Marker): Thenabl
     const commonArgs: string[] = [
         ['--storage-dir', Path.join(dir, configuration.get<string>('storageDirectory') || 'storage')],
         ['--build-dir', Path.join(dir, configuration.get<string>('buildDirectory') || 'build')],
-        ['--starcoin-rpc', configuration.get<string>('starcoinRPC') || null],
-        ['--mode', configuration.get<string>('mode') || null],
     ]
         .filter((a) => (a[1] !== null))
         .map((param) => param.join(' '));
@@ -262,8 +261,8 @@ function mpmExecute(task: string, command: string, fileMarker: Marker): Thenable
     
     // @ts-ignore
     const commonArgs: string[] = [
-        ['--path', Path.join(dir, configuration.get<string>('packagePath') || '.')],
-        ['--install-dir', Path.join(dir, configuration.get<string>('installDir') || '.')],
+        ['--path', Path.join(dir, configuration.get<string>('storageDirectory') || '.')],
+        ['--install-dir', Path.join(dir, configuration.get<string>('buildDirectory') || '.')],
     ]
         .filter((a) => (a[1] !== null))
         .map((param) => param.join(' '));

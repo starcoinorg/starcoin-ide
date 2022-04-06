@@ -11,7 +11,7 @@
 		"Other"
 	],
 	"engines": {
-		"vscode": "^1.64.0"
+		"vscode": "^1.43.0"
 	},
 	"activationEvents": [
 		"onLanguage:move"
@@ -32,24 +32,20 @@
 				"title": "Starcoin: Doctor"
 			},
 			{
-				"command": "starcoin.testFunctional",
-				"title": "Starcoin: Test Functional"
+				"command": "starcoin.testUnit",
+				"title": "Starcoin: Test Unit"
 			},
 			{
-				"command": "starcoin.publish",
-				"title": "Starcoin: Publish"
+				"command": "starcoin.testFunctional",
+				"title": "Starcoin: Test Functional"
 			},
 			{
 				"command": "starcoin.run",
 				"title": "Starcoin: Run"
 			},
 			{
-				"command": "starcoin.testUnit",
-				"title": "Starcoin: Test Unit"
-			},
-			{
-				"command": "starcoin.publishAll",
-				"title": "Starcoin: Publish All"
+				"command": "starcoin.publish",
+				"title": "Starcoin: Publish"
 			},
 			{
 				"command": "starcoin.view",
@@ -61,26 +57,13 @@
 			"properties": {
 				"starcoin.buildDirectory": {
 					"type": "string",
-					"default": "build",
+					"default": ".",
 					"description": "Directory to store build artifacts"
 				},
 				"starcoin.storageDirectory": {
 					"type": "string",
-					"default": "storage",
+					"default": ".",
 					"description": "Directory to store chain storage"
-				},
-				"starcoin.mode": {
-					"type": "string",
-					"enum": [
-						"stdlib"
-					],
-					"default": "stdlib",
-					"description": "Mode to use when running move-cli"
-				},
-				"starcoin.starcoinRPC": {
-					"type": "string",
-					"default": "http://main.seed.starcoin.org:9850",
-					"description": "Starcoin chain RPC to access"
 				}
 			}
 		}
@@ -128,7 +111,7 @@
 		"@types/glob": "^7.1.3",
 		"@types/mocha": "^8.2.0",
 		"@types/node": "^14.0.1",
-		"@types/vscode": "^1.64.0",
+		"@types/vscode": "^1.43.0",
 		"@vscode/test-electron": "^2.0.0",
 		"copyfiles": "^2.4.1",
 		"glob": "^7.1.6",
@@ -138,7 +121,7 @@
 		"request-progress": "^3.0.0",
 		"standard-version": "^9.3.1",
 		"typescript": "^4.1.3",
-		"vsce": "^1.97.0"
+		"vsce": "^1.77.0"
 	},
 	"dependencies": {
 		"destroy": "^1.2.0",
