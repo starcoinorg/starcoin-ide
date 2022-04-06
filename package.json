@@ -46,10 +46,6 @@
 			{
 				"command": "starcoin.publish",
 				"title": "Starcoin: Publish"
-			},
-			{
-				"command": "starcoin.view",
-				"title": "Starcoin: View"
 			}
 		],
 		"configuration": {
