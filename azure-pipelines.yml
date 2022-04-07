@@ -6,9 +6,9 @@ pr:
 strategy:
   matrix:
     linux:
-      imageName: 'ubuntu-16.04'
+      imageName: 'ubuntu-latest'
     mac:
-      imageName: 'macos-10.14'
+      imageName: 'macos-latest'
     windows:
       imageName: 'vs2017-win2016'
 
@@ -19,7 +19,7 @@ steps:
 
 - task: NodeTool@0
   inputs:
-    versionSpec: '8.x'
+    versionSpec: '14.x'
   displayName: 'Install Node.js'
 
 - bash: |
@@ -29,12 +29,11 @@ steps:
   condition: and(succeeded(), eq(variables['Agent.OS'], 'Linux'))
 
 - bash: |
-    echo ">>> Compile vscode-test"
+    echo ">>> Compile starcoin-ide"
     yarn && yarn compile
-    echo ">>> Compiled vscode-test"
-    cd sample
-    echo ">>> Run sample integration test"
-    yarn && yarn compile && yarn test
+    echo ">>> Compiled starcoin-ide"
+    echo ">>> Run unit test and integration test"
+    yarn && yarn test
   displayName: Run Tests
   env:
     DISPLAY: ':99.0'
