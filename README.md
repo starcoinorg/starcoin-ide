@@ -13,6 +13,7 @@ This extension wraps around Starcoin's `mpm` in macos and ubuntu and provides qu
 - Starcoin: Check - `mpm check-compatibility` - checks and verifies the current project
 - Starcoin: Test Unit - `mpm package test` - runs unit tests in the current project
 - Starcoin: Test Functional - `mpm spectest` - runs functional tests in the current project
+- Starcoin: Release - `mpm release` - release the package
 - Starcoin: Publish - `mpm sandbox publish` - publishes the current project to sandbox
 - Starcoin: Run - `mpm sandbox run` - runs the opened file in sandbox
 - Starcoin: Doctor - `mpm sandbox doctor` - doctors the current project in sandbox
