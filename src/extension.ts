@@ -68,7 +68,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
             registerCommand('starcoin.testUnit', () => testUnitCommand().then(console.log)),
             registerCommand('starcoin.testFunctional', () => testFunctionalCommand().then(console.log)),
             registerCommand('starcoin.run', () => runCommand().then(console.log)),
-            registerCommand('starcoin.publish', () => publishCommand().then(console.log))
+            registerCommand('starcoin.publish', () => publishCommand().then(console.log)),
+            registerCommand('starcoin.release', () => releaseCommand().then(console.log))
         );
     } else if (loader.executateName == "mpm") {
         context.subscriptions.push(
@@ -78,7 +79,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
             registerCommand('starcoin.testUnit', mpmTestUnitCommand),
             registerCommand('starcoin.testFunctional', mpmTestFunctionalCommand),
             registerCommand('starcoin.run', mpmRunCommand),
-            registerCommand('starcoin.publish', mpmPublishCommand)
+            registerCommand('starcoin.publish', mpmPublishCommand),
+            registerCommand('starcoin.release', mpmReleaseCommand)
         );
     }
 }
@@ -152,6 +154,12 @@ function testFunctionalCommand(): Thenable<any> { return moveExecute('testFuncti
 function publishCommand(): Thenable<any> { return moveExecute('publish', 'publish', Marker.ThisFile); }
 function runCommand(): Thenable<any> { return moveExecute('run', 'run', Marker.ThisFile); }
 function testUnitCommand(): Thenable<any> { return moveExecute('testUnit', 'unit-test', Marker.ThisFile); }
+function releaseCommand(): Thenable<any> { 
+    vscode.window.showInformationMessage('move cli not support release command')
+    return new Promise((resolve) => {
+        resolve(false)
+    });
+}
 
 // mpm commands
 function mpmCheckCommand(): Thenable<any> { return mpmExecute('check', 'check-compatibility', Marker.None); }
@@ -161,6 +169,7 @@ function mpmTestUnitCommand(): Thenable<any> { return mpmExecute('testUnit', 'pa
 function mpmTestFunctionalCommand(): Thenable<any> { return mpmExecute('testFunctional', 'spectest', Marker.None); }
 function mpmRunCommand(): Thenable<any> { return mpmExecute('run', 'sandbox run', Marker.ThisFile); }
 function mpmPublishCommand(): Thenable<any> { return mpmExecute('publish', 'sandbox publish', Marker.None); }
+function mpmReleaseCommand(): Thenable<any> { return mpmExecute('release', 'release', Marker.None); }
 
 /**
  * Main function of this extension. Runs the given move command as a VSCode task,

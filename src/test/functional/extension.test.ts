@@ -65,36 +65,6 @@ suite("Starcoin-IDE.functional.test", () => {
     });
 
     suite("Move commands test", () => {
- 
-        test("test starcoin check commands", async () => {
-            const ext = vscode.extensions.getExtension("starcoinorg.starcoin-ide");
-            assert.ok(ext)
-            
-            const loader:Downloader = currentDownloader(ext.extensionPath);
-
-            if (loader.executateName != "mpm") {
-                return
-            }
-            
-            await ext.activate();
-            await sleep(1000)
-            
-            try {
-                // 1. open doc
-                let docs = await vscode.workspace.openTextDocument( path.resolve(__dirname,  './demos/simple-nft/sources/SimpleNFT.move'))
-                await vscode.window.showTextDocument(docs);
-                await sleep(1000)
-
-                // 2. execute command
-                let exec:vscode.TaskExecution = await vscode.commands.executeCommand("starcoin.check");
-                let exitCode = await getTaskResult(exec)
-                await sleep(1000)
-                assert.strictEqual(0, exitCode)
-            } catch(err) {
-                assert.fail("Error in executeCommand starcoin.check, error: " + err)
-            }
-        });
-        
 
         test("test starcoin clean commands", async () => {
             const ext = vscode.extensions.getExtension("starcoinorg.starcoin-ide");
@@ -176,36 +146,6 @@ suite("Starcoin-IDE.functional.test", () => {
 
                 // 2. execute command
                 let exec:vscode.TaskExecution = await vscode.commands.executeCommand("starcoin.testUnit");
-                let exitCode = await getTaskResult(exec)
-                await sleep(1000)
-                assert.strictEqual(0, exitCode)
-            } catch(err) {
-                assert.fail("Error in executeCommand starcoin.check, error: " + err)
-            }
-        });
-        
-
-        test("test starcoin functional test commands", async () => {
-            const ext = vscode.extensions.getExtension("starcoinorg.starcoin-ide");
-            assert.ok(ext)
-            
-            const loader:Downloader = currentDownloader(ext.extensionPath);
-
-            if (loader.executateName != "mpm") {
-                return
-            }
-            
-            await ext.activate();
-            await sleep(1000)
-            
-            try {
-                // 1. open doc
-                let docs = await vscode.workspace.openTextDocument( path.resolve(__dirname,  './demos/simple-nft/sources/SimpleNFT.move'))
-                await vscode.window.showTextDocument(docs);
-                await sleep(1000)
-
-                // 2. execute command
-                let exec:vscode.TaskExecution = await vscode.commands.executeCommand("starcoin.testFunctional");
                 let exitCode = await getTaskResult(exec)
                 await sleep(1000)
                 assert.strictEqual(0, exitCode)

@@ -46,6 +46,10 @@
 			{
 				"command": "starcoin.publish",
 				"title": "Starcoin: Publish"
+			},
+			{
+				"command": "starcoin.release",
+				"title": "Starcoin: Release"
 			}
 		],
 		"configuration": {
