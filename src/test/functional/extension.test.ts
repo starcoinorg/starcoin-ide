@@ -183,5 +183,33 @@ suite("Starcoin-IDE.functional.test", () => {
             }
         });
      
+        test("test starcoin mpm release commands", async () => {
+            const ext = vscode.extensions.getExtension("starcoinorg.starcoin-ide");
+            assert.ok(ext)
+            
+            const loader:Downloader = currentDownloader(ext.extensionPath);
+
+            if (loader.executateName != "mpm") {
+                return
+            }
+            
+            await ext.activate();
+            await sleep(1000)
+            
+            try {
+                // 1. open doc
+                let docs = await vscode.workspace.openTextDocument( path.resolve(__dirname,  './demos/simple-nft/sources/SimpleNFT.move'))
+                await vscode.window.showTextDocument(docs);
+                await sleep(1000)
+
+                // 2. execute command
+                let exec:vscode.TaskExecution = await vscode.commands.executeCommand("starcoin.release");
+                let exitCode = await getTaskResult(exec)
+                await sleep(1000)
+                assert.strictEqual(0, exitCode)
+            } catch(err) {
+                assert.fail("Error in executeCommand starcoin.check, error: " + err)
+            }
+        });
     });
 });
