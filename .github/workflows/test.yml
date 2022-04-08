@@ -4,12 +4,12 @@ on:
   pull_request:
     branches: [ master ]
 name: test
-runs-on: ${{ matrix.os }}
 jobs:
   test:
     strategy:
       matrix:
         os: [ubuntu-latest, macOS-10.15, vs2017-win2016]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
       - name: Install Node.js
