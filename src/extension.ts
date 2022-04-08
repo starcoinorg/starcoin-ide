@@ -6,7 +6,7 @@
 
 import * as Path from 'path';
 import * as vscode from 'vscode';
-import { Downloader, Release, currentDownloader } from './downloader';
+import { Downloader, MoveDownloader, MPMDownloader,  Release, currentDownloader } from './downloader';
     
 const {commands, window, tasks, Task, ShellExecution} = vscode;
 const {registerCommand} = commands;
@@ -60,7 +60,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         registerCommand('starcoin.reloadExtension', () => reloadExtensionCommand(context)),
     );
 
-    if (loader.executateName == "move") {
+    if (loader instanceof MoveDownloader) {
         context.subscriptions.push(
             registerCommand('starcoin.check', () => checkCommand().then(console.log)),
             registerCommand('starcoin.clean', () => cleanCommand().then(console.log)),
@@ -71,7 +71,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
             registerCommand('starcoin.publish', () => publishCommand().then(console.log)),
             registerCommand('starcoin.release', () => releaseCommand().then(console.log))
         );
-    } else if (loader.executateName == "mpm") {
+    } else if (loader instanceof MPMDownloader) {
         context.subscriptions.push(
             registerCommand('starcoin.check', mpmCheckCommand),
             registerCommand('starcoin.clean', mpmCleanCommand),
