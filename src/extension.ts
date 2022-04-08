@@ -6,7 +6,8 @@
 
 import * as Path from 'path';
 import * as vscode from 'vscode';
-import { Downloader, Release, currentDownloader } from './downloader';
+import { dos2unix, fixMoveFiles } from './utils'
+import { Downloader, MoveDownloader, MPMDownloader, Release, currentDownloader } from './downloader';
     
 const {commands, window, tasks, Task, ShellExecution} = vscode;
 const {registerCommand} = commands;
@@ -60,18 +61,18 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         registerCommand('starcoin.reloadExtension', () => reloadExtensionCommand(context)),
     );
 
-    if (loader.executateName == "move") {
+    if (loader instanceof MoveDownloader) {
         context.subscriptions.push(
-            registerCommand('starcoin.check', () => checkCommand().then(console.log)),
-            registerCommand('starcoin.clean', () => cleanCommand().then(console.log)),
-            registerCommand('starcoin.doctor', () => doctorCommand().then(console.log)),
-            registerCommand('starcoin.testUnit', () => testUnitCommand().then(console.log)),
-            registerCommand('starcoin.testFunctional', () => testFunctionalCommand().then(console.log)),
-            registerCommand('starcoin.run', () => runCommand().then(console.log)),
-            registerCommand('starcoin.publish', () => publishCommand().then(console.log)),
-            registerCommand('starcoin.release', () => releaseCommand().then(console.log))
+            registerCommand('starcoin.check', checkCommand),
+            registerCommand('starcoin.clean', cleanCommand),
+            registerCommand('starcoin.doctor', doctorCommand),
+            registerCommand('starcoin.testUnit', testUnitCommand),
+            registerCommand('starcoin.testFunctional', testFunctionalCommand),
+            registerCommand('starcoin.run', runCommand),
+            registerCommand('starcoin.publish', publishCommand),
+            registerCommand('starcoin.release', releaseCommand)
         );
-    } else if (loader.executateName == "mpm") {
+    } else if (loader instanceof MPMDownloader) {
         context.subscriptions.push(
             registerCommand('starcoin.check', mpmCheckCommand),
             registerCommand('starcoin.clean', mpmCleanCommand),
@@ -147,8 +148,18 @@ enum Marker {
 // same interface execute(), so see it below for the details.
 
 // move commands
-function checkCommand(): Thenable<any> { return moveExecute('check', 'check', Marker.None); }
-function cleanCommand(): Thenable<any> { return moveExecute('clean', 'clean', Marker.ThisFile); }
+function checkCommand(): Thenable<any> { 
+    let exec = moveExecute('check', 'check', Marker.SrcDir); 
+
+    return new Promise((resolve) => {
+        exec.then(async function(taskExec){
+            await fixMoveFiles(taskExec)
+            resolve(taskExec)
+        })
+    });
+}
+
+function cleanCommand(): Thenable<any> { return moveExecute('clean', 'clean', Marker.None);}
 function doctorCommand(): Thenable<any> { return moveExecute('doctor', 'doctor', Marker.None); }
 function testFunctionalCommand(): Thenable<any> { return moveExecute('testFunctional', 'functional-test', Marker.ThisFile); }
 function publishCommand(): Thenable<any> { return moveExecute('publish', 'publish', Marker.ThisFile); }
@@ -204,8 +215,8 @@ function moveExecute(task: string, command: string, fileMarker: Marker): Thenabl
     
     // @ts-ignore
     const commonArgs: string[] = [
-        ['--storage-dir', Path.join(dir, configuration.get<string>('storageDirectory') || 'storage')],
-        ['--build-dir', Path.join(dir, configuration.get<string>('buildDirectory') || 'build')],
+        ['--storage-dir', Path.join(dir, 'storage')],
+        ['--build-dir', Path.join(dir, 'build')],
     ]
         .filter((a) => (a[1] !== null))
         .map((param) => param.join(' '));
@@ -220,10 +231,15 @@ function moveExecute(task: string, command: string, fileMarker: Marker): Thenabl
         case Marker.None: path = ''; break;
         case Marker.ThisFile: path = document.uri.fsPath.toString() || ''; break;
         case Marker.WorkDir: path = dir; break;
-        case Marker.SrcDir: path = Path.join(dir, 'src'); break;
+        case Marker.SrcDir: path = Path.join(dir, 'sources'); break;
         case Marker.StdLibDir: path = Path.join(dir, 'build/package/starcoin/source_files'); break;
     }
     
+    // Fix file format in windows
+    if (process.platform === 'win32') {
+        dos2unix(path, "**/*.move")
+    }
+
     return tasks.executeTask(new Task(
         {task, type: NAMESPACE},
         workdir,

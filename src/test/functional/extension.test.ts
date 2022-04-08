@@ -15,8 +15,8 @@ import { Downloader, currentDownloader } from '../../downloader';
 import { installReleaseWithProgress } from '../../extension';
 
 suite("Starcoin-IDE.functional.test", () => {
+    /*
     suite("Move binary install test", () => {
- 
         test("First install should download latest move binary", async () => {
             const ext = vscode.extensions.getExtension("starcoinorg.starcoin-ide");
             assert.ok(ext)
@@ -63,18 +63,13 @@ suite("Starcoin-IDE.functional.test", () => {
             assert.strictEqual(newVersion, version.tag)
         });
     });
+    */
 
     suite("Move commands test", () => {
-
+        /*
         test("test starcoin clean commands", async () => {
             const ext = vscode.extensions.getExtension("starcoinorg.starcoin-ide");
             assert.ok(ext)
-            
-            const loader:Downloader = currentDownloader(ext.extensionPath);
-
-            if (loader.executateName != "mpm") {
-                return
-            }
             
             await ext.activate();
             await sleep(1000)
@@ -91,7 +86,7 @@ suite("Starcoin-IDE.functional.test", () => {
                 await sleep(1000)
                 assert.strictEqual(0, exitCode)
             } catch(err) {
-                assert.fail("Error in executeCommand starcoin.check, error: " + err)
+                assert.fail("Error in test command, error: " + err)
             }
         });
         
@@ -99,12 +94,6 @@ suite("Starcoin-IDE.functional.test", () => {
         test("test starcoin doctor commands", async () => {
             const ext = vscode.extensions.getExtension("starcoinorg.starcoin-ide");
             assert.ok(ext)
-            
-            const loader:Downloader = currentDownloader(ext.extensionPath);
-
-            if (loader.executateName != "mpm") {
-                return
-            }
             
             await ext.activate();
             await sleep(1000)
@@ -121,19 +110,14 @@ suite("Starcoin-IDE.functional.test", () => {
                 await sleep(1000)
                 assert.strictEqual(0, exitCode)
             } catch(err) {
-                assert.fail("Error in executeCommand starcoin.check, error: " + err)
+                assert.fail("Error in test command, error: " + err)
             }
         });
- 
+        */
+
         test("test starcoin unit test commands", async () => {
             const ext = vscode.extensions.getExtension("starcoinorg.starcoin-ide");
             assert.ok(ext)
-            
-            const loader:Downloader = currentDownloader(ext.extensionPath);
-
-            if (loader.executateName != "mpm") {
-                return
-            }
             
             await ext.activate();
             await sleep(1000)
@@ -144,13 +128,18 @@ suite("Starcoin-IDE.functional.test", () => {
                 await vscode.window.showTextDocument(docs);
                 await sleep(1000)
 
-                // 2. execute command
+                // 2. execute check command
+                let checkExec:vscode.TaskExecution = await vscode.commands.executeCommand("starcoin.check");
+                await getTaskResult(checkExec)
+                await sleep(1000)
+
+                // 3. execute testUnit command
                 let exec:vscode.TaskExecution = await vscode.commands.executeCommand("starcoin.testUnit");
                 let exitCode = await getTaskResult(exec)
-                await sleep(1000)
+                await sleep(100000)
                 assert.strictEqual(0, exitCode)
             } catch(err) {
-                assert.fail("Error in executeCommand starcoin.check, error: " + err)
+                assert.fail("Error in test command, error: " + err)
             }
         });
 
@@ -179,7 +168,7 @@ suite("Starcoin-IDE.functional.test", () => {
                 await sleep(1000)
                 assert.strictEqual(0, exitCode)
             } catch(err) {
-                assert.fail("Error in executeCommand starcoin.check, error: " + err)
+                assert.fail("Error in test command, error: " + err)
             }
         });
      
@@ -208,7 +197,7 @@ suite("Starcoin-IDE.functional.test", () => {
                 await sleep(1000)
                 assert.strictEqual(0, exitCode)
             } catch(err) {
-                assert.fail("Error in executeCommand starcoin.check, error: " + err)
+                assert.fail("Error in test command, error: " + err)
             }
         });
     });
