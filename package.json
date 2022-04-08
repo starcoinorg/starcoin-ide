@@ -1,6 +1,6 @@
 {
 	"name": "starcoin-ide",
-	"version": "0.5.0",
+	"version": "0.6.0",
 	"description": "Starcoin IDE for VSCode",
 	"publisher": "starcoinorg",
 	"displayName": "Starcoin IDE",
@@ -32,28 +32,24 @@
 				"title": "Starcoin: Doctor"
 			},
 			{
-				"command": "starcoin.testFunctional",
-				"title": "Starcoin: Test Functional"
+				"command": "starcoin.testUnit",
+				"title": "Starcoin: Test Unit"
 			},
 			{
-				"command": "starcoin.publish",
-				"title": "Starcoin: Publish"
+				"command": "starcoin.testFunctional",
+				"title": "Starcoin: Test Functional"
 			},
 			{
 				"command": "starcoin.run",
 				"title": "Starcoin: Run"
 			},
 			{
-				"command": "starcoin.testUnit",
-				"title": "Starcoin: Test Unit"
+				"command": "starcoin.publish",
+				"title": "Starcoin: Publish"
 			},
 			{
-				"command": "starcoin.publishAll",
-				"title": "Starcoin: Publish All"
-			},
-			{
-				"command": "starcoin.view",
-				"title": "Starcoin: View"
+				"command": "starcoin.release",
+				"title": "Starcoin: Release"
 			}
 		],
 		"configuration": {
@@ -61,36 +57,28 @@
 			"properties": {
 				"starcoin.buildDirectory": {
 					"type": "string",
-					"default": "build",
+					"default": ".",
 					"description": "Directory to store build artifacts"
 				},
 				"starcoin.storageDirectory": {
 					"type": "string",
-					"default": "storage",
+					"default": ".",
 					"description": "Directory to store chain storage"
-				},
-				"starcoin.mode": {
-					"type": "string",
-					"enum": [
-						"stdlib"
-					],
-					"default": "stdlib",
-					"description": "Mode to use when running move-cli"
-				},
-				"starcoin.starcoinRPC": {
-					"type": "string",
-					"default": "http://main.seed.starcoin.org:9850",
-					"description": "Starcoin chain RPC to access"
 				}
 			}
 		}
 	},
 	"scripts": {
+		"clean": "rimraf dist/",
+		"copy-files": "copyfiles -u 1 src/**/*.* dist/",
 		"vscode:prepublish": "rm bin/*; npm run compile",
-		"compile": "tsc -p ./",
+		"compile": "tsc -p ./ && yarn copy-files",
 		"watch": "tsc -watch -p ./",
 		"publish": "vsce publish -p",
-		"package": "vsce package"
+		"package": "vsce package",
+		"test:unit": "yarn compile && node ./dist/test/unit/runTest.js",
+		"test:functional": "yarn clean && yarn compile && node ./dist/test/functional/runTest.js",
+		"test": "yarn clean && yarn compile && node ./dist/test/unit/runTest.js && node ./dist/test/functional/runTest.js"
 	},
 	"repository": {
 		"type": "git",
@@ -119,13 +107,28 @@
 		"damirka.move-syntax"
 	],
 	"devDependencies": {
+		"@types/fs-extra": "^9.0.13",
+		"@types/glob": "^7.1.3",
+		"@types/mocha": "^8.2.0",
 		"@types/node": "^14.0.1",
 		"@types/vscode": "^1.43.0",
+		"@vscode/test-electron": "^2.0.0",
+		"copyfiles": "^2.4.1",
+		"glob": "^7.1.6",
+		"glob-array": "^1.0.0",
+		"mocha": "^8.2.1",
+		"request": "^2.88.2",
+		"request-progress": "^3.0.0",
 		"standard-version": "^9.3.1",
-		"typescript": "^3.9.10",
+		"typescript": "^4.1.3",
 		"vsce": "^1.77.0"
 	},
 	"dependencies": {
-		"unzipper": "^0.10.11"
+		"destroy": "^1.2.0",
+		"fs-extra": "^10.0.1",
+		"node-version-compare": "^1.0.3",
+		"rimraf": "^3.0.2",
+		"unzipper": "^0.10.11",
+		"wget-improved": "^3.3.0"
 	}
 }
