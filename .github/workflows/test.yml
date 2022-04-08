@@ -1,0 +1,25 @@
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+name: test
+runs-on: ${{ matrix.os }}
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macOS-10.15, vs2017-win2016]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          always-auth: true
+          node-version: '14.x'
+          registry-url: https://registry.npmjs.org
+          scope: '@octocat'
+      - name: Install dependencies
+        run: yarn install
+      - name: Run Tests
+        run: yarn test
