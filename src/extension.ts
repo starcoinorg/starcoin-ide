@@ -9,8 +9,12 @@ import * as fse from 'fs-extra';
 import * as Path from 'path';
 import * as cp from 'child_process';
 import * as vscode from 'vscode';
+<<<<<<< HEAD
 import { dos2unix, fixMoveFiles } from './utils'
 import { Downloader, MoveDownloader, MPMDownloader, Release, currentDownloader } from './downloader';
+=======
+import { Downloader, MoveDownloader, MPMDownloader,  Release, currentDownloader } from './downloader';
+>>>>>>> 627424987c872372bd6e660b73aea83e9b081108
     
 const {commands, window, tasks, Task, ShellExecution} = vscode;
 const {registerCommand} = commands;
