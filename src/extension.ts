@@ -4,6 +4,7 @@
  * @copyright 2021 StarCoin
  */
 import * as fs from 'fs';
+import * as fse from 'fs-extra';
 import * as Path from 'path';
 import * as cp from 'child_process';
 import * as vscode from 'vscode';
@@ -159,7 +160,18 @@ function releaseCommand(): Thenable<any> { return moveExecute('testUnit', 'publi
 
 // mpm commands
 function mpmCheckCommand(): Thenable<any> { return mpmExecute('check', 'check-compatibility', Marker.None); }
-function mpmCleanCommand(): Thenable<any> { return mpmExecute('clean', 'sandbox clean', Marker.None); }
+function mpmCleanCommand(): Thenable<any> { 
+    // clean release dir
+    const workDir = getWorkdirPath()
+    let releaseDir = Path.join(workDir, "release")
+    if (fs.existsSync(releaseDir)) {
+        fse.rmdirSync(releaseDir, {
+            recursive: true
+        })
+    }
+
+    return mpmExecute('clean', 'sandbox clean', Marker.None); 
+}
 function mpmDoctorCommand(): Thenable<any> { return mpmExecute('doctor', 'sandbox doctor', Marker.None); }
 function mpmTestUnitCommand(): Thenable<any> { return mpmExecute('testUnit', 'package test', Marker.None); }
 function mpmTestFunctionalCommand(): Thenable<any> { return mpmExecute('testFunctional', 'spectest', Marker.None); }
@@ -188,11 +200,14 @@ function moveExecute(task: string, command: string, fileMarker: Marker): Thenabl
         return Promise.reject('No document opened');
     }
 
-    const workdir = vscode.workspace.getWorkspaceFolder(document.uri);
     const configuration = vscode.workspace.getConfiguration(NAMESPACE, document.uri);
+    if (!configuration) {
+        return Promise.reject('Unable to read configuration folder');
+    }
 
-    if (!workdir || !configuration) {
-        return Promise.reject('Unable to read workspace folder');
+    const workdir = vscode.workspace.getWorkspaceFolder(document.uri);
+    if (!workdir) {
+        return Promise.reject('Unable to read workdir folder');
     }
 
     // Current working (project) directory to set absolute paths.
@@ -273,6 +288,26 @@ function prepareSTDLib(workspace:string, moveBin:string) {
 }
 
 /**
+ * Get current open document workdir
+ * 
+ * @returns 
+ */
+function getWorkdirPath(): string {
+    const document = window.activeTextEditor?.document;
+    if (!document) {
+        throw new Error('No document opened');
+    }
+
+    const workdir = vscode.workspace.getWorkspaceFolder(document.uri);
+    if (!workdir) {
+        throw new Error('Unable to read workspace folder');
+    }
+
+    // Current working (project) directory to set absolute paths.
+    return workdir.uri.fsPath;
+}
+
+/**
  * Main function of this extension. Runs the given mpm command as a VSCode task,
  * optionally include the current file as an argument for the binary.
  * 
@@ -293,11 +328,14 @@ function mpmExecute(task: string, command: string, fileMarker: Marker): Thenable
         return Promise.reject('No document opened');
     }
 
-    const workdir = vscode.workspace.getWorkspaceFolder(document.uri);
     const configuration = vscode.workspace.getConfiguration(NAMESPACE, document.uri);
+    if (!configuration) {
+        return Promise.reject('Unable to read configuration folder');
+    }
 
-    if (!workdir || !configuration) {
-        return Promise.reject('Unable to read workspace folder');
+    const workdir = vscode.workspace.getWorkspaceFolder(document.uri);
+    if (!workdir) {
+        return Promise.reject('Unable to read workdir folder');
     }
 
     // Current working (project) directory to set absolute paths.

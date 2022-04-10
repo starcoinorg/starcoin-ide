@@ -24,10 +24,6 @@
 				"title": "Starcoin: Check"
 			},
 			{
-				"command": "starcoin.clean",
-				"title": "Starcoin: Clean"
-			},
-			{
 				"command": "starcoin.doctor",
 				"title": "Starcoin: Doctor"
 			},
@@ -40,16 +36,16 @@
 				"title": "Starcoin: Test Functional"
 			},
 			{
-				"command": "starcoin.run",
-				"title": "Starcoin: Run"
-			},
-			{
 				"command": "starcoin.publish",
 				"title": "Starcoin: Publish"
 			},
 			{
 				"command": "starcoin.release",
 				"title": "Starcoin: Release"
+			},
+			{
+				"command": "starcoin.clean",
+				"title": "Starcoin: Clean"
 			}
 		],
 		"configuration": {

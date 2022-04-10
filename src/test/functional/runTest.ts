@@ -20,7 +20,10 @@ async function main(): Promise<void> {
     const extensionTestsPath = path.resolve(__dirname,  './index');
 
     // The workspace
-    const testWorkspacePath = path.resolve(__dirname, './demos/simple-nft/simple-nft.code-workspace');
+    let testWorkspacePath = path.resolve(__dirname, './demos/simple-nft-mpm/simple-nft.code-workspace');
+    if (process.platform === 'win32') {
+        testWorkspacePath = path.resolve(__dirname, './demos/simple-nft-move/simple-nft.code-workspace');
+    }
 
     // Install vscode and depends extension
     const vscodeVersion = '1.64.0'
