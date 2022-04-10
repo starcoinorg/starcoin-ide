@@ -66,7 +66,6 @@ suite("Starcoin-IDE.functional.test", () => {
     */
 
     suite("Move commands test", () => {
-        /*
         test("test starcoin clean commands", async () => {
             const ext = vscode.extensions.getExtension("starcoinorg.starcoin-ide");
             assert.ok(ext)
@@ -113,7 +112,7 @@ suite("Starcoin-IDE.functional.test", () => {
                 assert.fail("Error in test command, error: " + err)
             }
         });
-        */
+
 
         test("test starcoin unit test commands", async () => {
             const ext = vscode.extensions.getExtension("starcoinorg.starcoin-ide");
@@ -136,7 +135,7 @@ suite("Starcoin-IDE.functional.test", () => {
                 // 3. execute testUnit command
                 let exec:vscode.TaskExecution = await vscode.commands.executeCommand("starcoin.testUnit");
                 let exitCode = await getTaskResult(exec)
-                await sleep(100000)
+                await sleep(1000)
                 assert.strictEqual(0, exitCode)
             } catch(err) {
                 assert.fail("Error in test command, error: " + err)
@@ -146,12 +145,6 @@ suite("Starcoin-IDE.functional.test", () => {
         test("test starcoin mpm publish commands", async () => {
             const ext = vscode.extensions.getExtension("starcoinorg.starcoin-ide");
             assert.ok(ext)
-            
-            const loader:Downloader = currentDownloader(ext.extensionPath);
-
-            if (loader.executateName != "mpm") {
-                return
-            }
             
             await ext.activate();
             await sleep(1000)
@@ -175,12 +168,6 @@ suite("Starcoin-IDE.functional.test", () => {
         test("test starcoin mpm release commands", async () => {
             const ext = vscode.extensions.getExtension("starcoinorg.starcoin-ide");
             assert.ok(ext)
-            
-            const loader:Downloader = currentDownloader(ext.extensionPath);
-
-            if (loader.executateName != "mpm") {
-                return
-            }
             
             await ext.activate();
             await sleep(1000)

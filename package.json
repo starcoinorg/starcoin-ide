@@ -77,7 +77,7 @@
 		"publish": "vsce publish -p",
 		"package": "vsce package",
 		"test:unit": "yarn compile && node ./dist/test/unit/runTest.js",
-		"test:functional": "yarn compile && node ./dist/test/functional/runTest.js",
+		"test:functional": "yarn clean && yarn compile && node ./dist/test/functional/runTest.js",
 		"test": "yarn clean && yarn compile && node ./dist/test/unit/runTest.js && node ./dist/test/functional/runTest.js"
 	},
 	"repository": {

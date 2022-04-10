@@ -4,7 +4,10 @@
  * @copyright 2021 StarCoin
  */
 
+import * as fs from 'fs';
+import * as fse from 'fs-extra';
 import * as Path from 'path';
+import * as cp from 'child_process';
 import * as vscode from 'vscode';
 import { dos2unix, fixMoveFiles } from './utils'
 import { Downloader, MoveDownloader, MPMDownloader, Release, currentDownloader } from './downloader';
@@ -148,29 +151,14 @@ enum Marker {
 // same interface execute(), so see it below for the details.
 
 // move commands
-function checkCommand(): Thenable<any> { 
-    let exec = moveExecute('check', 'check', Marker.SrcDir); 
-
-    return new Promise((resolve) => {
-        exec.then(async function(taskExec){
-            await fixMoveFiles(taskExec)
-            resolve(taskExec)
-        })
-    });
-}
-
+function checkCommand(): Thenable<any> {return moveExecute('check', 'check', Marker.SrcDir)}
 function cleanCommand(): Thenable<any> { return moveExecute('clean', 'clean', Marker.None);}
 function doctorCommand(): Thenable<any> { return moveExecute('doctor', 'doctor', Marker.None); }
 function testFunctionalCommand(): Thenable<any> { return moveExecute('testFunctional', 'functional-test', Marker.ThisFile); }
 function publishCommand(): Thenable<any> { return moveExecute('publish', 'publish', Marker.ThisFile); }
 function runCommand(): Thenable<any> { return moveExecute('run', 'run', Marker.ThisFile); }
 function testUnitCommand(): Thenable<any> { return moveExecute('testUnit', 'unit-test', Marker.ThisFile); }
-function releaseCommand(): Thenable<any> { 
-    vscode.window.showInformationMessage('move cli not support release command')
-    return new Promise((resolve) => {
-        resolve(false)
-    });
-}
+function releaseCommand(): Thenable<any> { return moveExecute('testUnit', 'publish', Marker.SrcDir); }
 
 // mpm commands
 function mpmCheckCommand(): Thenable<any> { return mpmExecute('check', 'check-compatibility', Marker.None); }
@@ -232,13 +220,16 @@ function moveExecute(task: string, command: string, fileMarker: Marker): Thenabl
         case Marker.ThisFile: path = document.uri.fsPath.toString() || ''; break;
         case Marker.WorkDir: path = dir; break;
         case Marker.SrcDir: path = Path.join(dir, 'sources'); break;
-        case Marker.StdLibDir: path = Path.join(dir, 'build/package/starcoin/source_files'); break;
     }
     
     // Fix file format in windows
     if (process.platform === 'win32') {
-        dos2unix(path, "**/*.move")
+        let sourceDir = Path.join(dir, 'sources')
+        dos2unix(sourceDir, "**/*.move")
     }
+
+    // Compile STD package
+    prepareSTDLib(dir, bin)
 
     return tasks.executeTask(new Task(
         {task, type: NAMESPACE},
@@ -247,6 +238,41 @@ function moveExecute(task: string, command: string, fileMarker: Marker): Thenabl
         NAMESPACE,
         new ShellExecution([bin, command, path, commonArgs.join(' ')].join(' '))
     ));
+}
+
+/**
+ * Create and prepare std lib
+ * 
+ * @param task 
+ * @param command 
+ * @param useFile 
+ * @returns 
+ */
+function prepareSTDLib(workspace:string, moveBin:string) {
+    let stdLibDir = Path.join(workspace, "build/package/starcoin/source_files")
+
+    if (!fs.existsSync(stdLibDir)) {
+        vscode.window.showInformationMessage('Prepare std lib...');
+
+        // gen std lib
+        cp.spawnSync(moveBin, ['check', 'build'], {
+            cwd: workspace,
+            encoding: 'utf-8',
+            stdio: 'inherit'
+        });
+
+        // dos to unix
+        if (process.platform === 'win32') {
+            dos2unix(stdLibDir, "**/*.move")
+        }
+
+        // publish stdlib
+        cp.spawnSync(moveBin, ['publish', stdLibDir], {
+            cwd: workspace,
+            encoding: 'utf-8',
+            stdio: 'inherit'
+        });
+    }
 }
 
 /**

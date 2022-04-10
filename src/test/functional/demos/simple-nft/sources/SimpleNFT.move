@@ -1,7 +1,7 @@
-module  SNFT::SimpleNFT{
-	use StarcoinFramework::NFT::{Self, NFT, MintCapability, BurnCapability, UpdateCapability, Metadata};
-	use StarcoinFramework::Signer;
-	use StarcoinFramework::NFTGallery;
+module  0xb7061a5b3141f217954e775db2829308::SimpleNFT{
+	use 0x1::NFT::{Self, NFT, MintCapability, BurnCapability, UpdateCapability, Metadata};
+	use 0x1::Signer;
+	use 0x1::NFTGallery;
 	
 	struct SimpleNFT has copy,store,drop{
 	}
@@ -20,7 +20,7 @@ module  SNFT::SimpleNFT{
 		cap: UpdateCapability<SimpleNFT>,
 	}
 
-	const CONTRACT_ACCOUNT:address = @SNFT;
+	const CONTRACT_ACCOUNT:address = @0xb7061a5b3141f217954e775db2829308;
 
 	public fun initialize(sender: &signer) {
 		assert(Signer::address_of(sender)==CONTRACT_ACCOUNT, 101);
@@ -51,10 +51,10 @@ module  SNFT::SimpleNFT{
 
 }
 
-module  SNFT::SimpleNFTScripts{
-	use StarcoinFramework::NFT;
-	use StarcoinFramework::NFTGallery;
-	use  SNFT::SimpleNFT;
+module  0xb7061a5b3141f217954e775db2829308::SimpleNFTScripts{
+	use 0x1::NFT;
+	use 0x1::NFTGallery;
+	use  0xb7061a5b3141f217954e775db2829308::SimpleNFT;
 
 	public(script) fun initialize(sender: signer) {
 		SimpleNFT::initialize(&sender);
