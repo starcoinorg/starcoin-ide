@@ -3,7 +3,7 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
-name: test
+name: Unit Test & Functional Test
 jobs:
   test:
     strategy:
