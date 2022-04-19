@@ -381,6 +381,7 @@ async function checkNewRelease(loader: Downloader, version:string, name: string)
             let body = '';
             res.on('data', (data) => body += data.toString());
             res.on('end', () => resolve(JSON.parse(body)));
+            res.on('error', reject);
         })
         .on('error', (e) => {
             reject(e);
@@ -392,7 +393,7 @@ async function checkNewRelease(loader: Downloader, version:string, name: string)
 
     // @ts-ignore 
     // Important! This line searches for a release with "starcoin" and "<PLATFORM>" in its name
-    const release = stats.assets.find((a) => a.name.includes(PLATFORM) && a.name.includes(name)) || null;
+    const release = stats.assets.find((a) => a && a.name && a.name.includes(PLATFORM) && a.name.includes(name)) || null;
 
     if (!latest || !release) {
         throw new Error("Release not found")
