@@ -9,7 +9,7 @@ export function dos2unix(rootDir:string, grep:string) {
 
     files.map((file:any) => {
         const f = path.join(rootDir, file)
-        const content = fs.readFileSync(f, 'utf8');
-        fs.writeFileSync(f, Buffer.from(content.replace(/\r\n/g, '\n'), 'utf8'));
+        const content = fs.readFileSync(f, 'latin1');
+        fs.writeFileSync(f, Buffer.from(content.replace(/\r\n/g, '\n'), 'latin1'));
     });
 }

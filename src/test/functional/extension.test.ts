@@ -222,6 +222,5 @@ suite("Starcoin-IDE.functional.test", () => {
                 assert.fail("Error in test command, error: " + err)
             }
         });
-
     });
 });

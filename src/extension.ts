@@ -269,7 +269,7 @@ function prepareSTDLib(workspace:string, moveBin:string) {
         // gen std lib
         cp.spawnSync(moveBin, ['check', 'build'], {
             cwd: workspace,
-            encoding: 'utf-8',
+            encoding: 'latin1',
             stdio: 'inherit'
         });
 
@@ -281,7 +281,7 @@ function prepareSTDLib(workspace:string, moveBin:string) {
         // publish stdlib
         cp.spawnSync(moveBin, ['publish', stdLibDir], {
             cwd: workspace,
-            encoding: 'utf-8',
+            encoding: 'latin1',
             stdio: 'inherit'
         });
     }
