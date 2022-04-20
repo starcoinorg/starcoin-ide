@@ -110,7 +110,6 @@
 		"@types/vscode": "^1.43.0",
 		"@vscode/test-electron": "^2.0.0",
 		"copyfiles": "^2.4.1",
-		"cross-env": "^7.0.3",
 		"mocha": "^8.2.1",
 		"request": "^2.88.2",
 		"request-progress": "^3.0.0",
