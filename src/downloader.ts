@@ -388,12 +388,14 @@ async function checkNewRelease(loader: Downloader, version:string, name: string)
         });
     });
 
+    console.log("checkNewRelease version:", version, "name:", name, "stats:", stats);
+
     // @ts-ignore
     const latest = stats.tag_name;
 
     // @ts-ignore 
     // Important! This line searches for a release with "starcoin" and "<PLATFORM>" in its name
-    const release = stats.assets.find((a) => a && a.name && a.name.includes(PLATFORM) && a.name.includes(name)) || null;
+    const release = stats.assets?.find((a) => a && a.name && a.name.includes(PLATFORM) && a.name.includes(name)) || null;
 
     if (!latest || !release) {
         throw new Error("Release not found")
