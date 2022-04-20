@@ -9,6 +9,7 @@ import * as fse from 'fs-extra';
 import * as path from 'path';
 import * as https from 'https';
 import * as wget from 'wget-improved';
+import { env } from 'process';
 
 // @ts-ignore
 import * as unzip from 'unzipper';
@@ -372,6 +373,12 @@ async function checkNewRelease(loader: Downloader, version:string, name: string)
         headers: {'user-agent': 'node.js'}
     };
     
+    let githubToken = env.GITHUB_TOKEN
+    if (githubToken) {
+        // @ts-ignore
+        options.headers["authorization"] = "Bearer " + githubToken
+    }
+
     if (version == "latest") {
         options.path = `/repos/starcoinorg/starcoin/releases/latest`
     }

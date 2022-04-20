@@ -110,6 +110,7 @@
 		"@types/vscode": "^1.43.0",
 		"@vscode/test-electron": "^2.0.0",
 		"copyfiles": "^2.4.1",
+		"cross-env": "^7.0.3",
 		"mocha": "^8.2.1",
 		"request": "^2.88.2",
 		"request-progress": "^3.0.0",
@@ -118,10 +119,10 @@
 		"vsce": "^1.77.0"
 	},
 	"dependencies": {
-		"glob": "^7.1.6",
-		"glob-array": "^1.0.0",
 		"destroy": "^1.2.0",
 		"fs-extra": "^10.0.1",
+		"glob": "^7.1.6",
+		"glob-array": "^1.0.0",
 		"node-version-compare": "^1.0.3",
 		"rimraf": "^3.0.2",
 		"unzipper": "^0.10.11",
