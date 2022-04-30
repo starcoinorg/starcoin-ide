@@ -156,7 +156,7 @@ export class MPMDownloader {
     }
 
     get latestStableVersion(): string {
-        return 'v1.10.0-rc.2'
+        return 'v1.11.4-alpha'
     }
 
     get executatePath(): string {
@@ -206,7 +206,7 @@ export function currentDownloader(extPath: string): Downloader {
     // @ts-ignore
     const loader:Downloader = {
         darwin: new MPMDownloader(extPath),
-        win32: new MoveDownloader(extPath),
+        win32: new MPMDownloader(extPath),
         linux: new MPMDownloader(extPath)
     }[process.platform];
 

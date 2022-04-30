@@ -174,7 +174,7 @@ function mpmCleanCommand(): Thenable<any> {
 }
 function mpmDoctorCommand(): Thenable<any> { return mpmExecute('doctor', 'sandbox doctor', Marker.None); }
 function mpmTestUnitCommand(): Thenable<any> { return mpmExecute('testUnit', 'package test', Marker.None); }
-function mpmTestFunctionalCommand(): Thenable<any> { return mpmExecute('testFunctional', 'spectest', Marker.None); }
+function mpmTestFunctionalCommand(): Thenable<any> { return mpmExecute('testFunctional', 'integration-test', Marker.None); }
 function mpmRunCommand(): Thenable<any> { return mpmExecute('run', 'sandbox run', Marker.ThisFile); }
 function mpmPublishCommand(): Thenable<any> { return mpmExecute('publish', 'sandbox publish', Marker.None); }
 function mpmReleaseCommand(): Thenable<any> { return mpmExecute('release', 'release', Marker.None); }
@@ -362,11 +362,29 @@ function mpmExecute(task: string, command: string, fileMarker: Marker): Thenable
         case Marker.SrcDir: path = Path.join(dir, 'sources'); break;
     }
     
+    // Fix file format in windows
+    if (process.platform === 'win32') {
+        let sourceDir = Path.join(dir, 'sources')
+        dos2unix(sourceDir, "**/*.move")
+    }
+
+    let homeDir = process.env.HOME
+    if (process.platform === 'win32') {
+        homeDir = process.env.HOMEPATH
+    }
+
+    // @ts-ignore
+    const opts: ShellExecutionOptions = {
+        env: {
+            "HOME": homeDir
+        }
+    }
+
     return tasks.executeTask(new Task(
         {task, type: NAMESPACE},
         workdir,
         task,
         NAMESPACE,
-        new ShellExecution([bin, command, path, commonArgs.join(' ')].join(' '))
+        new ShellExecution([bin, command, path, commonArgs.join(' ')].join(' '), opts)
     ));
 }

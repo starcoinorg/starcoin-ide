@@ -15,7 +15,6 @@ import { Downloader, currentDownloader } from '../../downloader';
 import { installReleaseWithProgress } from '../../extension';
 
 suite("Starcoin-IDE.functional.test", () => {
-
     suite("Move binary install test", () => {
         test("First install should download latest move binary", async () => {
             const ext = vscode.extensions.getExtension("starcoinorg.starcoin-ide");
@@ -63,7 +62,6 @@ suite("Starcoin-IDE.functional.test", () => {
             assert.strictEqual(newVersion, version.tag)
         });
     });
-
    
     suite("Move commands test", () => {
         test("test starcoin clean commands", async () => {
@@ -94,9 +92,10 @@ suite("Starcoin-IDE.functional.test", () => {
                 // 4. execute clean command
                 let exec:vscode.TaskExecution = await vscode.commands.executeCommand("starcoin.clean");
                 let exitCode = await getTaskResult(exec)
-                await sleep(1000)
+                await sleep(100000)
                 assert.strictEqual(0, exitCode)
             } catch(err) {
+                await sleep(100000)
                 assert.fail("Error in test command, error: " + err)
             }
         });
