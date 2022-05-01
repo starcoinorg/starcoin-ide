@@ -10,6 +10,7 @@ import * as path from 'path';
 import * as https from 'https';
 import * as wget from 'wget-improved';
 import { env } from 'process';
+import * as cp from 'child_process';
 
 // @ts-ignore
 import * as unzip from 'unzipper';
@@ -290,10 +291,10 @@ async function installRelease(loader: Downloader, version: string, release: Rele
                     const fileName = entry.path.split('/')[1];
 
                     if (fileName === loader.executateName) {
-                        let dest = loader.executatePath + ".new"
-                        entry.pipe(fs.createWriteStream(dest));
-                        entry.on('end', () => fs.chmodSync(dest, '777'));
-                        entry.on('error', reject);
+                        let dest = loader.executatePath + ".new";
+                        entry.pipe(fs.createWriteStream(dest))
+                            .on('finish', resolve)
+                            .on('error', reject);
                     } else {
                         entry.autodrain();
                     }
@@ -395,7 +396,7 @@ async function checkNewRelease(loader: Downloader, version:string, name: string)
         });
     });
 
-    console.log("checkNewRelease version:", version, "name:", name, "stats:", stats);
+    // console.log("checkNewRelease version:", version, "name:", name, "stats:", stats);
 
     // @ts-ignore
     const latest = stats.tag_name;
