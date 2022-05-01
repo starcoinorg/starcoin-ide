@@ -395,7 +395,7 @@ async function checkNewRelease(loader: Downloader, version:string, name: string)
         });
     });
 
-    // console.log("checkNewRelease version:", version, "name:", name, "stats:", stats);
+    console.log("checkNewRelease version:", version, "name:", name, "stats:", stats);
 
     // @ts-ignore
     const latest = stats.tag_name;
