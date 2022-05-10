@@ -149,12 +149,7 @@ suite("Starcoin-IDE.functional.test", () => {
                 await vscode.window.showTextDocument(docs);
                 await sleep(1000)
 
-                // 3. execute check command
-                let checkExec:vscode.TaskExecution = await vscode.commands.executeCommand("starcoin.check");
-                await getTaskResult(checkExec)
-                await sleep(1000)
-
-                // 4. execute testUnit command
+                // 3. execute testUnit command
                 let exec:vscode.TaskExecution = await vscode.commands.executeCommand("starcoin.testUnit");
                 let exitCode = await getTaskResult(exec)
                 await sleep(1000)
