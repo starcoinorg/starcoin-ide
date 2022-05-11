@@ -64,6 +64,7 @@ suite("Starcoin-IDE.functional.test", () => {
     });
    
     suite("Move commands test", () => {
+
         test("test starcoin clean commands", async () => {
             const ext = vscode.extensions.getExtension("starcoinorg.starcoin-ide");
             assert.ok(ext)
@@ -129,7 +130,6 @@ suite("Starcoin-IDE.functional.test", () => {
             }
         });
 
-
         test("test starcoin unit test commands", async () => {
             const ext = vscode.extensions.getExtension("starcoinorg.starcoin-ide");
             assert.ok(ext)
@@ -151,6 +151,35 @@ suite("Starcoin-IDE.functional.test", () => {
 
                 // 3. execute testUnit command
                 let exec:vscode.TaskExecution = await vscode.commands.executeCommand("starcoin.testUnit");
+                let exitCode = await getTaskResult(exec)
+                await sleep(1000)
+                assert.strictEqual(0, exitCode)
+            } catch(err) {
+                assert.fail("Error in test command, error: " + err)
+            }
+        });
+
+        test("test starcoin functional test commands", async () => {
+            const ext = vscode.extensions.getExtension("starcoinorg.starcoin-ide");
+            assert.ok(ext)
+            
+            await ext.activate();
+            await sleep(1000)
+            
+            try {
+                // 1. get workdir
+                let workDir = ""
+                if (vscode.workspace.workspaceFolders) {
+                    workDir = vscode.workspace.workspaceFolders[0].uri.fsPath
+                }
+
+                // 2. open doc
+                let docs = await vscode.workspace.openTextDocument( path.join(workDir,  'sources/SimpleNFT.move'))
+                await vscode.window.showTextDocument(docs);
+                await sleep(1000)
+
+                // 3. execute testFunctional command
+                let exec:vscode.TaskExecution = await vscode.commands.executeCommand("starcoin.testFunctional");
                 let exitCode = await getTaskResult(exec)
                 await sleep(1000)
                 assert.strictEqual(0, exitCode)
@@ -216,5 +245,6 @@ suite("Starcoin-IDE.functional.test", () => {
                 assert.fail("Error in test command, error: " + err)
             }
         });
+
     });
 });

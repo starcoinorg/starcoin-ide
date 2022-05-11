@@ -362,11 +362,23 @@ function mpmExecute(task: string, command: string, fileMarker: Marker): Thenable
         case Marker.SrcDir: path = Path.join(dir, 'sources'); break;
     }
 
+    let homeDir = process.env.HOME
+    if (process.platform === 'win32' && !homeDir) {
+        homeDir = process.env.USERPROFILE
+    }
+
+    // @ts-ignore
+    const opts: ShellExecutionOptions = {
+        env: {
+            "HOME": homeDir
+        }
+    }
+
     return tasks.executeTask(new Task(
         {task, type: NAMESPACE},
         workdir,
         task,
         NAMESPACE,
-        new ShellExecution([bin, command, path, commonArgs.join(' ')].join(' '))
+        new ShellExecution([bin, command, path, commonArgs.join(' ')].join(' '), opts)
     ));
 }
