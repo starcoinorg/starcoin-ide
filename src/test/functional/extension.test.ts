@@ -15,6 +15,7 @@ import { Downloader, currentDownloader } from '../../downloader';
 import { installReleaseWithProgress } from '../../extension';
 
 suite("Starcoin-IDE.functional.test", () => {
+    /*
     suite("Move binary install test", () => {
         test("First install should download latest move binary", async () => {
             const ext = vscode.extensions.getExtension("starcoinorg.starcoin-ide");
@@ -62,6 +63,7 @@ suite("Starcoin-IDE.functional.test", () => {
             assert.strictEqual(newVersion, version.tag)
         });
     });
+    */
    
     suite("Move commands test", () => {
 
@@ -93,14 +95,42 @@ suite("Starcoin-IDE.functional.test", () => {
                 // 4. execute clean command
                 let exec:vscode.TaskExecution = await vscode.commands.executeCommand("starcoin.clean");
                 let exitCode = await getTaskResult(exec)
-                await sleep(100000)
+                await sleep(1000)
                 assert.strictEqual(0, exitCode)
             } catch(err) {
-                await sleep(100000)
                 assert.fail("Error in test command, error: " + err)
             }
         });
         
+        test("test starcoin check commands", async () => {
+            const ext = vscode.extensions.getExtension("starcoinorg.starcoin-ide");
+            assert.ok(ext)
+            
+            await ext.activate();
+            await sleep(1000)
+            
+            try {
+                // 1. get workdir
+                let workDir = ""
+                if (vscode.workspace.workspaceFolders) {
+                    workDir = vscode.workspace.workspaceFolders[0].uri.fsPath
+                }
+
+                // 2. open doc
+                let docs = await vscode.workspace.openTextDocument( path.join(workDir,  'sources/SimpleNFT.move'))
+                await vscode.window.showTextDocument(docs);
+                await sleep(1000)
+
+                // 3. execute command
+                let exec:vscode.TaskExecution = await vscode.commands.executeCommand("starcoin.check");
+                let exitCode = await getTaskResult(exec)
+                await sleep(1000)
+                assert.strictEqual(0, exitCode)
+            } catch(err) {
+                assert.fail("Error in test command, error: " + err)
+            }
+        });
+
         test("test starcoin doctor commands", async () => {
             const ext = vscode.extensions.getExtension("starcoinorg.starcoin-ide");
             assert.ok(ext)
@@ -149,7 +179,7 @@ suite("Starcoin-IDE.functional.test", () => {
                 await vscode.window.showTextDocument(docs);
                 await sleep(1000)
 
-                // 3. execute testUnit command
+                // 3. execute command
                 let exec:vscode.TaskExecution = await vscode.commands.executeCommand("starcoin.testUnit");
                 let exitCode = await getTaskResult(exec)
                 await sleep(1000)
@@ -178,7 +208,7 @@ suite("Starcoin-IDE.functional.test", () => {
                 await vscode.window.showTextDocument(docs);
                 await sleep(1000)
 
-                // 3. execute testFunctional command
+                // 3. execute command
                 let exec:vscode.TaskExecution = await vscode.commands.executeCommand("starcoin.testFunctional");
                 let exitCode = await getTaskResult(exec)
                 await sleep(1000)

@@ -3,6 +3,7 @@
  * 
  * @copyright 2021 StarCoin
  */
+import * as os from 'os';
 import * as fs from 'fs';
 import * as fse from 'fs-extra';
 import * as Path from 'path';
@@ -367,12 +368,18 @@ function mpmExecute(task: string, command: string, fileMarker: Marker): Thenable
         homeDir = process.env.USERPROFILE
     }
 
+    if (!homeDir) {
+        homeDir = os.tmpdir()
+    }
+    
     // @ts-ignore
     const opts: ShellExecutionOptions = {
         env: {
             "HOME": homeDir
         }
     }
+
+    console.log("command: ", command, ",homeDir: ", homeDir, ",path: ", path)
 
     return tasks.executeTask(new Task(
         {task, type: NAMESPACE},
