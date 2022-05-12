@@ -24,10 +24,6 @@
 				"title": "Starcoin: Check"
 			},
 			{
-				"command": "starcoin.clean",
-				"title": "Starcoin: Clean"
-			},
-			{
 				"command": "starcoin.doctor",
 				"title": "Starcoin: Doctor"
 			},
@@ -40,16 +36,16 @@
 				"title": "Starcoin: Test Functional"
 			},
 			{
-				"command": "starcoin.run",
-				"title": "Starcoin: Run"
-			},
-			{
 				"command": "starcoin.publish",
 				"title": "Starcoin: Publish"
 			},
 			{
 				"command": "starcoin.release",
 				"title": "Starcoin: Release"
+			},
+			{
+				"command": "starcoin.clean",
+				"title": "Starcoin: Clean"
 			}
 		],
 		"configuration": {
@@ -114,8 +110,6 @@
 		"@types/vscode": "^1.43.0",
 		"@vscode/test-electron": "^2.0.0",
 		"copyfiles": "^2.4.1",
-		"glob": "^7.1.6",
-		"glob-array": "^1.0.0",
 		"mocha": "^8.2.1",
 		"request": "^2.88.2",
 		"request-progress": "^3.0.0",
@@ -126,6 +120,8 @@
 	"dependencies": {
 		"destroy": "^1.2.0",
 		"fs-extra": "^10.0.1",
+		"glob": "^7.1.6",
+		"glob-array": "^1.0.0",
 		"node-version-compare": "^1.0.3",
 		"rimraf": "^3.0.2",
 		"unzipper": "^0.10.11",

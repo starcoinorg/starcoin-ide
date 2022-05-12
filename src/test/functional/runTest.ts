@@ -20,7 +20,11 @@ async function main(): Promise<void> {
     const extensionTestsPath = path.resolve(__dirname,  './index');
 
     // The workspace
-    const testWorkspacePath = path.resolve(__dirname, './demos/simple-nft/simple-nft.code-workspace');
+    let testWorkspace = path.resolve(__dirname, './demos/simple-nft-mpm');
+    let testWorkspacePath = path.resolve(testWorkspace, './simple-nft.code-workspace');
+    if (process.platform === 'win32') {
+        testWorkspacePath = path.resolve(testWorkspace, './simple-nft.code-workspace');
+    }
 
     // Install vscode and depends extension
     const vscodeVersion = '1.64.0'
@@ -40,7 +44,7 @@ async function main(): Promise<void> {
         extensionTestsEnv: {
             DEBUGTELEMETRY: '1',
             // eslint-disable-next-line @typescript-eslint/naming-convention
-            MOCHA_grep: process.env.MOCHA_grep,
+            MOCHA_grep: process.env.MOCHA_grep
         },
     };
 

@@ -9,6 +9,8 @@ import * as fse from 'fs-extra';
 import * as path from 'path';
 import * as https from 'https';
 import * as wget from 'wget-improved';
+import { env } from 'process';
+import * as cp from 'child_process';
 
 // @ts-ignore
 import * as unzip from 'unzipper';
@@ -151,11 +153,11 @@ export class MPMDownloader {
     }
 
     get latestVersion(): string {
-        return "latest"
+        return "v1.11.9-alpha"
     }
 
     get latestStableVersion(): string {
-        return 'v1.10.0-rc.2'
+        return 'v1.11.4-alpha'
     }
 
     get executatePath(): string {
@@ -205,7 +207,7 @@ export function currentDownloader(extPath: string): Downloader {
     // @ts-ignore
     const loader:Downloader = {
         darwin: new MPMDownloader(extPath),
-        win32: new MoveDownloader(extPath),
+        win32: new MPMDownloader(extPath),
         linux: new MPMDownloader(extPath)
     }[process.platform];
 
@@ -289,10 +291,10 @@ async function installRelease(loader: Downloader, version: string, release: Rele
                     const fileName = entry.path.split('/')[1];
 
                     if (fileName === loader.executateName) {
-                        let dest = loader.executatePath + ".new"
-                        entry.pipe(fs.createWriteStream(dest));
-                        entry.on('end', () => fs.chmodSync(dest, '777'));
-                        entry.on('error', reject);
+                        let dest = loader.executatePath + ".new";
+                        entry.pipe(fs.createWriteStream(dest))
+                            .on('finish', resolve)
+                            .on('error', reject);
                     } else {
                         entry.autodrain();
                     }
@@ -372,6 +374,12 @@ async function checkNewRelease(loader: Downloader, version:string, name: string)
         headers: {'user-agent': 'node.js'}
     };
     
+    let githubToken = env.GITHUB_TOKEN
+    if (githubToken) {
+        // @ts-ignore
+        options.headers["authorization"] = "Bearer " + githubToken
+    }
+
     if (version == "latest") {
         options.path = `/repos/starcoinorg/starcoin/releases/latest`
     }
@@ -381,18 +389,21 @@ async function checkNewRelease(loader: Downloader, version:string, name: string)
             let body = '';
             res.on('data', (data) => body += data.toString());
             res.on('end', () => resolve(JSON.parse(body)));
+            res.on('error', reject);
         })
         .on('error', (e) => {
             reject(e);
         });
     });
 
+    // console.log("checkNewRelease version:", version, "name:", name, "stats:", stats);
+
     // @ts-ignore
     const latest = stats.tag_name;
 
     // @ts-ignore 
     // Important! This line searches for a release with "starcoin" and "<PLATFORM>" in its name
-    const release = stats.assets.find((a) => a.name.includes(PLATFORM) && a.name.includes(name)) || null;
+    const release = stats.assets?.find((a) => a && a.name && a.name.includes(PLATFORM) && a.name.includes(name)) || null;
 
     if (!latest || !release) {
         throw new Error("Release not found")
