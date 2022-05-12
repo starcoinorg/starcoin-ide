@@ -363,13 +363,16 @@ function mpmExecute(task: string, command: string, fileMarker: Marker): Thenable
         case Marker.SrcDir: path = Path.join(dir, 'sources'); break;
     }
 
+    // Fix file format in windows
+    if (process.platform === 'win32') {
+        let sourceDir = Path.join(dir, 'integration-tests')
+        dos2unix(sourceDir, "**/*.exp")
+    }
+
+    // fix HOME env not set in windows
     let homeDir = process.env.HOME
     if (process.platform === 'win32' && !homeDir) {
         homeDir = process.env.USERPROFILE
-    }
-
-    if (!homeDir) {
-        homeDir = os.tmpdir()
     }
     
     // @ts-ignore
@@ -378,8 +381,6 @@ function mpmExecute(task: string, command: string, fileMarker: Marker): Thenable
             "HOME": homeDir
         }
     }
-
-    console.log("command: ", command, ",homeDir: ", homeDir, ",path: ", path)
 
     return tasks.executeTask(new Task(
         {task, type: NAMESPACE},
