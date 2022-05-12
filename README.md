@@ -18,16 +18,6 @@ This extension wraps around Starcoin's `mpm` in macos and ubuntu and provides qu
 - Starcoin: Doctor - `mpm sandbox doctor` - doctors the current project in sandbox
 - Starcoin: Clean - `mpm sandbox clean` - cleans project's default `storage/` and `build/` directories
 
-And this extension wraps around Starcoin's `move-cli` in windows and provides quick access to the folllowing commands:
-
-- Starcoin: Check - `move check` - checks and verifies the opened file
-- Starcoin: Test Unit - `move unit-test` - runs unit tests in the current file
-- Starcoin: Test Functional - `move test-functional` - runs functional tests in the current file
-- Starcoin: Publish - `move publish ${opened_file}` - publishes the opened file
-- Starcoin: Release - `move publish ${sources}` - publishes the sources files
-- Starcoin: Doctor - `move doctor` - doctors project's default `storage/` and `build/` directories
-- Starcoin: Clean - `move clean` - cleans project's default `storage/` and `build/` directories
-
 To run any of these commands, use [VSCode's command palette](https://code.visualstudio.com/docs/getstarted/userinterface#_command-palette). 
 
 ## Syntax highlighting
