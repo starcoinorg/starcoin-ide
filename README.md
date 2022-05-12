@@ -8,11 +8,11 @@ See available configuration options in the extension's settings window.
 
 ## Available commands
 
-This extension wraps around Starcoin's `mpm` in macos and ubuntu and provides quick access to the folllowing commands:
+This extension wraps around Starcoin's `mpm` and provides quick access to the folllowing commands:
 
 - Starcoin: Check - `mpm check-compatibility` - checks and verifies the current project
 - Starcoin: Test Unit - `mpm package test` - runs unit tests in the current project
-- Starcoin: Test Functional - `mpm spectest` - runs functional tests in the current project
+- Starcoin: Test Functional - `mpm integration-test` - runs functional tests in the current project
 - Starcoin: Publish - `mpm sandbox publish` - publishes the current project to sandbox
 - Starcoin: Release - `mpm release` - release the package
 - Starcoin: Doctor - `mpm sandbox doctor` - doctors the current project in sandbox
