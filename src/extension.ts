@@ -3,10 +3,14 @@
  * 
  * @copyright 2021 StarCoin
  */
-
+import * as os from 'os';
+import * as fs from 'fs';
+import * as fse from 'fs-extra';
 import * as Path from 'path';
+import * as cp from 'child_process';
 import * as vscode from 'vscode';
-import { Downloader, MoveDownloader, MPMDownloader,  Release, currentDownloader } from './downloader';
+import { dos2unix } from './utils'
+import { Downloader, MoveDownloader, MPMDownloader, Release, currentDownloader } from './downloader';
     
 const {commands, window, tasks, Task, ShellExecution} = vscode;
 const {registerCommand} = commands;
@@ -62,14 +66,14 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
     if (loader instanceof MoveDownloader) {
         context.subscriptions.push(
-            registerCommand('starcoin.check', () => checkCommand().then(console.log)),
-            registerCommand('starcoin.clean', () => cleanCommand().then(console.log)),
-            registerCommand('starcoin.doctor', () => doctorCommand().then(console.log)),
-            registerCommand('starcoin.testUnit', () => testUnitCommand().then(console.log)),
-            registerCommand('starcoin.testFunctional', () => testFunctionalCommand().then(console.log)),
-            registerCommand('starcoin.run', () => runCommand().then(console.log)),
-            registerCommand('starcoin.publish', () => publishCommand().then(console.log)),
-            registerCommand('starcoin.release', () => releaseCommand().then(console.log))
+            registerCommand('starcoin.check', checkCommand),
+            registerCommand('starcoin.clean', cleanCommand),
+            registerCommand('starcoin.doctor', doctorCommand),
+            registerCommand('starcoin.testUnit', testUnitCommand),
+            registerCommand('starcoin.testFunctional', testFunctionalCommand),
+            registerCommand('starcoin.run', runCommand),
+            registerCommand('starcoin.publish', publishCommand),
+            registerCommand('starcoin.release', releaseCommand)
         );
     } else if (loader instanceof MPMDownloader) {
         context.subscriptions.push(
@@ -139,7 +143,6 @@ enum Marker {
     ThisFile,
     WorkDir,
     SrcDir,
-    StdLibDir,
     None
 }
 
@@ -147,26 +150,32 @@ enum Marker {
 // same interface execute(), so see it below for the details.
 
 // move commands
-function checkCommand(): Thenable<any> { return moveExecute('check', 'check', Marker.None); }
-function cleanCommand(): Thenable<any> { return moveExecute('clean', 'clean', Marker.ThisFile); }
+function checkCommand(): Thenable<any> {return moveExecute('check', 'check', Marker.SrcDir)}
+function cleanCommand(): Thenable<any> { return moveExecute('clean', 'clean', Marker.None);}
 function doctorCommand(): Thenable<any> { return moveExecute('doctor', 'doctor', Marker.None); }
 function testFunctionalCommand(): Thenable<any> { return moveExecute('testFunctional', 'functional-test', Marker.ThisFile); }
 function publishCommand(): Thenable<any> { return moveExecute('publish', 'publish', Marker.ThisFile); }
 function runCommand(): Thenable<any> { return moveExecute('run', 'run', Marker.ThisFile); }
 function testUnitCommand(): Thenable<any> { return moveExecute('testUnit', 'unit-test', Marker.ThisFile); }
-function releaseCommand(): Thenable<any> { 
-    vscode.window.showInformationMessage('move cli not support release command')
-    return new Promise((resolve) => {
-        resolve(false)
-    });
-}
+function releaseCommand(): Thenable<any> { return moveExecute('testUnit', 'publish', Marker.SrcDir); }
 
 // mpm commands
 function mpmCheckCommand(): Thenable<any> { return mpmExecute('check', 'check-compatibility', Marker.None); }
-function mpmCleanCommand(): Thenable<any> { return mpmExecute('clean', 'sandbox clean', Marker.None); }
+function mpmCleanCommand(): Thenable<any> { 
+    // clean release dir
+    const workDir = getWorkdirPath()
+    let releaseDir = Path.join(workDir, "release")
+    if (fs.existsSync(releaseDir)) {
+        fse.rmdirSync(releaseDir, {
+            recursive: true
+        })
+    }
+
+    return mpmExecute('clean', 'sandbox clean', Marker.None); 
+}
 function mpmDoctorCommand(): Thenable<any> { return mpmExecute('doctor', 'sandbox doctor', Marker.None); }
 function mpmTestUnitCommand(): Thenable<any> { return mpmExecute('testUnit', 'package test', Marker.None); }
-function mpmTestFunctionalCommand(): Thenable<any> { return mpmExecute('testFunctional', 'spectest', Marker.None); }
+function mpmTestFunctionalCommand(): Thenable<any> { return mpmExecute('testFunctional', 'integration-test', Marker.None); }
 function mpmRunCommand(): Thenable<any> { return mpmExecute('run', 'sandbox run', Marker.ThisFile); }
 function mpmPublishCommand(): Thenable<any> { return mpmExecute('publish', 'sandbox publish', Marker.None); }
 function mpmReleaseCommand(): Thenable<any> { return mpmExecute('release', 'release', Marker.None); }
@@ -192,11 +201,14 @@ function moveExecute(task: string, command: string, fileMarker: Marker): Thenabl
         return Promise.reject('No document opened');
     }
 
-    const workdir = vscode.workspace.getWorkspaceFolder(document.uri);
     const configuration = vscode.workspace.getConfiguration(NAMESPACE, document.uri);
+    if (!configuration) {
+        return Promise.reject('Unable to read configuration folder');
+    }
 
-    if (!workdir || !configuration) {
-        return Promise.reject('Unable to read workspace folder');
+    const workdir = vscode.workspace.getWorkspaceFolder(document.uri);
+    if (!workdir) {
+        return Promise.reject('Unable to read workdir folder');
     }
 
     // Current working (project) directory to set absolute paths.
@@ -204,8 +216,8 @@ function moveExecute(task: string, command: string, fileMarker: Marker): Thenabl
     
     // @ts-ignore
     const commonArgs: string[] = [
-        ['--storage-dir', Path.join(dir, configuration.get<string>('storageDirectory') || 'storage')],
-        ['--build-dir', Path.join(dir, configuration.get<string>('buildDirectory') || 'build')],
+        ['--storage-dir', Path.join(dir, 'storage')],
+        ['--build-dir', Path.join(dir, 'build')],
     ]
         .filter((a) => (a[1] !== null))
         .map((param) => param.join(' '));
@@ -220,10 +232,18 @@ function moveExecute(task: string, command: string, fileMarker: Marker): Thenabl
         case Marker.None: path = ''; break;
         case Marker.ThisFile: path = document.uri.fsPath.toString() || ''; break;
         case Marker.WorkDir: path = dir; break;
-        case Marker.SrcDir: path = Path.join(dir, 'src'); break;
-        case Marker.StdLibDir: path = Path.join(dir, 'build/package/starcoin/source_files'); break;
+        case Marker.SrcDir: path = Path.join(dir, 'sources'); break;
     }
     
+    // Fix file format in windows
+    if (process.platform === 'win32') {
+        let sourceDir = Path.join(dir, 'sources')
+        dos2unix(sourceDir, "**/*.move")
+    }
+
+    // Compile std package
+    prepareSTDLib(dir, bin)
+
     return tasks.executeTask(new Task(
         {task, type: NAMESPACE},
         workdir,
@@ -231,6 +251,61 @@ function moveExecute(task: string, command: string, fileMarker: Marker): Thenabl
         NAMESPACE,
         new ShellExecution([bin, command, path, commonArgs.join(' ')].join(' '))
     ));
+}
+
+/**
+ * Create and prepare std lib
+ * 
+ * @param task 
+ * @param command 
+ * @param useFile 
+ * @returns 
+ */
+function prepareSTDLib(workspace:string, moveBin:string) {
+    let stdLibDir = Path.join(workspace, "build/package/starcoin/source_files")
+
+    if (!fs.existsSync(stdLibDir)) {
+        vscode.window.showInformationMessage('Prepare std lib...');
+
+        // gen std lib
+        cp.spawnSync(moveBin, ['check', 'build'], {
+            cwd: workspace,
+            encoding: 'latin1',
+            stdio: 'inherit'
+        });
+
+        // dos to unix
+        if (process.platform === 'win32') {
+            dos2unix(stdLibDir, "**/*.move")
+        }
+
+        // publish stdlib
+        cp.spawnSync(moveBin, ['publish', stdLibDir], {
+            cwd: workspace,
+            encoding: 'latin1',
+            stdio: 'inherit'
+        });
+    }
+}
+
+/**
+ * Get current open document workdir
+ * 
+ * @returns 
+ */
+function getWorkdirPath(): string {
+    const document = window.activeTextEditor?.document;
+    if (!document) {
+        throw new Error('No document opened');
+    }
+
+    const workdir = vscode.workspace.getWorkspaceFolder(document.uri);
+    if (!workdir) {
+        throw new Error('Unable to read workspace folder');
+    }
+
+    // Current working (project) directory to set absolute paths.
+    return workdir.uri.fsPath;
 }
 
 /**
@@ -254,11 +329,14 @@ function mpmExecute(task: string, command: string, fileMarker: Marker): Thenable
         return Promise.reject('No document opened');
     }
 
-    const workdir = vscode.workspace.getWorkspaceFolder(document.uri);
     const configuration = vscode.workspace.getConfiguration(NAMESPACE, document.uri);
+    if (!configuration) {
+        return Promise.reject('Unable to read configuration folder');
+    }
 
-    if (!workdir || !configuration) {
-        return Promise.reject('Unable to read workspace folder');
+    const workdir = vscode.workspace.getWorkspaceFolder(document.uri);
+    if (!workdir) {
+        return Promise.reject('Unable to read workdir folder');
     }
 
     // Current working (project) directory to set absolute paths.
@@ -284,12 +362,31 @@ function mpmExecute(task: string, command: string, fileMarker: Marker): Thenable
         case Marker.WorkDir: path = dir; break;
         case Marker.SrcDir: path = Path.join(dir, 'sources'); break;
     }
+
+    // Fix file format in windows
+    if (process.platform === 'win32') {
+        let sourceDir = Path.join(dir, 'integration-tests')
+        dos2unix(sourceDir, "**/*.exp")
+    }
+
+    // fix HOME env not set in windows
+    let homeDir = process.env.HOME
+    if (process.platform === 'win32' && !homeDir) {
+        homeDir = process.env.USERPROFILE
+    }
     
+    // @ts-ignore
+    const opts: ShellExecutionOptions = {
+        env: {
+            "HOME": homeDir
+        }
+    }
+
     return tasks.executeTask(new Task(
         {task, type: NAMESPACE},
         workdir,
         task,
         NAMESPACE,
-        new ShellExecution([bin, command, path, commonArgs.join(' ')].join(' '))
+        new ShellExecution([bin, command, path, commonArgs.join(' ')].join(' '), opts)
     ));
 }
