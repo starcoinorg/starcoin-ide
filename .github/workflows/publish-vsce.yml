@@ -1,0 +1,17 @@
+name: Publish VSCE bot
+
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: npm install
+      - run: npm run publish $VSCE_TOKEN
+        if: ${{ !github.event.release.isPrerelease }}
+        env:
+          VSCE_TOKEN: ${{ secrets.VSCE_ACCESS_TOKEN }}
