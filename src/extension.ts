@@ -70,21 +70,21 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
             registerCommand('starcoin.clean', cleanCommand),
             registerCommand('starcoin.doctor', doctorCommand),
             registerCommand('starcoin.testUnit', testUnitCommand),
-            registerCommand('starcoin.testFunctional', testFunctionalCommand),
+            registerCommand('starcoin.testIntegration', testIntegrationCommand),
             registerCommand('starcoin.run', runCommand),
             registerCommand('starcoin.publish', publishCommand),
             registerCommand('starcoin.release', releaseCommand)
         );
     } else if (loader instanceof MPMDownloader) {
         context.subscriptions.push(
-            registerCommand('starcoin.check', mpmCheckCommand),
-            registerCommand('starcoin.clean', mpmCleanCommand),
-            registerCommand('starcoin.doctor', mpmDoctorCommand),
+            registerCommand('starcoin.build', mpmBuildCommand),
             registerCommand('starcoin.testUnit', mpmTestUnitCommand),
-            registerCommand('starcoin.testFunctional', mpmTestFunctionalCommand),
-            registerCommand('starcoin.run', mpmRunCommand),
+            registerCommand('starcoin.testIntegration', mpmTestIntegrationCommand),
             registerCommand('starcoin.publish', mpmPublishCommand),
-            registerCommand('starcoin.release', mpmReleaseCommand)
+            registerCommand('starcoin.doctor', mpmDoctorCommand),
+            registerCommand('starcoin.checkCompatibility', mpmCheckCompatibilityCommand),
+            registerCommand('starcoin.release', mpmReleaseCommand),
+            registerCommand('starcoin.clean', mpmCleanCommand),
         );
     }
 }
@@ -153,14 +153,20 @@ enum Marker {
 function checkCommand(): Thenable<any> {return moveExecute('check', 'check', Marker.SrcDir)}
 function cleanCommand(): Thenable<any> { return moveExecute('clean', 'clean', Marker.None);}
 function doctorCommand(): Thenable<any> { return moveExecute('doctor', 'doctor', Marker.None); }
-function testFunctionalCommand(): Thenable<any> { return moveExecute('testFunctional', 'functional-test', Marker.ThisFile); }
+function testIntegrationCommand(): Thenable<any> { return moveExecute('testIntegration', 'integration-test', Marker.ThisFile); }
 function publishCommand(): Thenable<any> { return moveExecute('publish', 'publish', Marker.ThisFile); }
 function runCommand(): Thenable<any> { return moveExecute('run', 'run', Marker.ThisFile); }
 function testUnitCommand(): Thenable<any> { return moveExecute('testUnit', 'unit-test', Marker.ThisFile); }
 function releaseCommand(): Thenable<any> { return moveExecute('testUnit', 'publish', Marker.SrcDir); }
 
 // mpm commands
-function mpmCheckCommand(): Thenable<any> { return mpmExecute('check', 'check-compatibility', Marker.None); }
+function mpmBuildCommand(): Thenable<any> { return mpmExecute('build', 'package build', Marker.None); }
+function mpmTestUnitCommand(): Thenable<any> { return mpmExecute('testUnit', 'package test', Marker.None); }
+function mpmTestIntegrationCommand(): Thenable<any> { return mpmExecute('testIntegration', 'integration-test', Marker.None); }
+function mpmPublishCommand(): Thenable<any> { return mpmExecute('publish', 'sandbox publish', Marker.None); }
+function mpmDoctorCommand(): Thenable<any> { return mpmExecute('doctor', 'sandbox doctor', Marker.None); }
+function mpmCheckCompatibilityCommand(): Thenable<any> { return mpmExecute('checkCompatibility', 'check-compatibility', Marker.None); }
+function mpmReleaseCommand(): Thenable<any> { return mpmExecute('release', 'release', Marker.None); }
 function mpmCleanCommand(): Thenable<any> { 
     // clean release dir
     const workDir = getWorkdirPath()
@@ -173,12 +179,6 @@ function mpmCleanCommand(): Thenable<any> {
 
     return mpmExecute('clean', 'sandbox clean', Marker.None); 
 }
-function mpmDoctorCommand(): Thenable<any> { return mpmExecute('doctor', 'sandbox doctor', Marker.None); }
-function mpmTestUnitCommand(): Thenable<any> { return mpmExecute('testUnit', 'package test', Marker.None); }
-function mpmTestFunctionalCommand(): Thenable<any> { return mpmExecute('testFunctional', 'integration-test', Marker.None); }
-function mpmRunCommand(): Thenable<any> { return mpmExecute('run', 'sandbox run', Marker.ThisFile); }
-function mpmPublishCommand(): Thenable<any> { return mpmExecute('publish', 'sandbox publish', Marker.None); }
-function mpmReleaseCommand(): Thenable<any> { return mpmExecute('release', 'release', Marker.None); }
 
 /**
  * Main function of this extension. Runs the given move command as a VSCode task,
@@ -341,14 +341,6 @@ function mpmExecute(task: string, command: string, fileMarker: Marker): Thenable
 
     // Current working (project) directory to set absolute paths.
     const dir = workdir.uri.fsPath;
-    
-    // @ts-ignore
-    const commonArgs: string[] = [
-        ['--path', Path.join(dir, configuration.get<string>('storageDirectory') || '.')],
-        ['--install-dir', Path.join(dir, configuration.get<string>('buildDirectory') || '.')],
-    ]
-        .filter((a) => (a[1] !== null))
-        .map((param) => param.join(' '));
 
     // Get binary path which is always inside `extension/bin` directory.
     const bin = Path.join(extPath, 'bin', (process.platform === 'win32') ? 'mpm.exe' : 'mpm');
@@ -387,6 +379,6 @@ function mpmExecute(task: string, command: string, fileMarker: Marker): Thenable
         workdir,
         task,
         NAMESPACE,
-        new ShellExecution([bin, command, path, commonArgs.join(' ')].join(' '), opts)
+        new ShellExecution([bin, command, path].join(' '), opts)
     ));
 }

@@ -153,11 +153,11 @@ export class MPMDownloader {
     }
 
     get latestVersion(): string {
-        return "v1.11.9-alpha"
+        return "latest"
     }
 
     get latestStableVersion(): string {
-        return 'v1.11.4-alpha'
+        return 'v1.11.9-alpha'
     }
 
     get executatePath(): string {
