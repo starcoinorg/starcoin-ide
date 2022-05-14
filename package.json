@@ -1,6 +1,6 @@
 {
 	"name": "starcoin-ide",
-	"version": "0.6.0",
+	"version": "0.6.1",
 	"description": "Starcoin IDE for VSCode",
 	"publisher": "starcoinorg",
 	"displayName": "Starcoin IDE",
@@ -20,24 +20,28 @@
 	"contributes": {
 		"commands": [
 			{
-				"command": "starcoin.check",
-				"title": "Starcoin: Check"
+				"command": "starcoin.build",
+				"title": "Starcoin: Build"
+			},
+			{
+				"command": "starcoin.testUnit",
+				"title": "Starcoin: Unit Test"
+			},
+			{
+				"command": "starcoin.testIntegration",
+				"title": "Starcoin: Integration Test"
+			},
+			{
+				"command": "starcoin.publish",
+				"title": "Starcoin: Publish"
 			},
 			{
 				"command": "starcoin.doctor",
 				"title": "Starcoin: Doctor"
 			},
 			{
-				"command": "starcoin.testUnit",
-				"title": "Starcoin: Test Unit"
-			},
-			{
-				"command": "starcoin.testFunctional",
-				"title": "Starcoin: Test Functional"
-			},
-			{
-				"command": "starcoin.publish",
-				"title": "Starcoin: Publish"
+				"command": "starcoin.checkCompatibility",
+				"title": "Starcoin: Check Compatibility"
 			},
 			{
 				"command": "starcoin.release",
@@ -47,22 +51,7 @@
 				"command": "starcoin.clean",
 				"title": "Starcoin: Clean"
 			}
-		],
-		"configuration": {
-			"title": "Starcoin IDE",
-			"properties": {
-				"starcoin.buildDirectory": {
-					"type": "string",
-					"default": ".",
-					"description": "Directory to store build artifacts"
-				},
-				"starcoin.storageDirectory": {
-					"type": "string",
-					"default": ".",
-					"description": "Directory to store chain storage"
-				}
-			}
-		}
+		]
 	},
 	"scripts": {
 		"clean": "rimraf dist/",
