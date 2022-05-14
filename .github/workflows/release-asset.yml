@@ -1,0 +1,31 @@
+name: Release asset bot
+
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    name: Build release asset
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: npm install
+      - run: npm run package
+      - name: get version
+        id: version
+        uses: notiz-dev/github-action-json-property@release
+        with: 
+          path: 'package.json'
+          prop_path: 'version'
+      - name: upload vsix asset
+        if: ${{ github.event_name == 'release'}}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./starcoin-ide-${{ steps.version.outputs.prop }}.vsix
+          asset_name: starcoin-ide-${{ github.event.release.tag_name }}.vsix
+          asset_content_type: application/zip
