@@ -27,5 +27,5 @@ jobs:
         with:
           upload_url: ${{ github.event.release.upload_url }}
           asset_path: ./starcoin-ide-${{ steps.version.outputs.prop }}.vsix
-          asset_name: starcoin-ide-${{ github.event.release.tag.name }}.vsix
+          asset_name: starcoin-ide-${{ github.event.release.tag_name }}.vsix
           asset_content_type: application/zip
