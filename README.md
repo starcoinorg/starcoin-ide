@@ -21,6 +21,10 @@ To run any of these commands, use [VSCode's command palette](https://code.visual
 
 This extension uses [vscode-move-syntax](https://marketplace.visualstudio.com/items?itemName=damirka.move-syntax) extension as a dependency for syntax highlighting.
 
+## Feedback Issue
+
+You can give feedback [here](https://github.com/starcoinorg/starcoin-ide/issues).
+
 ## License
 
 MIT
