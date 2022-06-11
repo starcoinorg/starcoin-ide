@@ -30,6 +30,10 @@ const EXTENSION = 'starcoinorg.starcoin-ide';
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
     const loader:Downloader = currentDownloader(context.extensionPath);
 
+    context.subscriptions.push(
+        registerCommand('starcoin.reloadExtension', () => reloadExtensionCommand(context)),
+    );
+
     // Check for the binary every time extension is activated. Either install latest
     // version if binary is not found or fetch for newer version. If it is found, then
     // pull and install it.
@@ -59,10 +63,6 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
             }
         }
     }
-
-    context.subscriptions.push(
-        registerCommand('starcoin.reloadExtension', () => reloadExtensionCommand(context)),
-    );
 
     if (loader instanceof MoveDownloader) {
         context.subscriptions.push(

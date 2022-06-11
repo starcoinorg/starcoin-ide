@@ -51,6 +51,10 @@
 			{
 				"command": "starcoin.clean",
 				"title": "Starcoin: Clean"
+			},
+			{
+				"command": "starcoin.reloadExtension",
+				"title": "Starcoin: reload extension"
 			}
 		],
 		"menus": {
@@ -153,7 +157,7 @@
 	},
 	"dependencies": {
 		"destroy": "^1.2.0",
-		"fs-extra": "^10.0.1",
+		"fs-extra": "10.0.1",
 		"glob": "^7.1.6",
 		"glob-array": "^1.0.0",
 		"node-version-compare": "^1.0.3",
