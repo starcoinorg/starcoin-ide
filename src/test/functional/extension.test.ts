@@ -63,7 +63,7 @@ suite("Starcoin-IDE.functional.test", () => {
             assert.strictEqual(newVersion, version.tag)
         });
     });
-     
+
     suite("Move commands test", () => {
         test("test starcoin build commands", async () => {
             const ext = vscode.extensions.getExtension("starcoinorg.starcoin-ide");
@@ -93,6 +93,7 @@ suite("Starcoin-IDE.functional.test", () => {
                 assert.fail("Error in test command, error: " + err)
             }
         });
+
 
         test("test starcoin unit test commands", async () => {
             const ext = vscode.extensions.getExtension("starcoinorg.starcoin-ide");
