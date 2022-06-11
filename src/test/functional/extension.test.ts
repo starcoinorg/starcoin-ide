@@ -15,7 +15,7 @@ import { Downloader, currentDownloader } from '../../downloader';
 import { installReleaseWithProgress } from '../../extension';
 
 suite("Starcoin-IDE.functional.test", () => {
-    /*
+
     suite("Move binary install test", () => {
         test("First install should download latest move binary", async () => {
             const ext = vscode.extensions.getExtension("starcoinorg.starcoin-ide");
@@ -63,8 +63,7 @@ suite("Starcoin-IDE.functional.test", () => {
             assert.strictEqual(newVersion, version.tag)
         });
     });
-    */
-   
+     
     suite("Move commands test", () => {
         test("test starcoin build commands", async () => {
             const ext = vscode.extensions.getExtension("starcoinorg.starcoin-ide");
