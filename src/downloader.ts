@@ -153,7 +153,7 @@ export class MPMDownloader {
     }
 
     get latestVersion(): string {
-        return "v1.11.9"
+        return "v1.11.10"
     }
 
     get latestStableVersion(): string {

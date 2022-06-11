@@ -14,7 +14,8 @@
 		"vscode": "^1.43.0"
 	},
 	"activationEvents": [
-		"onLanguage:move"
+		"onLanguage:move",
+		"workspaceContains:Move.toml"
 	],
 	"main": "./dist/extension.js",
 	"contributes": {
@@ -51,7 +52,50 @@
 				"command": "starcoin.clean",
 				"title": "Starcoin: Clean"
 			}
-		]
+		],
+		"menus": {
+			"explorer/context": [
+			  {
+				"when": "resourceFilename == Move.toml",
+				"command": "starcoin.build",
+				"group": "2_starcoin@1"
+			  },
+			  {
+				"when": "resourceFilename == Move.toml",
+				"command": "starcoin.testUnit",
+				"group": "2_starcoin@2"
+			  },
+			  {
+				"when": "resourceFilename == Move.toml",
+				"command": "starcoin.testIntegration",
+				"group": "2_starcoin@3"
+			  },
+			  {
+				"when": "resourceFilename == Move.toml",
+				"command": "starcoin.publish",
+				"group": "2_starcoin@4"
+			  },
+			  {
+				"when": "resourceFilename == Move.toml",
+				"command": "starcoin.doctor",
+				"group": "2_starcoin@5"
+			  },
+			  {
+				"when": "resourceFilename == Move.toml",
+				"command": "starcoin.checkCompatibility",
+				"group": "2_starcoin@6"
+			  },
+			  {
+				"when": "resourceFilename == Move.toml",
+				"command": "starcoin.release",
+				"group": "2_starcoin@7"
+			  },{
+				"when": "resourceFilename == Move.toml",
+				"command": "starcoin.clean",
+				"group": "2_starcoin@8"
+			  }
+			]
+		}
 	},
 	"scripts": {
 		"clean": "rimraf dist/",
@@ -61,6 +105,7 @@
 		"watch": "tsc -watch -p ./",
 		"publish": "vsce publish -p",
 		"package": "vsce package",
+		"dev": "yarn clean && yarn compile && node ./dist/demo/run.js",
 		"test:unit": "yarn compile && node ./dist/test/unit/runTest.js",
 		"test:functional": "yarn clean && yarn compile && node ./dist/test/functional/runTest.js",
 		"test": "yarn clean && yarn compile && node ./dist/test/unit/runTest.js && node ./dist/test/functional/runTest.js"

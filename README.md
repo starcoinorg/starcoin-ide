@@ -15,7 +15,8 @@ This extension wraps around Starcoin's `mpm` and provides quick access to the fo
 - Starcoin: Release - `mpm release` - release the package to `release/` directories
 - Starcoin: Clean - cleans project's default `storage/`,`build/` and `release/` directories
 
-To run any of these commands, use [VSCode's command palette](https://code.visualstudio.com/docs/getstarted/userinterface#_command-palette). 
+To run any of these commands, use [VSCode's command palette](https://code.visualstudio.com/docs/getstarted/userinterface#_command-palette),
+or right-click on Move.toml and select the command Run from the context menu that appears.
 
 ## Syntax highlighting
 
