@@ -15,17 +15,24 @@ import { Downloader, currentDownloader } from '../../downloader';
 import { installReleaseWithProgress } from '../../extension';
 
 suite("Starcoin-IDE.functional.test", () => {
-    /*
+    
     suite("Move binary install test", () => {
+  
         test("First install should download latest move binary", async () => {
             const ext = vscode.extensions.getExtension("starcoinorg.starcoin-ide");
             assert.ok(ext)
 
             const loader:Downloader = currentDownloader(ext.extensionPath);
-            fse.emptyDirSync(loader.binPath(""))
+            await fse.emptyDir(loader.binPath(""))
+            await sleep(1000)
 
             // activate extension trigger install lastest move binary
-            await ext.activate();
+            if (!ext.isActive) {
+                await ext.activate();
+                await sleep(1000)
+            } else {
+                await vscode.commands.executeCommand("starcoin.reloadExtension");
+            }
 
             // check version
             const version = fse.readFileSync(loader.versionPath, {
@@ -35,6 +42,7 @@ suite("Starcoin-IDE.functional.test", () => {
             let {tag} = await loader.checkRelease(loader.latestVersion);
             assert.strictEqual(version, tag)
         });
+
 
         test("Upgrade should be ok", async () => {
             const ext = vscode.extensions.getExtension("starcoinorg.starcoin-ide");
@@ -53,6 +61,7 @@ suite("Starcoin-IDE.functional.test", () => {
             // reload extension active trigger upgrade
             if (!ext.isActive) {
                 await ext.activate();
+                await sleep(1000)
             } else {
                 await vscode.commands.executeCommand("starcoin.reloadExtension");
             }
@@ -62,9 +71,10 @@ suite("Starcoin-IDE.functional.test", () => {
             const newVersion = fse.readFileSync(loader.versionPath, {encoding: "utf-8"})
             assert.strictEqual(newVersion, version.tag)
         });
+
     });
-    */
-   
+
+
     suite("Move commands test", () => {
         test("test starcoin build commands", async () => {
             const ext = vscode.extensions.getExtension("starcoinorg.starcoin-ide");
@@ -94,6 +104,7 @@ suite("Starcoin-IDE.functional.test", () => {
                 assert.fail("Error in test command, error: " + err)
             }
         });
+
 
         test("test starcoin unit test commands", async () => {
             const ext = vscode.extensions.getExtension("starcoinorg.starcoin-ide");

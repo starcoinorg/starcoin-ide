@@ -13,7 +13,7 @@ import { MoveDownloader } from '../../downloader';
 suite("Downloader", () => {
 
     suite("#checkNewRelease", () => {
-        test("check move new relase should be ok", async () => {
+        test("check move new release should be ok", async () => {
             const loader = new MoveDownloader(os.tmpdir());
             const result = await loader.checkRelease(loader.latestVersion)
             
