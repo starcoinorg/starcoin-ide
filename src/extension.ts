@@ -12,7 +12,8 @@ import * as vscode from 'vscode';
 import { dos2unix } from './utils'
 import { Downloader, MoveDownloader, MPMDownloader, Release, currentDownloader } from './downloader';
     
-const {commands, window, tasks, Task, ShellExecution} = vscode;
+// @ts-ignore
+const {commands, window, tasks, Task, ShellExecution, ShellExecutionOptions} = vscode;
 const {registerCommand} = commands;
 
 /**
@@ -151,7 +152,9 @@ function mpmTestFileCommand(): Thenable<any> {
     if (path.indexOf('integration-tests') > -1) {
         return mpmExecute('testIntegration', 'integration-test', Marker.ThisFile); 
     } else if  (path.indexOf('sources') > -1) {
-        return mpmExecute('testUnit', 'package test', Marker.ThisFile); 
+        return mpmExecute('testUnit', 'package test', Marker.None, {
+            shellArgs: ["--filter", "SimpleNFTScripts"]
+        }); 
     } else {
         throw new Error('No source file opened');
     }
@@ -194,6 +197,33 @@ function getWorkdirPath(): string {
     return workdir.uri.fsPath;
 }
 
+
+/**
+ * Options for a shell execution
+ */
+export interface CommandExecutionOptions {
+    /**
+     * The arguments to be passed to the shell executable used to run the task. Most shells
+     * require special arguments to execute a command. For  example `bash` requires the `-c`
+     * argument to execute a command, `PowerShell` requires `-Command` and `cmd` requires both
+     * `/d` and `/c`.
+     */
+    shellArgs?: string[];
+
+    /**
+     * The current working directory of the executed shell.
+     * If omitted the tools current workspace root is used.
+     */
+    cwd?: string;
+
+    /**
+     * The additional environment of the executed shell. If omitted
+     * the parent process' environment is used. If provided it is merged with
+     * the parent process' environment.
+     */
+    env?: { [key: string]: string };
+}
+
 /**
  * Main function of this extension. Runs the given mpm command as a VSCode task,
  * optionally include the current file as an argument for the binary.
@@ -203,7 +233,8 @@ function getWorkdirPath(): string {
  * @param useFile 
  * @returns 
  */
-function mpmExecute(task: string, command: string, fileMarker: Marker): Thenable<any> {
+// @ts-ignore
+function mpmExecute(task: string, command: string, fileMarker: Marker, cmdOpts?: CommandExecutionOptions): Thenable<any> {
     const document = window.activeTextEditor?.document;
     const extPath  = vscode.extensions.getExtension(EXTENSION)?.extensionPath;
 
@@ -254,9 +285,34 @@ function mpmExecute(task: string, command: string, fileMarker: Marker): Thenable
     }
     
     // @ts-ignore
-    const opts: ShellExecutionOptions = {
+    const opts:ShellExecutionOptions  = {
         env: {
             "HOME": homeDir
+        }
+    }
+
+    let args:string[] = []
+
+    if (command) {
+        args = args.concat(command.split(' '))
+    }
+   
+    if (path) {
+        args = args.concat(path)
+    }
+
+    if (cmdOpts?.shellArgs) {
+        args = args.concat(cmdOpts.shellArgs)
+    }
+
+    if (cmdOpts?.cwd) {
+        opts.cwd = cmdOpts.cwd
+    }
+
+    if (cmdOpts?.env) {
+        opts.env = {
+            ...cmdOpts.env,
+            ...opts.env
         }
     }
 
@@ -265,6 +321,6 @@ function mpmExecute(task: string, command: string, fileMarker: Marker): Thenable
         workdir,
         task,
         NAMESPACE,
-        new ShellExecution([bin, command, path].join(' '), opts)
+        new ShellExecution(bin, args, opts)
     ));
 }
