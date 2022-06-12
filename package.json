@@ -33,6 +33,10 @@
 				"title": "Starcoin: Integration Test"
 			},
 			{
+				"command": "starcoin.testFile",
+				"title": "Starcoin: Run Test"
+			},
+			{
 				"command": "starcoin.publish",
 				"title": "Starcoin: Publish"
 			},
@@ -97,6 +101,12 @@
 				"when": "resourceFilename == Move.toml",
 				"command": "starcoin.clean",
 				"group": "2_starcoin@8"
+			  },
+
+			  {
+				"when": "resourceExtname == .move",
+				"command": "starcoin.testFile",
+				"group": "2_starcoin@2"
 			  }
 			]
 		}

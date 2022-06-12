@@ -91,4 +91,9 @@ module  SNFT::SimpleNFTScripts{
 		NFTGallery::deposit(&sender, nft);
 	}
 
+	#[test] // OK
+	fun this_is_a_test() {
+		
+	}
+
 }

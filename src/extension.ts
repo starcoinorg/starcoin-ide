@@ -12,7 +12,8 @@ import * as vscode from 'vscode';
 import { dos2unix } from './utils'
 import { Downloader, MoveDownloader, MPMDownloader, Release, currentDownloader } from './downloader';
     
-const {commands, window, tasks, Task, ShellExecution} = vscode;
+// @ts-ignore
+const {commands, window, tasks, Task, ShellExecution, ShellExecutionOptions} = vscode;
 const {registerCommand} = commands;
 
 /**
@@ -64,29 +65,17 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         }
     }
 
-    if (loader instanceof MoveDownloader) {
-        context.subscriptions.push(
-            registerCommand('starcoin.check', checkCommand),
-            registerCommand('starcoin.clean', cleanCommand),
-            registerCommand('starcoin.doctor', doctorCommand),
-            registerCommand('starcoin.testUnit', testUnitCommand),
-            registerCommand('starcoin.testIntegration', testIntegrationCommand),
-            registerCommand('starcoin.run', runCommand),
-            registerCommand('starcoin.publish', publishCommand),
-            registerCommand('starcoin.release', releaseCommand)
-        );
-    } else if (loader instanceof MPMDownloader) {
-        context.subscriptions.push(
-            registerCommand('starcoin.build', mpmBuildCommand),
-            registerCommand('starcoin.testUnit', mpmTestUnitCommand),
-            registerCommand('starcoin.testIntegration', mpmTestIntegrationCommand),
-            registerCommand('starcoin.publish', mpmPublishCommand),
-            registerCommand('starcoin.doctor', mpmDoctorCommand),
-            registerCommand('starcoin.checkCompatibility', mpmCheckCompatibilityCommand),
-            registerCommand('starcoin.release', mpmReleaseCommand),
-            registerCommand('starcoin.clean', mpmCleanCommand),
-        );
-    }
+    context.subscriptions.push(
+        registerCommand('starcoin.build', mpmBuildCommand),
+        registerCommand('starcoin.testUnit', mpmTestUnitCommand),
+        registerCommand('starcoin.testIntegration', mpmTestIntegrationCommand),
+        registerCommand('starcoin.testFile', mpmTestFileCommand),
+        registerCommand('starcoin.publish', mpmPublishCommand),
+        registerCommand('starcoin.doctor', mpmDoctorCommand),
+        registerCommand('starcoin.checkCompatibility', mpmCheckCompatibilityCommand),
+        registerCommand('starcoin.release', mpmReleaseCommand),
+        registerCommand('starcoin.clean', mpmCleanCommand),
+    );
 }
 
 export function deactivate(context: vscode.ExtensionContext): void {}
@@ -149,20 +138,33 @@ enum Marker {
 // Block of function definitions for each command of the extension. All these functions use the 
 // same interface execute(), so see it below for the details.
 
-// move commands
-function checkCommand(): Thenable<any> {return moveExecute('check', 'check', Marker.SrcDir)}
-function cleanCommand(): Thenable<any> { return moveExecute('clean', 'clean', Marker.None);}
-function doctorCommand(): Thenable<any> { return moveExecute('doctor', 'doctor', Marker.None); }
-function testIntegrationCommand(): Thenable<any> { return moveExecute('testIntegration', 'integration-test', Marker.ThisFile); }
-function publishCommand(): Thenable<any> { return moveExecute('publish', 'publish', Marker.ThisFile); }
-function runCommand(): Thenable<any> { return moveExecute('run', 'run', Marker.ThisFile); }
-function testUnitCommand(): Thenable<any> { return moveExecute('testUnit', 'unit-test', Marker.ThisFile); }
-function releaseCommand(): Thenable<any> { return moveExecute('testUnit', 'publish', Marker.SrcDir); }
-
 // mpm commands
 function mpmBuildCommand(): Thenable<any> { return mpmExecute('build', 'package build', Marker.None); }
 function mpmTestUnitCommand(): Thenable<any> { return mpmExecute('testUnit', 'package test', Marker.None); }
 function mpmTestIntegrationCommand(): Thenable<any> { return mpmExecute('testIntegration', 'integration-test', Marker.None); }
+function mpmTestFileCommand(): Thenable<any> { 
+    const document = window.activeTextEditor?.document;
+    if (!document) {
+        throw new Error('No document opened');
+    }
+
+    const path = document.uri.fsPath.toString()
+    var extension = Path.extname(path);
+    const fileName = Path.basename(path, extension)
+
+    if (path.indexOf('integration-tests') > -1) {
+        return mpmExecute('testIntegration', 'integration-test', Marker.None,{
+            shellArgs: [fileName]
+        }); 
+    } else if  (path.indexOf('sources') > -1) {
+        return mpmExecute('testUnit', 'package test', Marker.None, {
+            shellArgs: ["--filter", fileName]
+        }); 
+    } else {
+        throw new Error('No sources or integration-tests file selected!');
+    }
+}
+
 function mpmPublishCommand(): Thenable<any> { return mpmExecute('publish', 'sandbox publish', Marker.None); }
 function mpmDoctorCommand(): Thenable<any> { return mpmExecute('doctor', 'sandbox doctor', Marker.None); }
 function mpmCheckCompatibilityCommand(): Thenable<any> { return mpmExecute('checkCompatibility', 'check-compatibility', Marker.None); }
@@ -178,114 +180,6 @@ function mpmCleanCommand(): Thenable<any> {
     }
 
     return mpmExecute('clean', 'sandbox clean', Marker.None); 
-}
-
-/**
- * Main function of this extension. Runs the given move command as a VSCode task,
- * optionally include the current file as an argument for the binary.
- * 
- * @param task 
- * @param command 
- * @param useFile 
- * @returns 
- */
-function moveExecute(task: string, command: string, fileMarker: Marker): Thenable<any> {
-    const document = window.activeTextEditor?.document;
-    const extPath  = vscode.extensions.getExtension(EXTENSION)?.extensionPath;
-
-    if (!extPath) {
-        return Promise.reject('Unable to find the extension');
-    }
-
-    if (!document) {
-        return Promise.reject('No document opened');
-    }
-
-    const configuration = vscode.workspace.getConfiguration(NAMESPACE, document.uri);
-    if (!configuration) {
-        return Promise.reject('Unable to read configuration folder');
-    }
-
-    const workdir = vscode.workspace.getWorkspaceFolder(document.uri);
-    if (!workdir) {
-        return Promise.reject('Unable to read workdir folder');
-    }
-
-    // Current working (project) directory to set absolute paths.
-    const dir = workdir.uri.fsPath;
-    
-    // @ts-ignore
-    const commonArgs: string[] = [
-        ['--storage-dir', Path.join(dir, 'storage')],
-        ['--build-dir', Path.join(dir, 'build')],
-    ]
-        .filter((a) => (a[1] !== null))
-        .map((param) => param.join(' '));
-
-    // Get binary path which is always inside `extension/bin` directory.
-    const bin = Path.join(extPath, 'bin', (process.platform === 'win32') ? 'move.exe' : 'move');
-    
-    // Set path using the passed Marker. Each binary command has  
-    // its own requirements for the path to pass into it. 
-    let path = '';
-    switch (fileMarker) {
-        case Marker.None: path = ''; break;
-        case Marker.ThisFile: path = document.uri.fsPath.toString() || ''; break;
-        case Marker.WorkDir: path = dir; break;
-        case Marker.SrcDir: path = Path.join(dir, 'sources'); break;
-    }
-    
-    // Fix file format in windows
-    if (process.platform === 'win32') {
-        let sourceDir = Path.join(dir, 'sources')
-        dos2unix(sourceDir, "**/*.move")
-    }
-
-    // Compile std package
-    prepareSTDLib(dir, bin)
-
-    return tasks.executeTask(new Task(
-        {task, type: NAMESPACE},
-        workdir,
-        task,
-        NAMESPACE,
-        new ShellExecution([bin, command, path, commonArgs.join(' ')].join(' '))
-    ));
-}
-
-/**
- * Create and prepare std lib
- * 
- * @param task 
- * @param command 
- * @param useFile 
- * @returns 
- */
-function prepareSTDLib(workspace:string, moveBin:string) {
-    let stdLibDir = Path.join(workspace, "build/package/starcoin/source_files")
-
-    if (!fs.existsSync(stdLibDir)) {
-        vscode.window.showInformationMessage('Prepare std lib...');
-
-        // gen std lib
-        cp.spawnSync(moveBin, ['check', 'build'], {
-            cwd: workspace,
-            encoding: 'latin1',
-            stdio: 'inherit'
-        });
-
-        // dos to unix
-        if (process.platform === 'win32') {
-            dos2unix(stdLibDir, "**/*.move")
-        }
-
-        // publish stdlib
-        cp.spawnSync(moveBin, ['publish', stdLibDir], {
-            cwd: workspace,
-            encoding: 'latin1',
-            stdio: 'inherit'
-        });
-    }
 }
 
 /**
@@ -308,6 +202,33 @@ function getWorkdirPath(): string {
     return workdir.uri.fsPath;
 }
 
+
+/**
+ * Options for a shell execution
+ */
+export interface CommandExecutionOptions {
+    /**
+     * The arguments to be passed to the shell executable used to run the task. Most shells
+     * require special arguments to execute a command. For  example `bash` requires the `-c`
+     * argument to execute a command, `PowerShell` requires `-Command` and `cmd` requires both
+     * `/d` and `/c`.
+     */
+    shellArgs?: string[];
+
+    /**
+     * The current working directory of the executed shell.
+     * If omitted the tools current workspace root is used.
+     */
+    cwd?: string;
+
+    /**
+     * The additional environment of the executed shell. If omitted
+     * the parent process' environment is used. If provided it is merged with
+     * the parent process' environment.
+     */
+    env?: { [key: string]: string };
+}
+
 /**
  * Main function of this extension. Runs the given mpm command as a VSCode task,
  * optionally include the current file as an argument for the binary.
@@ -317,7 +238,8 @@ function getWorkdirPath(): string {
  * @param useFile 
  * @returns 
  */
-function mpmExecute(task: string, command: string, fileMarker: Marker): Thenable<any> {
+// @ts-ignore
+function mpmExecute(task: string, command: string, fileMarker: Marker, cmdOpts?: CommandExecutionOptions): Thenable<any> {
     const document = window.activeTextEditor?.document;
     const extPath  = vscode.extensions.getExtension(EXTENSION)?.extensionPath;
 
@@ -368,9 +290,34 @@ function mpmExecute(task: string, command: string, fileMarker: Marker): Thenable
     }
     
     // @ts-ignore
-    const opts: ShellExecutionOptions = {
+    const opts:ShellExecutionOptions  = {
         env: {
             "HOME": homeDir
+        }
+    }
+
+    let args:string[] = []
+
+    if (command) {
+        args = args.concat(command.split(' '))
+    }
+   
+    if (path) {
+        args = args.concat(path)
+    }
+
+    if (cmdOpts?.shellArgs) {
+        args = args.concat(cmdOpts.shellArgs)
+    }
+
+    if (cmdOpts?.cwd) {
+        opts.cwd = cmdOpts.cwd
+    }
+
+    if (cmdOpts?.env) {
+        opts.env = {
+            ...cmdOpts.env,
+            ...opts.env
         }
     }
 
@@ -379,6 +326,6 @@ function mpmExecute(task: string, command: string, fileMarker: Marker): Thenable
         workdir,
         task,
         NAMESPACE,
-        new ShellExecution([bin, command, path].join(' '), opts)
+        new ShellExecution(bin, args, opts)
     ));
 }
