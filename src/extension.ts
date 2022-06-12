@@ -142,8 +142,21 @@ function mpmBuildCommand(): Thenable<any> { return mpmExecute('build', 'package 
 function mpmTestUnitCommand(): Thenable<any> { return mpmExecute('testUnit', 'package test', Marker.None); }
 function mpmTestIntegrationCommand(): Thenable<any> { return mpmExecute('testIntegration', 'integration-test', Marker.None); }
 function mpmTestFileCommand(): Thenable<any> { 
-    return mpmExecute('testIntegration', 'integration-test', Marker.ThisFile); 
+    const document = window.activeTextEditor?.document;
+    if (!document) {
+        throw new Error('No document opened');
+    }
+
+    const path = document.uri.fsPath.toString() || ''
+    if (path.indexOf('integration-tests') > -1) {
+        return mpmExecute('testIntegration', 'integration-test', Marker.ThisFile); 
+    } else if  (path.indexOf('sources') > -1) {
+        return mpmExecute('testUnit', 'package test', Marker.ThisFile); 
+    } else {
+        throw new Error('No source file opened');
+    }
 }
+
 function mpmPublishCommand(): Thenable<any> { return mpmExecute('publish', 'sandbox publish', Marker.None); }
 function mpmDoctorCommand(): Thenable<any> { return mpmExecute('doctor', 'sandbox doctor', Marker.None); }
 function mpmCheckCompatibilityCommand(): Thenable<any> { return mpmExecute('checkCompatibility', 'check-compatibility', Marker.None); }
@@ -159,114 +172,6 @@ function mpmCleanCommand(): Thenable<any> {
     }
 
     return mpmExecute('clean', 'sandbox clean', Marker.None); 
-}
-
-/**
- * Main function of this extension. Runs the given move command as a VSCode task,
- * optionally include the current file as an argument for the binary.
- * 
- * @param task 
- * @param command 
- * @param useFile 
- * @returns 
- */
-function moveExecute(task: string, command: string, fileMarker: Marker): Thenable<any> {
-    const document = window.activeTextEditor?.document;
-    const extPath  = vscode.extensions.getExtension(EXTENSION)?.extensionPath;
-
-    if (!extPath) {
-        return Promise.reject('Unable to find the extension');
-    }
-
-    if (!document) {
-        return Promise.reject('No document opened');
-    }
-
-    const configuration = vscode.workspace.getConfiguration(NAMESPACE, document.uri);
-    if (!configuration) {
-        return Promise.reject('Unable to read configuration folder');
-    }
-
-    const workdir = vscode.workspace.getWorkspaceFolder(document.uri);
-    if (!workdir) {
-        return Promise.reject('Unable to read workdir folder');
-    }
-
-    // Current working (project) directory to set absolute paths.
-    const dir = workdir.uri.fsPath;
-    
-    // @ts-ignore
-    const commonArgs: string[] = [
-        ['--storage-dir', Path.join(dir, 'storage')],
-        ['--build-dir', Path.join(dir, 'build')],
-    ]
-        .filter((a) => (a[1] !== null))
-        .map((param) => param.join(' '));
-
-    // Get binary path which is always inside `extension/bin` directory.
-    const bin = Path.join(extPath, 'bin', (process.platform === 'win32') ? 'move.exe' : 'move');
-    
-    // Set path using the passed Marker. Each binary command has  
-    // its own requirements for the path to pass into it. 
-    let path = '';
-    switch (fileMarker) {
-        case Marker.None: path = ''; break;
-        case Marker.ThisFile: path = document.uri.fsPath.toString() || ''; break;
-        case Marker.WorkDir: path = dir; break;
-        case Marker.SrcDir: path = Path.join(dir, 'sources'); break;
-    }
-    
-    // Fix file format in windows
-    if (process.platform === 'win32') {
-        let sourceDir = Path.join(dir, 'sources')
-        dos2unix(sourceDir, "**/*.move")
-    }
-
-    // Compile std package
-    prepareSTDLib(dir, bin)
-
-    return tasks.executeTask(new Task(
-        {task, type: NAMESPACE},
-        workdir,
-        task,
-        NAMESPACE,
-        new ShellExecution([bin, command, path, commonArgs.join(' ')].join(' '))
-    ));
-}
-
-/**
- * Create and prepare std lib
- * 
- * @param task 
- * @param command 
- * @param useFile 
- * @returns 
- */
-function prepareSTDLib(workspace:string, moveBin:string) {
-    let stdLibDir = Path.join(workspace, "build/package/starcoin/source_files")
-
-    if (!fs.existsSync(stdLibDir)) {
-        vscode.window.showInformationMessage('Prepare std lib...');
-
-        // gen std lib
-        cp.spawnSync(moveBin, ['check', 'build'], {
-            cwd: workspace,
-            encoding: 'latin1',
-            stdio: 'inherit'
-        });
-
-        // dos to unix
-        if (process.platform === 'win32') {
-            dos2unix(stdLibDir, "**/*.move")
-        }
-
-        // publish stdlib
-        cp.spawnSync(moveBin, ['publish', stdLibDir], {
-            cwd: workspace,
-            encoding: 'latin1',
-            stdio: 'inherit'
-        });
-    }
 }
 
 /**
