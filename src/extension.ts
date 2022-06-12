@@ -64,29 +64,17 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         }
     }
 
-    if (loader instanceof MoveDownloader) {
-        context.subscriptions.push(
-            registerCommand('starcoin.check', checkCommand),
-            registerCommand('starcoin.clean', cleanCommand),
-            registerCommand('starcoin.doctor', doctorCommand),
-            registerCommand('starcoin.testUnit', testUnitCommand),
-            registerCommand('starcoin.testIntegration', testIntegrationCommand),
-            registerCommand('starcoin.run', runCommand),
-            registerCommand('starcoin.publish', publishCommand),
-            registerCommand('starcoin.release', releaseCommand)
-        );
-    } else if (loader instanceof MPMDownloader) {
-        context.subscriptions.push(
-            registerCommand('starcoin.build', mpmBuildCommand),
-            registerCommand('starcoin.testUnit', mpmTestUnitCommand),
-            registerCommand('starcoin.testIntegration', mpmTestIntegrationCommand),
-            registerCommand('starcoin.publish', mpmPublishCommand),
-            registerCommand('starcoin.doctor', mpmDoctorCommand),
-            registerCommand('starcoin.checkCompatibility', mpmCheckCompatibilityCommand),
-            registerCommand('starcoin.release', mpmReleaseCommand),
-            registerCommand('starcoin.clean', mpmCleanCommand),
-        );
-    }
+    context.subscriptions.push(
+        registerCommand('starcoin.build', mpmBuildCommand),
+        registerCommand('starcoin.testUnit', mpmTestUnitCommand),
+        registerCommand('starcoin.testIntegration', mpmTestIntegrationCommand),
+        registerCommand('starcoin.testFile', mpmTestFileCommand),
+        registerCommand('starcoin.publish', mpmPublishCommand),
+        registerCommand('starcoin.doctor', mpmDoctorCommand),
+        registerCommand('starcoin.checkCompatibility', mpmCheckCompatibilityCommand),
+        registerCommand('starcoin.release', mpmReleaseCommand),
+        registerCommand('starcoin.clean', mpmCleanCommand),
+    );
 }
 
 export function deactivate(context: vscode.ExtensionContext): void {}
@@ -149,20 +137,13 @@ enum Marker {
 // Block of function definitions for each command of the extension. All these functions use the 
 // same interface execute(), so see it below for the details.
 
-// move commands
-function checkCommand(): Thenable<any> {return moveExecute('check', 'check', Marker.SrcDir)}
-function cleanCommand(): Thenable<any> { return moveExecute('clean', 'clean', Marker.None);}
-function doctorCommand(): Thenable<any> { return moveExecute('doctor', 'doctor', Marker.None); }
-function testIntegrationCommand(): Thenable<any> { return moveExecute('testIntegration', 'integration-test', Marker.ThisFile); }
-function publishCommand(): Thenable<any> { return moveExecute('publish', 'publish', Marker.ThisFile); }
-function runCommand(): Thenable<any> { return moveExecute('run', 'run', Marker.ThisFile); }
-function testUnitCommand(): Thenable<any> { return moveExecute('testUnit', 'unit-test', Marker.ThisFile); }
-function releaseCommand(): Thenable<any> { return moveExecute('testUnit', 'publish', Marker.SrcDir); }
-
 // mpm commands
 function mpmBuildCommand(): Thenable<any> { return mpmExecute('build', 'package build', Marker.None); }
 function mpmTestUnitCommand(): Thenable<any> { return mpmExecute('testUnit', 'package test', Marker.None); }
 function mpmTestIntegrationCommand(): Thenable<any> { return mpmExecute('testIntegration', 'integration-test', Marker.None); }
+function mpmTestFileCommand(): Thenable<any> { 
+    return mpmExecute('testIntegration', 'integration-test', Marker.ThisFile); 
+}
 function mpmPublishCommand(): Thenable<any> { return mpmExecute('publish', 'sandbox publish', Marker.None); }
 function mpmDoctorCommand(): Thenable<any> { return mpmExecute('doctor', 'sandbox doctor', Marker.None); }
 function mpmCheckCompatibilityCommand(): Thenable<any> { return mpmExecute('checkCompatibility', 'check-compatibility', Marker.None); }
