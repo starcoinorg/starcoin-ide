@@ -148,15 +148,20 @@ function mpmTestFileCommand(): Thenable<any> {
         throw new Error('No document opened');
     }
 
-    const path = document.uri.fsPath.toString() || ''
+    const path = document.uri.fsPath.toString()
+    var extension = Path.extname(path);
+    const fileName = Path.basename(path, extension)
+
     if (path.indexOf('integration-tests') > -1) {
-        return mpmExecute('testIntegration', 'integration-test', Marker.ThisFile); 
+        return mpmExecute('testIntegration', 'integration-test', Marker.None,{
+            shellArgs: [fileName]
+        }); 
     } else if  (path.indexOf('sources') > -1) {
         return mpmExecute('testUnit', 'package test', Marker.None, {
-            shellArgs: ["--filter", "SimpleNFTScripts"]
+            shellArgs: ["--filter", fileName]
         }); 
     } else {
-        throw new Error('No source file opened');
+        throw new Error('No sources or integration-tests file selected!');
     }
 }
 

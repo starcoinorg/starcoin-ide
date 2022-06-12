@@ -16,7 +16,9 @@ This extension wraps around Starcoin's `mpm` and provides quick access to the fo
 - Starcoin: Clean - cleans project's default `storage/`,`build/` and `release/` directories
 
 To run any of these commands, use [VSCode's command palette](https://code.visualstudio.com/docs/getstarted/userinterface#_command-palette),
-or right-click on Move.toml and select the command Run from the context menu that appears.
+or right-click the Move.toml and select the command Run from the context menu that appears,
+or right-click the Move file in the source folder to run unit tests, 
+or right-click the Move file in the integration tests folder to run integration tests.
 
 ## Syntax highlighting
 
