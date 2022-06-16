@@ -24,6 +24,11 @@ or right-click the Move file in the integration tests folder to run integration 
 
 This extension uses [vscode-move-syntax](https://marketplace.visualstudio.com/items?itemName=damirka.move-syntax) extension as a dependency for syntax highlighting.
 
+## Architecture
+
+<img src="./docs/architecture.png">
+
+
 ## Feedback Issue
 
 You can give feedback [here](https://github.com/starcoinorg/starcoin-ide/issues).
