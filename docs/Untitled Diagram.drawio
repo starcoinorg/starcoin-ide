@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2022-06-16T00:06:00.829Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36" etag="dlQRH1qefyYI_AVMj5A4" version="20.0.1" type="github" pages="2">
+<mxfile host="app.diagrams.net" modified="2022-06-16T00:08:20.657Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36" etag="nIzdHCTRYo3WzjVLjoT2" version="20.0.1" type="github" pages="2">
   <diagram name="方案1-放一个扩展里" id="929967ad-93f9-6ef4-fab6-5d389245f69c">
     <mxGraphModel dx="1550" dy="867" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1.5" pageWidth="1169" pageHeight="826" background="none" math="0" shadow="0">
       <root>
@@ -52,6 +52,17 @@
         </mxCell>
         <mxCell id="eLqEl4-S8vd9_SySeYIF-1" value="test command" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
           <mxGeometry x="530" y="720" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="f0tUKvosCPti-GALLRYc-1" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="eLqEl4-S8vd9_SySeYIF-1" target="uLiEmoB__jb0k-eyRNIX-5">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="660" y="670" as="sourcePoint" />
+            <mxPoint x="910" y="670" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f0tUKvosCPti-GALLRYc-2" value="shell execution" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="f0tUKvosCPti-GALLRYc-1">
+          <mxGeometry x="0.0785" y="2" relative="1" as="geometry">
+            <mxPoint x="-5" y="-17" as="offset" />
+          </mxGeometry>
         </mxCell>
       </root>
     </mxGraphModel>
@@ -112,6 +123,17 @@
         </mxCell>
         <mxCell id="cT1DlM9bzxeM_iLcBHMH-0" value="test command" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="z_Y2QgHlDeg7awepkTsl-1">
           <mxGeometry x="530" y="690" width="120" height="49" as="geometry" />
+        </mxCell>
+        <mxCell id="GZC814BMRvnGvtgqNuR1-0" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;strokeWidth=2;" edge="1" parent="z_Y2QgHlDeg7awepkTsl-1" source="cT1DlM9bzxeM_iLcBHMH-0">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="660" y="645.5" as="sourcePoint" />
+            <mxPoint x="900" y="640" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="GZC814BMRvnGvtgqNuR1-1" value="shell execution" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="GZC814BMRvnGvtgqNuR1-0">
+          <mxGeometry x="0.0785" y="2" relative="1" as="geometry">
+            <mxPoint x="-5" y="-17" as="offset" />
+          </mxGeometry>
         </mxCell>
       </root>
     </mxGraphModel>
