@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2022-06-16T00:08:20.657Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36" etag="nIzdHCTRYo3WzjVLjoT2" version="20.0.1" type="github" pages="2">
+<mxfile host="app.diagrams.net" modified="2022-06-16T00:20:10.919Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36" etag="ThpuHE9hPHnORRkseYMk" version="20.0.1" type="github" pages="2">
   <diagram name="方案1-放一个扩展里" id="929967ad-93f9-6ef4-fab6-5d389245f69c">
     <mxGraphModel dx="1550" dy="867" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1.5" pageWidth="1169" pageHeight="826" background="none" math="0" shadow="0">
       <root>
@@ -8,7 +8,10 @@
           <mxGeometry x="120" y="40" width="1510" height="40" as="geometry" />
         </mxCell>
         <mxCell id="uLiEmoB__jb0k-eyRNIX-1" value="VSCode" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;" vertex="1" parent="1">
-          <mxGeometry x="450" y="500" width="280" height="450" as="geometry" />
+          <mxGeometry x="450" y="500" width="280" height="550" as="geometry" />
+        </mxCell>
+        <mxCell id="PG_nJ-_vgdUZBkm9yKB7-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;dashed=1;dashPattern=1 1;strokeWidth=2;" edge="1" parent="1" source="uLiEmoB__jb0k-eyRNIX-2" target="PG_nJ-_vgdUZBkm9yKB7-1">
+          <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="uLiEmoB__jb0k-eyRNIX-2" value="Extention Host &lt;br&gt;(starcoin-ide)" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
           <mxGeometry x="490" y="560" width="200" height="360" as="geometry" />
@@ -63,6 +66,9 @@
           <mxGeometry x="0.0785" y="2" relative="1" as="geometry">
             <mxPoint x="-5" y="-17" as="offset" />
           </mxGeometry>
+        </mxCell>
+        <mxCell id="PG_nJ-_vgdUZBkm9yKB7-1" value="Extention Host &lt;br&gt;(damirka.move-syntax)" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=middle;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="490" y="960" width="200" height="70" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
