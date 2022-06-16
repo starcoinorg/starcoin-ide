@@ -1,5 +1,5 @@
-<mxfile host="app.diagrams.net" modified="2022-06-15T23:55:02.114Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36" etag="jHt-L_zRmtNAwS_2kIa3" version="20.0.1" type="github">
-  <diagram name="Page-1" id="929967ad-93f9-6ef4-fab6-5d389245f69c">
+<mxfile host="app.diagrams.net" modified="2022-06-16T00:02:12.614Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36" etag="NTn53M1uqtoGfsT7oZkR" version="20.0.1" type="github" pages="2">
+  <diagram name="方案1-放一个扩展里" id="929967ad-93f9-6ef4-fab6-5d389245f69c">
     <mxGraphModel dx="1550" dy="867" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1.5" pageWidth="1169" pageHeight="826" background="none" math="0" shadow="0">
       <root>
         <mxCell id="0" style=";html=1;" />
@@ -46,6 +46,63 @@
           <mxGeometry x="0.1302" y="5" relative="1" as="geometry">
             <mxPoint x="-8" y="-15" as="offset" />
           </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="方案2-通过扩展依赖" id="MYy-qAjG_w4TjMhjELct">
+    <mxGraphModel dx="1550" dy="867" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1.5" pageWidth="1169" pageHeight="826" background="none" math="0" shadow="0">
+      <root>
+        <mxCell id="z_Y2QgHlDeg7awepkTsl-0" style=";html=1;" />
+        <mxCell id="z_Y2QgHlDeg7awepkTsl-1" style=";html=1;" parent="z_Y2QgHlDeg7awepkTsl-0" />
+        <mxCell id="z_Y2QgHlDeg7awepkTsl-2" value="Title" style="text;strokeColor=none;fillColor=none;html=1;fontSize=24;fontStyle=1;verticalAlign=middle;align=center;" vertex="1" parent="z_Y2QgHlDeg7awepkTsl-1">
+          <mxGeometry x="120" y="40" width="1510" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="z_Y2QgHlDeg7awepkTsl-3" value="VSCode" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;" vertex="1" parent="z_Y2QgHlDeg7awepkTsl-1">
+          <mxGeometry x="450" y="500" width="280" height="450" as="geometry" />
+        </mxCell>
+        <mxCell id="Qft967QNQSQyQiSvVNes-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;dashed=1;dashPattern=1 1;" edge="1" parent="z_Y2QgHlDeg7awepkTsl-1" source="z_Y2QgHlDeg7awepkTsl-4" target="Qft967QNQSQyQiSvVNes-0">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="z_Y2QgHlDeg7awepkTsl-4" value="Extention Host &lt;br&gt;(starcoin-ide)" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="z_Y2QgHlDeg7awepkTsl-1">
+          <mxGeometry x="490" y="560" width="200" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="z_Y2QgHlDeg7awepkTsl-5" value="mpm" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="z_Y2QgHlDeg7awepkTsl-1">
+          <mxGeometry x="900" y="611" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="z_Y2QgHlDeg7awepkTsl-6" value="move-analyzer" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="z_Y2QgHlDeg7awepkTsl-1">
+          <mxGeometry x="900" y="800" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="z_Y2QgHlDeg7awepkTsl-7" value="build command" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="z_Y2QgHlDeg7awepkTsl-1">
+          <mxGeometry x="530" y="611" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="z_Y2QgHlDeg7awepkTsl-9" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="z_Y2QgHlDeg7awepkTsl-1" source="z_Y2QgHlDeg7awepkTsl-7" target="z_Y2QgHlDeg7awepkTsl-5">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="850" y="591" as="sourcePoint" />
+            <mxPoint x="900" y="541" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="z_Y2QgHlDeg7awepkTsl-10" value="shell execution" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="z_Y2QgHlDeg7awepkTsl-9">
+          <mxGeometry x="0.0785" y="2" relative="1" as="geometry">
+            <mxPoint x="-5" y="-17" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Qft967QNQSQyQiSvVNes-0" value="Extention Host &lt;br&gt;(move-analyzer)" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="z_Y2QgHlDeg7awepkTsl-1">
+          <mxGeometry x="490" y="750" width="200" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="z_Y2QgHlDeg7awepkTsl-11" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="z_Y2QgHlDeg7awepkTsl-1" source="z_Y2QgHlDeg7awepkTsl-8" target="z_Y2QgHlDeg7awepkTsl-6">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="660" y="670" as="sourcePoint" />
+            <mxPoint x="910" y="668" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="z_Y2QgHlDeg7awepkTsl-12" value="LSP" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="z_Y2QgHlDeg7awepkTsl-11">
+          <mxGeometry x="0.1302" y="5" relative="1" as="geometry">
+            <mxPoint x="-8" y="-15" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="z_Y2QgHlDeg7awepkTsl-8" value="move language client" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="z_Y2QgHlDeg7awepkTsl-1">
+          <mxGeometry x="515" y="800" width="150" height="60" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
