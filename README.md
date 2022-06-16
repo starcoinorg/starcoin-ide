@@ -2,6 +2,10 @@
 
 This is the repository for [the Starcoin IDE](https://marketplace.visualstudio.com/items?itemName=starcoinorg.starcoin-ide).
 
+## Architecture
+
+<img src="./docs/architecture.png">
+
 ## Available commands
 
 This extension wraps around Starcoin's `mpm` and provides quick access to the folllowing commands:
@@ -23,11 +27,6 @@ or right-click the Move file in the integration tests folder to run integration 
 ## Syntax highlighting
 
 This extension uses [vscode-move-syntax](https://marketplace.visualstudio.com/items?itemName=damirka.move-syntax) extension as a dependency for syntax highlighting.
-
-## Architecture
-
-<img src="./docs/architecture.png">
-
 
 ## Feedback Issue
 
