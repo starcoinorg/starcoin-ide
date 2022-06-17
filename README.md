@@ -2,9 +2,6 @@
 
 This is the repository for [the Starcoin IDE](https://marketplace.visualstudio.com/items?itemName=starcoinorg.starcoin-ide).
 
-## Architecture
-
-<img src="./docs/architecture.png">
 
 ## Available commands
 
@@ -32,6 +29,14 @@ This extension uses [vscode-move-syntax](https://marketplace.visualstudio.com/it
 
 You can give feedback [here](https://github.com/starcoinorg/starcoin-ide/issues).
 
+## Contributing
+
+We welcome your contributions and thank you for working to improve the Starcoin contract
+development experience in VS Code. If you would like to help work on the Starcoin IDE,
+please see our [contribution guide](docs/contributing.md). It
+explains how to build and run the extension locally, and describes the architecture of the
+of starcoin IDE.
+
 ## License
 
-MIT
+[MIT](LICENSE)
