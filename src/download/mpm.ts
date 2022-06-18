@@ -50,7 +50,7 @@ export class MPMDownloader {
   }
 
   binPath(file: string): string {
-    if (file != '') {
+    if (file !== '') {
       return path.join(this.extensionPath, 'bin', file);
     } else {
       return path.join(this.extensionPath, 'bin');

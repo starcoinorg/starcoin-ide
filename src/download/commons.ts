@@ -10,7 +10,6 @@ import * as https from 'https';
 import * as wget from 'wget-improved';
 import { env } from 'process';
 
-// @ts-ignore
 import * as unzip from 'unzipper';
 
 // @ts-ignore
@@ -65,10 +64,10 @@ export async function installRelease(
   release: Release,
   progressCallback: (progress: number) => void
 ) {
-  var destroy = require('destroy');
+  const destroy = require('destroy');
 
   // Create bin dirs
-  let binDir = loader.binPath('');
+  const binDir = loader.binPath('');
   if (!fs.existsSync(binDir)) {
     fse.mkdirsSync(binDir);
   }
@@ -87,18 +86,18 @@ export async function installRelease(
       dest = loader.zipPath;
     }
 
-    let downloader: any = wget
+    const downloader: any = wget
       .download(release.browser_download_url, dest, {})
-      .on('error', function (err) {
+      .on('error', (err) => {
         console.log('download error: ', err);
         reject(err);
       })
-      .on('timeout', function () {
+      .on('timeout', () => {
         console.log('download timeout');
         reject('Network read timeout error');
       })
-      .on('start', function (fileSize) {
-        if (progressCallback != null) {
+      .on('start', (fileSize) => {
+        if (progressCallback !== null) {
           progressCallback(0);
         }
 
@@ -109,11 +108,11 @@ export async function installRelease(
           reject('Network read timeout error');
         });
       })
-      .on('end', function (output) {
+      .on('end', (output) => {
         resolve(null);
       })
-      .on('progress', function (progress) {
-        if (progressCallback != null) {
+      .on('progress', (progress) => {
+        if (progressCallback !== null) {
           progressCallback(progress);
         }
       });
@@ -121,7 +120,7 @@ export async function installRelease(
 
   if (isZip(release)) {
     // Unzip this file and do a cleanup.
-    let rs = fs.createReadStream(loader.zipPath);
+    const rs = fs.createReadStream(loader.zipPath);
 
     try {
       await new Promise((resolve, reject) => {
@@ -131,7 +130,7 @@ export async function installRelease(
             const fileName = entry.path.split('/')[1];
 
             if (fileName === loader.executateName) {
-              let dest = loader.executatePath + '.new';
+              const dest = loader.executatePath + '.new';
               entry.pipe(fs.createWriteStream(dest)).on('finish', resolve).on('error', reject);
             } else {
               entry.autodrain();
@@ -168,8 +167,8 @@ export async function installRelease(
  * @returns
  */
 export function isBinaryOutdated(loader: Downloader, latest: string): boolean {
-  var compareVersions = require('node-version-compare');
-  let version = fs.readFileSync(loader.versionPath).toString();
+  const compareVersions = require('node-version-compare');
+  const version = fs.readFileSync(loader.versionPath).toString();
 
   // Compare versions against each other. If current one is less than new one - update.
   return compareVersions(version, latest) < 0;
@@ -215,17 +214,17 @@ export async function checkNewRelease(
     headers: { 'user-agent': 'node.js' }
   };
 
-  let githubToken = env.GITHUB_TOKEN;
+  const githubToken = env.GITHUB_TOKEN;
   if (githubToken) {
     // @ts-ignore
     options.headers['authorization'] = 'Bearer ' + githubToken;
   }
 
-  if (version == 'latest') {
+  if (version === 'latest') {
     options.path = `/repos/${gitRepo}/releases/latest`;
   }
 
-  let stats = await new Promise((resolve, reject) => {
+  const stats = await new Promise((resolve, reject) => {
     https
       .get(options, (res) => {
         let body = '';

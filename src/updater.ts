@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { Downloader, Release, currentDownloader, currentAnalyzerDownloader } from './download';
 
 export function installReleaseWithProgress(loader: Downloader, version: string, release: Release): Thenable<void> {
-  let lastVal: number = 0;
+  let lastVal = 0;
 
   return vscode.window.withProgress<void>(
     {
@@ -11,8 +11,8 @@ export function installReleaseWithProgress(loader: Downloader, version: string, 
       cancellable: false
     },
     (progress) => {
-      return loader.installRelease(version, release, function (val: number) {
-        let offset = val - lastVal;
+      return loader.installRelease(version, release, (val: number) => {
+        const offset = val - lastVal;
         lastVal = val;
 
         progress.report({ increment: offset * 100, message: 'Progress: ' + (val * 100).toFixed(2) + '%' });
@@ -28,7 +28,7 @@ export async function checkAndUpdateWithDownlaoder(
   if (!loader.hasBinary()) {
     vscode.window.showWarningMessage('No ' + loader.executateDesc + ' found. Fetching latest version...');
 
-    let { tag, release } = await loader.checkRelease(loader.latestVersion);
+    const { tag, release } = await loader.checkRelease(loader.latestVersion);
 
     try {
       await installReleaseWithProgress(loader, tag, release);
@@ -38,7 +38,7 @@ export async function checkAndUpdateWithDownlaoder(
       return;
     }
   } else {
-    let { tag, release } = await loader.checkRelease(loader.latestVersion);
+    const { tag, release } = await loader.checkRelease(loader.latestVersion);
 
     if (loader.isBinaryOutdated(tag)) {
       vscode.window.showInformationMessage('Newer ' + loader.executateDesc + ' found: ' + tag + '; Pulling...');

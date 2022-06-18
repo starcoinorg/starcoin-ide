@@ -21,7 +21,7 @@ const NAMESPACE = 'starcoin';
 const EXTENSION = 'starcoinorg.starcoin-ide';
 
 export async function activate(ctx: vscode.ExtensionContext): Promise<void> {
-  let ideCtx: IDEExtensionContext = {
+  const ideCtx: IDEExtensionContext = {
     vscode: ctx,
     activate,
     deactivate,

@@ -20,7 +20,7 @@ async function main(): Promise<void> {
   const extensionTestsPath = path.resolve(__dirname, './index');
 
   // The workspace
-  let testWorkspace = path.resolve(__dirname, './simple-nft-mpm');
+  const testWorkspace = path.resolve(__dirname, './simple-nft-mpm');
   let testWorkspacePath = path.resolve(testWorkspace, './simple-nft.code-workspace');
   if (process.platform === 'win32') {
     testWorkspacePath = path.resolve(testWorkspace, './simple-nft.code-workspace');

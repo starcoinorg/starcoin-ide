@@ -20,7 +20,7 @@ async function main(): Promise<void> {
   const extensionTestsPath = path.resolve(__dirname, './index');
 
   // The workspace
-  let testWorkspace = path.resolve(__dirname, './demos/simple-nft-mpm');
+  const testWorkspace = path.resolve(__dirname, './demos/simple-nft-mpm');
   let testWorkspacePath = path.resolve(testWorkspace, './simple-nft.code-workspace');
   if (process.platform === 'win32') {
     testWorkspacePath = path.resolve(testWorkspace, './simple-nft.code-workspace');
@@ -55,6 +55,9 @@ async function main(): Promise<void> {
     await runTests(options);
   } catch (err) {
     console.error(err);
+
+    // no-process-exit is required to avoid the test runner to exit with error code 1
+    // eslint-disable-next-line no-process-exit
     process.exit(1);
   }
 }

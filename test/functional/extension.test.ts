@@ -11,8 +11,8 @@ import * as path from 'path';
 import * as fse from 'fs-extra';
 
 import { sleep, getTaskResult } from './utils';
-import { Downloader, currentDownloader } from '../../download';
-import { installReleaseWithProgress } from '../../updater';
+import { Downloader, currentDownloader } from '../../src/download';
+import { installReleaseWithProgress } from '../../src/updater';
 
 suite('Starcoin-IDE.functional.test', () => {
   suite('Move binary install test', () => {
@@ -37,7 +37,7 @@ suite('Starcoin-IDE.functional.test', () => {
         encoding: 'utf-8'
       });
 
-      let { tag } = await loader.checkRelease(loader.latestVersion);
+      const { tag } = await loader.checkRelease(loader.latestVersion);
       assert.strictEqual(version, tag);
     });
 
@@ -49,7 +49,7 @@ suite('Starcoin-IDE.functional.test', () => {
       fse.emptyDirSync(loader.binPath(''));
 
       // download older stable version
-      let { tag, release } = await loader.checkRelease(loader.latestStableVersion);
+      const { tag, release } = await loader.checkRelease(loader.latestStableVersion);
       await installReleaseWithProgress(loader, tag, release);
 
       const olderVersion = fse.readFileSync(loader.versionPath, { encoding: 'utf-8' });
@@ -64,7 +64,7 @@ suite('Starcoin-IDE.functional.test', () => {
       }
 
       // check version
-      let version = await loader.checkRelease(loader.latestVersion);
+      const version = await loader.checkRelease(loader.latestVersion);
       const newVersion = fse.readFileSync(loader.versionPath, { encoding: 'utf-8' });
       assert.strictEqual(newVersion, version.tag);
     });
@@ -86,13 +86,13 @@ suite('Starcoin-IDE.functional.test', () => {
         }
 
         // 2. open doc
-        let docs = await vscode.workspace.openTextDocument(path.join(workDir, 'sources/SimpleNFT.move'));
+        const docs = await vscode.workspace.openTextDocument(path.join(workDir, 'sources/SimpleNFT.move'));
         await vscode.window.showTextDocument(docs);
         await sleep(1000);
 
         // 3. execute command
-        let exec: vscode.TaskExecution = await vscode.commands.executeCommand('starcoin.build');
-        let exitCode = await getTaskResult(exec);
+        const exec: vscode.TaskExecution = await vscode.commands.executeCommand('starcoin.build');
+        const exitCode = await getTaskResult(exec);
         await sleep(1000);
         assert.strictEqual(0, exitCode);
       } catch (err) {
@@ -115,13 +115,13 @@ suite('Starcoin-IDE.functional.test', () => {
         }
 
         // 2. open doc
-        let docs = await vscode.workspace.openTextDocument(path.join(workDir, 'sources/SimpleNFT.move'));
+        const docs = await vscode.workspace.openTextDocument(path.join(workDir, 'sources/SimpleNFT.move'));
         await vscode.window.showTextDocument(docs);
         await sleep(1000);
 
         // 3. execute command
-        let exec: vscode.TaskExecution = await vscode.commands.executeCommand('starcoin.testUnit');
-        let exitCode = await getTaskResult(exec);
+        const exec: vscode.TaskExecution = await vscode.commands.executeCommand('starcoin.testUnit');
+        const exitCode = await getTaskResult(exec);
         await sleep(1000);
         assert.strictEqual(0, exitCode);
       } catch (err) {
@@ -144,13 +144,13 @@ suite('Starcoin-IDE.functional.test', () => {
         }
 
         // 2. open doc
-        let docs = await vscode.workspace.openTextDocument(path.join(workDir, 'sources/SimpleNFT.move'));
+        const docs = await vscode.workspace.openTextDocument(path.join(workDir, 'sources/SimpleNFT.move'));
         await vscode.window.showTextDocument(docs);
         await sleep(1000);
 
         // 3. execute command
-        let exec: vscode.TaskExecution = await vscode.commands.executeCommand('starcoin.testIntegration');
-        let exitCode = await getTaskResult(exec);
+        const exec: vscode.TaskExecution = await vscode.commands.executeCommand('starcoin.testIntegration');
+        const exitCode = await getTaskResult(exec);
         await sleep(1000);
         assert.strictEqual(0, exitCode);
       } catch (err) {
@@ -173,13 +173,13 @@ suite('Starcoin-IDE.functional.test', () => {
         }
 
         // 2. open doc
-        let docs = await vscode.workspace.openTextDocument(path.join(workDir, 'sources/SimpleNFT.move'));
+        const docs = await vscode.workspace.openTextDocument(path.join(workDir, 'sources/SimpleNFT.move'));
         await vscode.window.showTextDocument(docs);
         await sleep(1000);
 
         // 3. execute command
-        let exec: vscode.TaskExecution = await vscode.commands.executeCommand('starcoin.publish');
-        let exitCode = await getTaskResult(exec);
+        const exec: vscode.TaskExecution = await vscode.commands.executeCommand('starcoin.publish');
+        const exitCode = await getTaskResult(exec);
         await sleep(1000);
         assert.strictEqual(0, exitCode);
       } catch (err) {
@@ -202,13 +202,13 @@ suite('Starcoin-IDE.functional.test', () => {
         }
 
         // 2. open doc
-        let docs = await vscode.workspace.openTextDocument(path.join(workDir, 'sources/SimpleNFT.move'));
+        const docs = await vscode.workspace.openTextDocument(path.join(workDir, 'sources/SimpleNFT.move'));
         await vscode.window.showTextDocument(docs);
         await sleep(1000);
 
         // 3. execute command
-        let exec: vscode.TaskExecution = await vscode.commands.executeCommand('starcoin.doctor');
-        let exitCode = await getTaskResult(exec);
+        const exec: vscode.TaskExecution = await vscode.commands.executeCommand('starcoin.doctor');
+        const exitCode = await getTaskResult(exec);
         await sleep(1000);
         assert.strictEqual(0, exitCode);
       } catch (err) {
@@ -231,13 +231,13 @@ suite('Starcoin-IDE.functional.test', () => {
         }
 
         // 2. open doc
-        let docs = await vscode.workspace.openTextDocument(path.join(workDir, 'sources/SimpleNFT.move'));
+        const docs = await vscode.workspace.openTextDocument(path.join(workDir, 'sources/SimpleNFT.move'));
         await vscode.window.showTextDocument(docs);
         await sleep(1000);
 
         // 3. execute command
-        let exec: vscode.TaskExecution = await vscode.commands.executeCommand('starcoin.checkCompatibility');
-        let exitCode = await getTaskResult(exec);
+        const exec: vscode.TaskExecution = await vscode.commands.executeCommand('starcoin.checkCompatibility');
+        const exitCode = await getTaskResult(exec);
         await sleep(1000);
         assert.strictEqual(0, exitCode);
       } catch (err) {
@@ -260,13 +260,13 @@ suite('Starcoin-IDE.functional.test', () => {
         }
 
         // 2. open doc
-        let docs = await vscode.workspace.openTextDocument(path.join(workDir, 'sources/SimpleNFT.move'));
+        const docs = await vscode.workspace.openTextDocument(path.join(workDir, 'sources/SimpleNFT.move'));
         await vscode.window.showTextDocument(docs);
         await sleep(1000);
 
         // 3. execute command
-        let exec: vscode.TaskExecution = await vscode.commands.executeCommand('starcoin.release');
-        let exitCode = await getTaskResult(exec);
+        const exec: vscode.TaskExecution = await vscode.commands.executeCommand('starcoin.release');
+        const exitCode = await getTaskResult(exec);
         await sleep(1000);
         assert.strictEqual(0, exitCode);
       } catch (err) {
@@ -289,19 +289,19 @@ suite('Starcoin-IDE.functional.test', () => {
         }
 
         // 2. open doc
-        let docs = await vscode.workspace.openTextDocument(path.join(workDir, 'sources/SimpleNFT.move'));
+        const docs = await vscode.workspace.openTextDocument(path.join(workDir, 'sources/SimpleNFT.move'));
         await vscode.window.showTextDocument(docs);
         await sleep(1000);
 
         // 3. execute release command
-        let releaseExec: vscode.TaskExecution = await vscode.commands.executeCommand('starcoin.release');
-        let releaseExitCode = await getTaskResult(releaseExec);
+        const releaseExec: vscode.TaskExecution = await vscode.commands.executeCommand('starcoin.release');
+        const releaseExitCode = await getTaskResult(releaseExec);
         await sleep(1000);
         assert.strictEqual(0, releaseExitCode);
 
         // 4. execute clean command
-        let exec: vscode.TaskExecution = await vscode.commands.executeCommand('starcoin.clean');
-        let exitCode = await getTaskResult(exec);
+        const exec: vscode.TaskExecution = await vscode.commands.executeCommand('starcoin.clean');
+        const exitCode = await getTaskResult(exec);
         await sleep(1000);
         assert.strictEqual(0, exitCode);
       } catch (err) {
@@ -324,13 +324,13 @@ suite('Starcoin-IDE.functional.test', () => {
         }
 
         // 2. open doc
-        let docs = await vscode.workspace.openTextDocument(path.join(workDir, 'sources/SimpleNFT.move'));
+        const docs = await vscode.workspace.openTextDocument(path.join(workDir, 'sources/SimpleNFT.move'));
         await vscode.window.showTextDocument(docs);
         await sleep(1000);
 
         // 3. execute testFile command
-        let exec: vscode.TaskExecution = await vscode.commands.executeCommand('starcoin.testFile');
-        let exitCode = await getTaskResult(exec);
+        const exec: vscode.TaskExecution = await vscode.commands.executeCommand('starcoin.testFile');
+        const exitCode = await getTaskResult(exec);
         await sleep(1000);
         assert.strictEqual(0, exitCode);
       } catch (err) {
@@ -353,15 +353,15 @@ suite('Starcoin-IDE.functional.test', () => {
         }
 
         // 2. open doc
-        let docs = await vscode.workspace.openTextDocument(
+        const docs = await vscode.workspace.openTextDocument(
           path.join(workDir, 'integration-tests/test_simple_nft.move')
         );
         await vscode.window.showTextDocument(docs);
         await sleep(1000);
 
         // 3. execute testFile command
-        let exec: vscode.TaskExecution = await vscode.commands.executeCommand('starcoin.testFile');
-        let exitCode = await getTaskResult(exec);
+        const exec: vscode.TaskExecution = await vscode.commands.executeCommand('starcoin.testFile');
+        const exitCode = await getTaskResult(exec);
         await sleep(1000);
         assert.strictEqual(0, exitCode);
       } catch (err) {

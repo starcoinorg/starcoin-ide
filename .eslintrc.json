@@ -1,4 +1,8 @@
 {
     "extends": "./node_modules/gts/",
-    "root": true
+    "root": true,
+    "rules": {
+        "@typescript-eslint/ban-ts-comment": "off",
+        "node/no-unpublished-import": "off"
+    }
 }

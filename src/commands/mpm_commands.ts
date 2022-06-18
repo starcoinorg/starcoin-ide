@@ -76,7 +76,6 @@ interface CommandExecutionOptions {
  * @param useFile
  * @returns
  */
-// @ts-ignore
 function mpmExecute(
   ideCtx: IDEExtensionContext,
   task: string,
@@ -131,7 +130,7 @@ function mpmExecute(
 
   // Fix file format in windows
   if (process.platform === 'win32') {
-    let sourceDir = Path.join(dir, 'integration-tests');
+    const sourceDir = Path.join(dir, 'integration-tests');
     dos2unix(sourceDir, '**/*.exp');
   }
 
@@ -141,11 +140,8 @@ function mpmExecute(
     homeDir = process.env.USERPROFILE;
   }
 
-  // @ts-ignore
-  const opts: ShellExecutionOptions = {
-    env: {
-      HOME: homeDir
-    }
+  const opts: vscode.ShellExecutionOptions = {
+    env: {}
   };
 
   let args: string[] = [];
@@ -168,6 +164,7 @@ function mpmExecute(
 
   if (cmdOpts?.env) {
     opts.env = {
+      ['HOME']: homeDir || '',
       ...cmdOpts.env,
       ...opts.env
     };
@@ -207,7 +204,7 @@ export const mpmTestFile: CommandFactory = (ctx: IDEExtensionContext) => {
     }
 
     const path = document.uri.fsPath.toString();
-    var extension = Path.extname(path);
+    const extension = Path.extname(path);
     const fileName = Path.basename(path, extension);
 
     if (path.indexOf('integration-tests') > -1) {
@@ -252,7 +249,7 @@ export const mpmClean: CommandFactory = (ctx: IDEExtensionContext) => {
   return async (): Promise<void> => {
     // clean release dir
     const workDir = getWorkdirPath();
-    let releaseDir = Path.join(workDir, 'release');
+    const releaseDir = Path.join(workDir, 'release');
     if (fs.existsSync(releaseDir)) {
       fse.rmdirSync(releaseDir, {
         recursive: true
