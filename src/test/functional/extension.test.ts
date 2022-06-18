@@ -11,7 +11,7 @@ import * as path from 'path';
 import * as fse from 'fs-extra';
 
 import { sleep, getTaskResult } from './utils'
-import { Downloader, currentDownloader } from '../../downloader';
+import { Downloader, currentDownloader } from '../../download';
 import { installReleaseWithProgress } from '../../extension';
 
 suite("Starcoin-IDE.functional.test", () => {

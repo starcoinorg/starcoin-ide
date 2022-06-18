@@ -10,7 +10,7 @@ import * as Path from 'path';
 import * as cp from 'child_process';
 import * as vscode from 'vscode';
 import { dos2unix } from './utils'
-import { Downloader, MoveDownloader, MPMDownloader, Release, currentDownloader } from './downloader';
+import { Downloader, MoveDownloader, MPMDownloader, Release, currentDownloader } from './download';
     
 // @ts-ignore
 const {commands, window, tasks, Task, ShellExecution, ShellExecutionOptions} = vscode;
