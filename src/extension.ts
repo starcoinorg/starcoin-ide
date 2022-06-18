@@ -1,18 +1,13 @@
 /**
  * Entry Point for the StarCoin IDE Extension.
- * 
+ *
  * @copyright 2021 StarCoin
  */
-import * as fs from 'fs';
-import * as fse from 'fs-extra';
-import * as Path from 'path';
 import * as vscode from 'vscode';
-import { dos2unix } from './utils'
-import { checkAndUpdateAll } from './updater';
 
-// @ts-ignore
-const { commands, window, tasks, Task, ShellExecution, ShellExecutionOptions } = vscode;
-const { registerCommand } = commands;
+import { IDEExtensionContext } from './context';
+import { checkAndUpdateAll } from './updater';
+import * as commands from './commands';
 
 /**
  * Name of the namespace to shorten all access points
@@ -25,250 +20,28 @@ const NAMESPACE = 'starcoin';
  */
 const EXTENSION = 'starcoinorg.starcoin-ide';
 
+export async function activate(ctx: vscode.ExtensionContext): Promise<void> {
+  let ideCtx: IDEExtensionContext = {
+    vscode: ctx,
+    activate,
+    deactivate,
+    namespace: NAMESPACE,
+    extension: EXTENSION
+  };
 
-export async function activate(context: vscode.ExtensionContext): Promise<void> {
-    context.subscriptions.push(
-        registerCommand('starcoin.reloadExtension', () => reloadExtensionCommand(context)),
-    );
+  const registerCommand = commands.createRegisterCommand(ideCtx);
 
-    await checkAndUpdateAll(context);
-
-    context.subscriptions.push(
-        registerCommand('starcoin.build', mpmBuildCommand),
-        registerCommand('starcoin.testUnit', mpmTestUnitCommand),
-        registerCommand('starcoin.testIntegration', mpmTestIntegrationCommand),
-        registerCommand('starcoin.testFile', mpmTestFileCommand),
-        registerCommand('starcoin.publish', mpmPublishCommand),
-        registerCommand('starcoin.doctor', mpmDoctorCommand),
-        registerCommand('starcoin.checkCompatibility', mpmCheckCompatibilityCommand),
-        registerCommand('starcoin.release', mpmReleaseCommand),
-        registerCommand('starcoin.clean', mpmCleanCommand),
-    );
+  registerCommand('starcoin.reloadExtension', commands.reloadExtension);
+  registerCommand('starcoin.build', commands.mpmBuild),
+    registerCommand('starcoin.testUnit', commands.mpmTestUnit),
+    registerCommand('starcoin.testIntegration', commands.mpmTestIntegration),
+    registerCommand('starcoin.testFile', commands.mpmTestFile),
+    registerCommand('starcoin.publish', commands.mpmPublish),
+    registerCommand('starcoin.doctor', commands.mpmDoctor),
+    registerCommand('starcoin.checkCompatibility', commands.mpmCheckCompatibility),
+    registerCommand('starcoin.release', commands.mpmRelease),
+    registerCommand('starcoin.clean', commands.mpmClean),
+    await checkAndUpdateAll(ctx);
 }
 
-export function deactivate(context: vscode.ExtensionContext): void { }
-
-
-/**
- * Reload current extension
- */
-async function reloadExtensionCommand(context: vscode.ExtensionContext): Promise<void> {
-    await deactivate(context);
-
-    for (const sub of context.subscriptions) {
-        try {
-            sub.dispose();
-        } catch (e) {
-            console.error(e);
-        }
-    }
-
-    await activate(context);
-}
-
-/**
- * Path to use when executing command.
- * Can be either this file, or workdir,
- * or source files (src/) or None (no path used).
- */
-enum Marker {
-    ThisFile,
-    WorkDir,
-    SrcDir,
-    None
-}
-
-// Block of function definitions for each command of the extension. All these functions use the 
-// same interface execute(), so see it below for the details.
-
-// mpm commands
-function mpmBuildCommand(): Thenable<any> { return mpmExecute('build', 'package build', Marker.None); }
-function mpmTestUnitCommand(): Thenable<any> { return mpmExecute('testUnit', 'package test', Marker.None); }
-function mpmTestIntegrationCommand(): Thenable<any> { return mpmExecute('testIntegration', 'integration-test', Marker.None); }
-function mpmTestFileCommand(): Thenable<any> {
-    const document = window.activeTextEditor?.document;
-    if (!document) {
-        throw new Error('No document opened');
-    }
-
-    const path = document.uri.fsPath.toString()
-    var extension = Path.extname(path);
-    const fileName = Path.basename(path, extension)
-
-    if (path.indexOf('integration-tests') > -1) {
-        return mpmExecute('testIntegration', 'integration-test', Marker.None, {
-            shellArgs: [fileName]
-        });
-    } else if (path.indexOf('sources') > -1) {
-        return mpmExecute('testUnit', 'package test', Marker.None, {
-            shellArgs: ["--filter", fileName]
-        });
-    } else {
-        throw new Error('No sources or integration-tests file selected!');
-    }
-}
-
-function mpmPublishCommand(): Thenable<any> { return mpmExecute('publish', 'sandbox publish', Marker.None); }
-function mpmDoctorCommand(): Thenable<any> { return mpmExecute('doctor', 'sandbox doctor', Marker.None); }
-function mpmCheckCompatibilityCommand(): Thenable<any> { return mpmExecute('checkCompatibility', 'check-compatibility', Marker.None); }
-function mpmReleaseCommand(): Thenable<any> { return mpmExecute('release', 'release', Marker.None); }
-function mpmCleanCommand(): Thenable<any> {
-    // clean release dir
-    const workDir = getWorkdirPath()
-    let releaseDir = Path.join(workDir, "release")
-    if (fs.existsSync(releaseDir)) {
-        fse.rmdirSync(releaseDir, {
-            recursive: true
-        })
-    }
-
-    return mpmExecute('clean', 'sandbox clean', Marker.None);
-}
-
-/**
- * Get current open document workdir
- * 
- * @returns 
- */
-function getWorkdirPath(): string {
-    const document = window.activeTextEditor?.document;
-    if (!document) {
-        throw new Error('No document opened');
-    }
-
-    const workdir = vscode.workspace.getWorkspaceFolder(document.uri);
-    if (!workdir) {
-        throw new Error('Unable to read workspace folder');
-    }
-
-    // Current working (project) directory to set absolute paths.
-    return workdir.uri.fsPath;
-}
-
-
-/**
- * Options for a shell execution
- */
-export interface CommandExecutionOptions {
-    /**
-     * The arguments to be passed to the shell executable used to run the task. Most shells
-     * require special arguments to execute a command. For  example `bash` requires the `-c`
-     * argument to execute a command, `PowerShell` requires `-Command` and `cmd` requires both
-     * `/d` and `/c`.
-     */
-    shellArgs?: string[];
-
-    /**
-     * The current working directory of the executed shell.
-     * If omitted the tools current workspace root is used.
-     */
-    cwd?: string;
-
-    /**
-     * The additional environment of the executed shell. If omitted
-     * the parent process' environment is used. If provided it is merged with
-     * the parent process' environment.
-     */
-    env?: { [key: string]: string };
-}
-
-/**
- * Main function of this extension. Runs the given mpm command as a VSCode task,
- * optionally include the current file as an argument for the binary.
- * 
- * @param task 
- * @param command 
- * @param useFile 
- * @returns 
- */
-// @ts-ignore
-function mpmExecute(task: string, command: string, fileMarker: Marker, cmdOpts?: CommandExecutionOptions): Thenable<any> {
-    const document = window.activeTextEditor?.document;
-    const extPath = vscode.extensions.getExtension(EXTENSION)?.extensionPath;
-
-    if (!extPath) {
-        return Promise.reject('Unable to find the extension');
-    }
-
-    if (!document) {
-        return Promise.reject('No document opened');
-    }
-
-    const configuration = vscode.workspace.getConfiguration(NAMESPACE, document.uri);
-    if (!configuration) {
-        return Promise.reject('Unable to read configuration folder');
-    }
-
-    const workdir = vscode.workspace.getWorkspaceFolder(document.uri);
-    if (!workdir) {
-        return Promise.reject('Unable to read workdir folder');
-    }
-
-    // Current working (project) directory to set absolute paths.
-    const dir = workdir.uri.fsPath;
-
-    // Get binary path which is always inside `extension/bin` directory.
-    const bin = Path.join(extPath, 'bin', (process.platform === 'win32') ? 'mpm.exe' : 'mpm');
-
-    // Set path using the passed Marker. Each binary command has  
-    // its own requirements for the path to pass into it. 
-    let path = '';
-    switch (fileMarker) {
-        case Marker.None: path = ''; break;
-        case Marker.ThisFile: path = document.uri.fsPath.toString() || ''; break;
-        case Marker.WorkDir: path = dir; break;
-        case Marker.SrcDir: path = Path.join(dir, 'sources'); break;
-    }
-
-    // Fix file format in windows
-    if (process.platform === 'win32') {
-        let sourceDir = Path.join(dir, 'integration-tests')
-        dos2unix(sourceDir, "**/*.exp")
-    }
-
-    // fix HOME env not set in windows
-    let homeDir = process.env.HOME
-    if (process.platform === 'win32' && !homeDir) {
-        homeDir = process.env.USERPROFILE
-    }
-
-    // @ts-ignore
-    const opts: ShellExecutionOptions = {
-        env: {
-            "HOME": homeDir
-        }
-    }
-
-    let args: string[] = []
-
-    if (command) {
-        args = args.concat(command.split(' '))
-    }
-
-    if (path) {
-        args = args.concat(path)
-    }
-
-    if (cmdOpts?.shellArgs) {
-        args = args.concat(cmdOpts.shellArgs)
-    }
-
-    if (cmdOpts?.cwd) {
-        opts.cwd = cmdOpts.cwd
-    }
-
-    if (cmdOpts?.env) {
-        opts.env = {
-            ...cmdOpts.env,
-            ...opts.env
-        }
-    }
-
-    return tasks.executeTask(new Task(
-        { task, type: NAMESPACE },
-        workdir,
-        task,
-        NAMESPACE,
-        new ShellExecution(bin, args, opts)
-    ));
-}
+export function deactivate(context: vscode.ExtensionContext): void {}

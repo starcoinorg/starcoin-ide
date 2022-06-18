@@ -5,7 +5,7 @@
 
 // Adapted from https://code.visualstudio.com/api/working-with-extensions/testing-extension
 export function run(): Promise<void> {
-    return new Promise((resolve) => {
-        setTimeout(resolve, 1000*60*15) // 15分钟休息一下
-    }); 
+  return new Promise((resolve) => {
+    setTimeout(resolve, 1000 * 60 * 15); // 15分钟休息一下
+  });
 }

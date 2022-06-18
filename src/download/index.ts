@@ -3,26 +3,21 @@ import { MPMDownloader } from './mpm';
 import { MoveAnalyzerDownloader } from './move_analyzer';
 
 /**
-  * Get current mpm downloader base platform
-  * 
-  * @param extPath 
-  */
+ * Get current mpm downloader base platform
+ *
+ * @param extPath
+ */
 function currentDownloader(extPath: string): Downloader {
-    return new MPMDownloader(extPath)
+  return new MPMDownloader(extPath);
 }
 
 /**
-  * Get current mpm downloader base platform
-  * 
-  * @param extPath 
-  */
+ * Get current mpm downloader base platform
+ *
+ * @param extPath
+ */
 function currentAnalyzerDownloader(extPath: string): Downloader {
-    return new MoveAnalyzerDownloader(extPath)
+  return new MoveAnalyzerDownloader(extPath);
 }
 
-export {
-    Downloader,
-    Release,
-    currentDownloader,
-    currentAnalyzerDownloader,
-}
+export { Downloader, Release, currentDownloader, currentAnalyzerDownloader };
