@@ -187,6 +187,7 @@
 		"node-version-compare": "^1.0.3",
 		"rimraf": "^3.0.2",
 		"unzipper": "^0.10.11",
-		"wget-improved": "^3.3.0"
+		"wget-improved": "^3.3.0",
+		"vscode-languageclient": "6.1.4"
 	}
 }

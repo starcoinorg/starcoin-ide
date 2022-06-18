@@ -1,4 +1,6 @@
 import * as vscode from 'vscode';
+import * as lc from 'vscode-languageclient';
+import { Logger } from './log';
 
 // Global variables used for management of the language client.
 // They are global so that the server can be easily restarted with
@@ -10,7 +12,9 @@ export interface IDEExtensionContext {
 
   namespace: string;
   extension: string;
+  logger: Logger;
 
   mpmBin?: string;
   moveAnalyzerBin?: string;
+  languageClient?: lc.LanguageClient,
 }

@@ -2,6 +2,8 @@ import * as vscode from 'vscode';
 import { IDEExtensionContext } from '../context';
 
 export { reloadExtension } from './reload_extension';
+export { checkAndUpdateAll } from './update_tools';
+export { startLanguageServer } from './lsp_commands';
 export * from './mpm_commands';
 
 type CommandCallback<T extends unknown[]> = (...args: T) => Promise<unknown> | unknown;

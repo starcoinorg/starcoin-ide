@@ -12,7 +12,7 @@ import * as fse from 'fs-extra';
 
 import { sleep, getTaskResult } from './utils';
 import { Downloader, currentDownloader } from '../../src/download';
-import { installReleaseWithProgress } from '../../src/updater';
+import { installReleaseWithProgress } from '../../src/commands/update_tools';
 
 suite('Starcoin-IDE.functional.test', () => {
   suite('Move binary install test', () => {

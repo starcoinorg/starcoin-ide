@@ -1,5 +1,8 @@
 import * as vscode from 'vscode';
-import { Downloader, Release, currentDownloader, currentAnalyzerDownloader } from './download';
+import { CommandFactory } from '.';
+import { IDEExtensionContext } from '../context';
+
+import { Downloader, Release, currentDownloader, currentAnalyzerDownloader } from '../download';
 
 export function installReleaseWithProgress(loader: Downloader, version: string, release: Release): Thenable<void> {
   let lastVal = 0;
@@ -53,14 +56,16 @@ export async function checkAndUpdateWithDownlaoder(
   }
 }
 
-export async function checkAndUpdateMpm(context: vscode.ExtensionContext): Promise<void> {
-  const loader: Downloader = currentDownloader(context.extensionPath);
-  await checkAndUpdateWithDownlaoder(context, loader);
+export async function checkAndUpdateMpm(ctx: IDEExtensionContext): Promise<void> {
+  const loader: Downloader = currentDownloader(ctx.vscode.extensionPath);
+  await checkAndUpdateWithDownlaoder(ctx.vscode, loader);
+  ctx.mpmBin = loader.executatePath
 }
 
-export async function checkAndUpdateMoveAnalyzer(context: vscode.ExtensionContext): Promise<void> {
-  const loader: Downloader = currentAnalyzerDownloader(context.extensionPath);
-  await checkAndUpdateWithDownlaoder(context, loader);
+export async function checkAndUpdateMoveAnalyzer(ctx: IDEExtensionContext): Promise<void> {
+  const loader: Downloader = currentAnalyzerDownloader(ctx.vscode.extensionPath);
+  await checkAndUpdateWithDownlaoder(ctx.vscode, loader);
+  ctx.moveAnalyzerBin = loader.executatePath
 }
 
 /**
@@ -72,7 +77,9 @@ export async function checkAndUpdateMoveAnalyzer(context: vscode.ExtensionContex
  * @param context
  * @returns
  */
-export async function checkAndUpdateAll(context: vscode.ExtensionContext): Promise<void> {
-  await checkAndUpdateMpm(context);
-  await checkAndUpdateMoveAnalyzer(context);
-}
+ export const checkAndUpdateAll: CommandFactory = (ctx: IDEExtensionContext) => {
+  return async (): Promise<void> => {
+    await checkAndUpdateMpm(ctx);
+    await checkAndUpdateMoveAnalyzer(ctx);
+  };
+};
