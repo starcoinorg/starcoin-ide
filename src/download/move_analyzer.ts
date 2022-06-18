@@ -1,14 +1,15 @@
+
 import * as path from 'path';
 import { Release, installRelease, checkNewRelease, isBinaryOutdated, hasBinary } from './commons';
 
 
 /**
- * MPMDownloader is a class that handles move package manager info fetching, 
+ * MoveAnalyzerDownloader is a class that handles move-analyzer binary info fetching, 
  * binary downloads and version comparisons. It operates over the 
  * <extensionPath>/bin folder and stores all the needed information and
  * executables there.
  */
-export class MPMDownloader {
+ export class MoveAnalyzerDownloader {
     extensionPath: string
 
     constructor(extPath: string) {
@@ -18,24 +19,24 @@ export class MPMDownloader {
     get executateName(): string {
         // @ts-ignore
         const exeName: string = {
-            darwin: 'mpm',
-            win32: 'mpm.exe',
-            linux: 'mpm'
+            darwin: 'move-analyzer',
+            win32: 'move-analyzer.exe',
+            linux: 'move-analyzer'
         }[process.platform];
 
         return exeName;
     }
 
     get executateDesc(): string {
-        return 'move package manager'
+        return 'move-analyzer binary'
     }
 
     get latestVersion(): string {
-        return "v1.11.10"
+        return "v0.1.2"
     }
 
     get latestStableVersion(): string {
-        return 'v1.11.9-alpha'
+        return 'v0.1.1'
     }
 
     get executatePath(): string {
@@ -43,11 +44,11 @@ export class MPMDownloader {
     }
 
     get zipPath(): string {
-        return this.binPath('starcoin-fethed.zip');
+        return this.binPath('move-fethed.zip');
     }
 
     get versionPath(): string {
-        return this.binPath('starcoin.version');
+        return this.binPath('move.version');
     }
 
     binPath(file: string): string {
@@ -63,7 +64,7 @@ export class MPMDownloader {
     }
 
     async checkRelease(version: string): Promise<any> {
-        return checkNewRelease(this, "starcoinorg/starcoin", version, 'mpm')
+        return checkNewRelease(this, "yubing744/starcoin-move", version, 'move')
     }
 
     isBinaryOutdated(latest: string): boolean {

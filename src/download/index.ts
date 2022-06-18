@@ -1,28 +1,28 @@
 import { Downloader, Release } from './commons';
-import { MoveDownloader } from './move';
 import { MPMDownloader } from './mpm';
+import { MoveAnalyzerDownloader } from './move_analyzer';
 
 /**
-  * Get current downloader base platform
+  * Get current mpm downloader base platform
   * 
   * @param extPath 
   */
 function currentDownloader(extPath: string): Downloader {
-    // remove move binary   
-    // @ts-ignore
-    const loader: Downloader = {
-        darwin: new MPMDownloader(extPath),
-        win32: new MPMDownloader(extPath),
-        linux: new MPMDownloader(extPath)
-    }[process.platform];
+    return new MPMDownloader(extPath)
+}
 
-    return loader
+/**
+  * Get current mpm downloader base platform
+  * 
+  * @param extPath 
+  */
+function currentAnalyzerDownloader(extPath: string): Downloader {
+    return new MoveAnalyzerDownloader(extPath)
 }
 
 export {
     Downloader,
     Release,
     currentDownloader,
-    MoveDownloader,
-    MPMDownloader
+    currentAnalyzerDownloader,
 }

@@ -3,18 +3,16 @@
  * 
  * @copyright 2021 StarCoin
  */
-import * as os from 'os';
 import * as fs from 'fs';
 import * as fse from 'fs-extra';
 import * as Path from 'path';
-import * as cp from 'child_process';
 import * as vscode from 'vscode';
 import { dos2unix } from './utils'
-import { Downloader, MoveDownloader, MPMDownloader, Release, currentDownloader } from './download';
-    
+import { checkAndUpdateAll } from './updater';
+
 // @ts-ignore
-const {commands, window, tasks, Task, ShellExecution, ShellExecutionOptions} = vscode;
-const {registerCommand} = commands;
+const { commands, window, tasks, Task, ShellExecution, ShellExecutionOptions } = vscode;
+const { registerCommand } = commands;
 
 /**
  * Name of the namespace to shorten all access points
@@ -29,41 +27,11 @@ const EXTENSION = 'starcoinorg.starcoin-ide';
 
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
-    const loader:Downloader = currentDownloader(context.extensionPath);
-
     context.subscriptions.push(
         registerCommand('starcoin.reloadExtension', () => reloadExtensionCommand(context)),
     );
 
-    // Check for the binary every time extension is activated. Either install latest
-    // version if binary is not found or fetch for newer version. If it is found, then
-    // pull and install it.
-    if (!loader.hasBinary()) {
-        vscode.window.showWarningMessage('No ' + loader.executateDesc + ' found. Fetching latest version...');
-        
-        let {tag, release} = await loader.checkRelease(loader.latestVersion);
-
-        try {
-            await installReleaseWithProgress(loader, tag, release);
-            vscode.window.showInformationMessage(loader.executateDesc + ' ' + tag + ' installed!');
-        } catch(err:any) {
-            vscode.window.showErrorMessage(loader.executateDesc + ' ' + tag + ' install failed, error: ' + err);
-            return
-        }
-    } else {
-        let {tag, release} = await loader.checkRelease(loader.latestVersion);
-
-        if (loader.isBinaryOutdated(tag)) {
-            vscode.window.showInformationMessage('Newer ' + loader.executateDesc + ' found: ' + tag + '; Pulling...');
-            
-            try {
-                await installReleaseWithProgress(loader, tag, release);
-                vscode.window.showInformationMessage(loader.executateDesc + ' updated!');
-            } catch(err:any) {
-                vscode.window.showErrorMessage(loader.executateDesc + ' update failed, error: ', err);
-            }
-        }
-    }
+    await checkAndUpdateAll(context);
 
     context.subscriptions.push(
         registerCommand('starcoin.build', mpmBuildCommand),
@@ -78,49 +46,24 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     );
 }
 
-export function deactivate(context: vscode.ExtensionContext): void {}
+export function deactivate(context: vscode.ExtensionContext): void { }
 
-
-/**
- * Install release with progress
- * 
- * @param loader 
- * @param version 
- * @param release 
- * @returns 
- */
- export function installReleaseWithProgress(loader: Downloader, version: string, release: Release) :Thenable<void> {
-    let lastVal: number = 0
-
-    return vscode.window.withProgress<void>({
-        location: vscode.ProgressLocation.Window,
-        title: "Downloading " + loader.executateDesc + " " + version,
-        cancellable: false
-    }, (progress) => {
-        return loader.installRelease(version, release, function(val:number){
-            let offset = val - lastVal
-            lastVal = val
-
-            progress.report({ increment: offset * 100, message: "Progress: " +  (val*100).toFixed(2) + "%" });
-        });
-    })
-}
 
 /**
  * Reload current extension
  */
- async function reloadExtensionCommand(context: vscode.ExtensionContext): Promise<void> {
+async function reloadExtensionCommand(context: vscode.ExtensionContext): Promise<void> {
     await deactivate(context);
 
-	for (const sub of context.subscriptions) {
-		try {
-			sub.dispose();
-		} catch (e) {
-			console.error(e);
-		}
-	}
-    
-	await activate(context);
+    for (const sub of context.subscriptions) {
+        try {
+            sub.dispose();
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    await activate(context);
 }
 
 /**
@@ -142,7 +85,7 @@ enum Marker {
 function mpmBuildCommand(): Thenable<any> { return mpmExecute('build', 'package build', Marker.None); }
 function mpmTestUnitCommand(): Thenable<any> { return mpmExecute('testUnit', 'package test', Marker.None); }
 function mpmTestIntegrationCommand(): Thenable<any> { return mpmExecute('testIntegration', 'integration-test', Marker.None); }
-function mpmTestFileCommand(): Thenable<any> { 
+function mpmTestFileCommand(): Thenable<any> {
     const document = window.activeTextEditor?.document;
     if (!document) {
         throw new Error('No document opened');
@@ -153,13 +96,13 @@ function mpmTestFileCommand(): Thenable<any> {
     const fileName = Path.basename(path, extension)
 
     if (path.indexOf('integration-tests') > -1) {
-        return mpmExecute('testIntegration', 'integration-test', Marker.None,{
+        return mpmExecute('testIntegration', 'integration-test', Marker.None, {
             shellArgs: [fileName]
-        }); 
-    } else if  (path.indexOf('sources') > -1) {
+        });
+    } else if (path.indexOf('sources') > -1) {
         return mpmExecute('testUnit', 'package test', Marker.None, {
             shellArgs: ["--filter", fileName]
-        }); 
+        });
     } else {
         throw new Error('No sources or integration-tests file selected!');
     }
@@ -169,7 +112,7 @@ function mpmPublishCommand(): Thenable<any> { return mpmExecute('publish', 'sand
 function mpmDoctorCommand(): Thenable<any> { return mpmExecute('doctor', 'sandbox doctor', Marker.None); }
 function mpmCheckCompatibilityCommand(): Thenable<any> { return mpmExecute('checkCompatibility', 'check-compatibility', Marker.None); }
 function mpmReleaseCommand(): Thenable<any> { return mpmExecute('release', 'release', Marker.None); }
-function mpmCleanCommand(): Thenable<any> { 
+function mpmCleanCommand(): Thenable<any> {
     // clean release dir
     const workDir = getWorkdirPath()
     let releaseDir = Path.join(workDir, "release")
@@ -179,7 +122,7 @@ function mpmCleanCommand(): Thenable<any> {
         })
     }
 
-    return mpmExecute('clean', 'sandbox clean', Marker.None); 
+    return mpmExecute('clean', 'sandbox clean', Marker.None);
 }
 
 /**
@@ -241,7 +184,7 @@ export interface CommandExecutionOptions {
 // @ts-ignore
 function mpmExecute(task: string, command: string, fileMarker: Marker, cmdOpts?: CommandExecutionOptions): Thenable<any> {
     const document = window.activeTextEditor?.document;
-    const extPath  = vscode.extensions.getExtension(EXTENSION)?.extensionPath;
+    const extPath = vscode.extensions.getExtension(EXTENSION)?.extensionPath;
 
     if (!extPath) {
         return Promise.reject('Unable to find the extension');
@@ -266,7 +209,7 @@ function mpmExecute(task: string, command: string, fileMarker: Marker, cmdOpts?:
 
     // Get binary path which is always inside `extension/bin` directory.
     const bin = Path.join(extPath, 'bin', (process.platform === 'win32') ? 'mpm.exe' : 'mpm');
-    
+
     // Set path using the passed Marker. Each binary command has  
     // its own requirements for the path to pass into it. 
     let path = '';
@@ -288,20 +231,20 @@ function mpmExecute(task: string, command: string, fileMarker: Marker, cmdOpts?:
     if (process.platform === 'win32' && !homeDir) {
         homeDir = process.env.USERPROFILE
     }
-    
+
     // @ts-ignore
-    const opts:ShellExecutionOptions  = {
+    const opts: ShellExecutionOptions = {
         env: {
             "HOME": homeDir
         }
     }
 
-    let args:string[] = []
+    let args: string[] = []
 
     if (command) {
         args = args.concat(command.split(' '))
     }
-   
+
     if (path) {
         args = args.concat(path)
     }
@@ -322,7 +265,7 @@ function mpmExecute(task: string, command: string, fileMarker: Marker, cmdOpts?:
     }
 
     return tasks.executeTask(new Task(
-        {task, type: NAMESPACE},
+        { task, type: NAMESPACE },
         workdir,
         task,
         NAMESPACE,

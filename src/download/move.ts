@@ -43,11 +43,11 @@ export class MoveDownloader {
     }
 
     get zipPath(): string {
-        return this.binPath('fethed.zip');
+        return this.binPath('starcoin-fethed.zip');
     }
 
     get versionPath(): string {
-        return this.binPath('.version');
+        return this.binPath('starcoin.version');
     }
 
     binPath(file: string): string {
@@ -63,7 +63,7 @@ export class MoveDownloader {
     }
 
     async checkRelease(version: string): Promise<any> {
-        return checkNewRelease(this, version, 'starcoin')
+        return checkNewRelease(this, "starcoinorg/starcoin", version, 'starcoin')
     }
 
     isBinaryOutdated(latest: string): boolean {

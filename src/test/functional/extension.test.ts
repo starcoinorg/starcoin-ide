@@ -12,7 +12,7 @@ import * as fse from 'fs-extra';
 
 import { sleep, getTaskResult } from './utils'
 import { Downloader, currentDownloader } from '../../download';
-import { installReleaseWithProgress } from '../../extension';
+import { installReleaseWithProgress } from '../../updater';
 
 suite("Starcoin-IDE.functional.test", () => {
 

@@ -201,10 +201,10 @@ export function hasBinary(loader: Downloader): boolean {
  * @param loader 
  * @returns 
  */
-export async function checkNewRelease(loader: Downloader, version: string, name: string): Promise<any> {
+export async function checkNewRelease(loader: Downloader, gitRepo:string, version: string, name: string): Promise<any> {
     const options = {
         host: 'api.github.com',
-        path: `/repos/starcoinorg/starcoin/releases/tags/` + version,
+        path: `/repos/${gitRepo}/releases/tags/` + version,
         method: 'GET',
         headers: { 'user-agent': 'node.js' }
     };
@@ -216,7 +216,7 @@ export async function checkNewRelease(loader: Downloader, version: string, name:
     }
 
     if (version == "latest") {
-        options.path = `/repos/starcoinorg/starcoin/releases/latest`
+        options.path = `/repos/${gitRepo}/releases/latest`
     }
 
     let stats = await new Promise((resolve, reject) => {
