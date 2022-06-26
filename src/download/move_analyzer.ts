@@ -30,7 +30,7 @@ export class MoveAnalyzerDownloader {
   }
 
   get latestVersion(): string {
-    return 'v0.1.2';
+    return 'v0.2.1';
   }
 
   get latestStableVersion(): string {
