@@ -25,6 +25,18 @@ or right-click the Move file in the integration tests folder to run integration 
 
 This extension uses [vscode-move-syntax](https://marketplace.visualstudio.com/items?itemName=damirka.move-syntax) extension as a dependency for syntax highlighting.
 
+## Move Analyzer
+
+This extension uses [move-analyzer](https://github.com/move-language/move/tree/main/language/move-analyzer) crate as Move Language Server.
+
+The following LSP are now supported:
+- Completion
+- Hover
+- GotoDefinition
+- GotoTypeDefinition
+- References
+- DocumentSymbol
+
 ## Feedback Issue
 
 You can give feedback [here](https://github.com/starcoinorg/starcoin-ide/issues).

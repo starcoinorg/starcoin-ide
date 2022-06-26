@@ -4,4 +4,5 @@ node_modules
 .vscode
 .vscode-test
 bin/
+out/
 .DS_Store
