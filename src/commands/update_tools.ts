@@ -59,13 +59,13 @@ export async function checkAndUpdateWithDownlaoder(
 export async function checkAndUpdateMpm(ctx: IDEExtensionContext): Promise<void> {
   const loader: Downloader = currentDownloader(ctx.vscode.extensionPath);
   await checkAndUpdateWithDownlaoder(ctx.vscode, loader);
-  ctx.mpmBin = loader.executatePath
+  ctx.mpmBin = loader.executatePath;
 }
 
 export async function checkAndUpdateMoveAnalyzer(ctx: IDEExtensionContext): Promise<void> {
   const loader: Downloader = currentAnalyzerDownloader(ctx.vscode.extensionPath);
   await checkAndUpdateWithDownlaoder(ctx.vscode, loader);
-  ctx.moveAnalyzerBin = loader.executatePath
+  ctx.moveAnalyzerBin = loader.executatePath;
 }
 
 /**
@@ -77,7 +77,7 @@ export async function checkAndUpdateMoveAnalyzer(ctx: IDEExtensionContext): Prom
  * @param context
  * @returns
  */
- export const checkAndUpdateAll: CommandFactory = (ctx: IDEExtensionContext) => {
+export const checkAndUpdateAll: CommandFactory = (ctx: IDEExtensionContext) => {
   return async (): Promise<void> => {
     await checkAndUpdateMpm(ctx);
     await checkAndUpdateMoveAnalyzer(ctx);

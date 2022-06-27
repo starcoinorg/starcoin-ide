@@ -12,14 +12,14 @@ import * as vscode from 'vscode';
  * server, which appear in a separate output channel.
  **/
 export class Logger {
-    private readonly output = vscode.window.createOutputChannel('Starcoin IDE Output');
+  private readonly output = vscode.window.createOutputChannel('Starcoin IDE Output');
 
-    /** Log an informational message (as opposed to an error or a warning). */
-    info(message: string): void {
-        this.write('INFO', message);
-    }
+  /** Log an informational message (as opposed to an error or a warning). */
+  info(message: string): void {
+    this.write('INFO', message);
+  }
 
-    private write(label: string, message: string): void {
-        this.output.appendLine(`${label} [${new Date().toLocaleString()}]: ${message}`);
-    }
-};
+  private write(label: string, message: string): void {
+    this.output.appendLine(`${label} [${new Date().toLocaleString()}]: ${message}`);
+  }
+}

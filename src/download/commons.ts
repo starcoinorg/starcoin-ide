@@ -96,7 +96,7 @@ export async function installRelease(
         console.log('download timeout');
         reject('Network read timeout error');
       })
-      .on('start', (fileSize) => {
+      .on('start', () => {
         if (progressCallback !== null) {
           progressCallback(0);
         }
@@ -108,7 +108,7 @@ export async function installRelease(
           reject('Network read timeout error');
         });
       })
-      .on('end', (output) => {
+      .on('end', () => {
         resolve(null);
       })
       .on('progress', (progress) => {

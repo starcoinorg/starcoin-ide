@@ -3,6 +3,7 @@
     "root": true,
     "rules": {
         "@typescript-eslint/ban-ts-comment": "off",
-        "node/no-unpublished-import": "off"
+        "node/no-unpublished-import": "off",
+        "@typescript-eslint/no-explicit-any": "off"
     }
 }

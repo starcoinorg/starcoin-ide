@@ -12,7 +12,6 @@ import * as path from 'path';
 import { sleep, getTaskResult } from './utils';
 
 suite('Starcoin-IDE.functional.test', () => {
-
   suite('Move commands test', () => {
     test('test starcoin build commands', async () => {
       const ext = vscode.extensions.getExtension('starcoinorg.starcoin-ide');
