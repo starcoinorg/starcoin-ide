@@ -8,6 +8,7 @@ import * as vscode from 'vscode';
 import { IDEExtensionContext } from './context';
 import { Logger } from './log';
 import * as commands from './commands';
+import { MoveTestExplorer } from './move-test/explore';
 
 /**
  * Name of the namespace to shorten all access points
@@ -37,6 +38,7 @@ export async function activate(ctx: vscode.ExtensionContext): Promise<void> {
 
   await commands.checkAndUpdateAll(ideCtx)();
   await commands.startLanguageServer(ideCtx)();
+  MoveTestExplorer.setup(ideCtx);
 
   registerCommand('starcoin.build', commands.mpmBuild);
   registerCommand('starcoin.testUnit', commands.mpmTestUnit);
