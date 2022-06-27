@@ -16,5 +16,5 @@ export interface IDEExtensionContext {
 
   mpmBin?: string;
   moveAnalyzerBin?: string;
-  languageClient?: lc.LanguageClient,
+  languageClient?: lc.LanguageClient;
 }
