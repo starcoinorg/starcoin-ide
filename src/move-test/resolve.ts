@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 import { IDEExtensionContext } from '../context';
 import { MoveTestKind, genMoveTestId, parseMoveTestId } from './utils';
 
-export class GoTestResolver {
+export class MoveTestResolver {
   private ctx: IDEExtensionContext;
   private ctrl: vscode.TestController;
   public readonly all = new Map<string, vscode.TestItem>();

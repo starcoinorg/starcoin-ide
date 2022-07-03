@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { IDEExtensionContext } from '../context';
 import { MoveTestResolver } from './resolve';
+import { MoveTestRunner } from './run';
 import { isInTest } from './utils';
 import { Logger } from '../log';
 
@@ -48,13 +49,17 @@ export class MoveTestExplorer {
     return inst;
   }
 
-  public readonly resolver: MoveTestResolver;
   private readonly ctx: IDEExtensionContext;
   private readonly logger: Logger;
+  public readonly resolver: MoveTestResolver;
+  private readonly runner: MoveTestRunner;
 
   private constructor(ctx: IDEExtensionContext, ctrl: vscode.TestController) {
-    this.resolver = new MoveTestResolver(ctx, ctrl);
+    this.ctx = ctx;
     this.logger = ctx.logger;
+
+    this.resolver = new MoveTestResolver(ctx, ctrl);
+    this.runner = new MoveTestRunner(ctx, ctrl);
   }
 
   /* ***** Private ***** */

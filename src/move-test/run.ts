@@ -1,257 +1,78 @@
-import * as path from 'path';
 import * as vscode from 'vscode';
+import { Logger } from '../log';
 import { IDEExtensionContext } from '../context';
-import { MoveTestResolver } from './resolve';
-import { Workspace, MoveTestKind, genMoveTestId, parseMoveTestId } from './utils';
+import { parseMoveTestId } from './utils';
+import { getTaskResult } from '../utils';
 
 type CollectedTest = { item: vscode.TestItem; explicitlyIncluded?: boolean };
 
 export class MoveTestRunner {
+  private readonly ctx: IDEExtensionContext;
+  private readonly logger: Logger;
+  private readonly ctrl: vscode.TestController;
 
-	constructor(
-		private readonly ctx: IDEExtensionContext,
-		private readonly workspace: Workspace,
-		private readonly ctrl: vscode.TestController,
-		private readonly resolver: MoveTestResolver,
-	) {
-		ctrl.createRunProfile(
-			'Go',
-			vscode.TestRunProfileKind.Run,
-			async (request, token) => {
-				try {
-					await this.run(request, token);
-				} catch (error) {
-					const m = 'Failed to execute tests';
-					ctx.logger.info(`${m}: ${error}`);
-					await vscode.window.showErrorMessage(m);
-				}
-			},
-			true
-		);
-	}
+  constructor(ctx: IDEExtensionContext, ctrl: vscode.TestController) {
+    this.ctx = ctx;
+    this.logger = ctx.logger;
+    this.ctrl = ctrl;
 
+    ctrl.createRunProfile(
+      'Move',
+      vscode.TestRunProfileKind.Run,
+      async (request, token) => {
+        try {
+          await this.run(request, token);
+        } catch (error) {
+          const m = 'Failed to execute tests';
+          ctx.logger.info(`${m}: ${error}`);
+          await vscode.window.showErrorMessage(m);
+        }
+      },
+      true
+    );
+  }
 
-    // Execute tests - TestController.runTest callback
-	async run(request: vscode.TestRunRequest, token?: vscode.CancellationToken): Promise<boolean> {
-		const collected = new Map<vscode.TestItem, CollectedTest[]>();
-		const files = new Set<vscode.TestItem>();
-		if (request.include) {
-			for (const item of request.include) {
-				await this.collectTests(item, true, request.exclude || [], collected, files);
-			}
-		} else {
-			const promises: Promise<unknown>[] = [];
-			this.ctrl.items.forEach((item) => {
-				const p = this.collectTests(item, true, request.exclude || [], collected, files);
-				promises.push(p);
-			});
-			await Promise.all(promises);
-		}
+  // Execute tests - TestController.runTest callback
+  async run(request: vscode.TestRunRequest, token?: vscode.CancellationToken): Promise<boolean> {
+    this.logger.info('Running tests...');
 
-		// Save all documents that contain a test we're about to run, to ensure `go
-		// test` has the latest changes
-		const fileUris = new Set(Array.from(files).map((x) => x.uri));
-		await Promise.all(this.workspace.textDocuments.filter((x) => fileUris.has(x.uri)).map((x) => x.save()));
+    const collected = new Set<CollectedTest>();
+    this.collecteTests(request, collected);
 
-		let hasBench = false,
-			hasNonBench = false;
-		for (const items of collected.values()) {
-			for (const { item } of items) {
-				const { kind } = GoTest.parseId(item.id);
-				if (kind === 'benchmark') hasBench = true;
-				else hasNonBench = true;
-			}
-		}
+    const run = this.ctrl.createTestRun(request);
 
-		function isInMod(item: TestItem): boolean {
-			const { kind } = GoTest.parseId(item.id);
-			if (kind === 'module') return true;
-			if (!item.parent) return false;
-			return isInMod(item.parent);
-		}
+    for (const test of collected) {
+      const item = test.item;
+      const moveTest = parseMoveTestId(item.id);
 
-		const run = this.ctrl.createTestRun(request);
-		const windowGoConfig = getGoConfig();
-		if (windowGoConfig.get<boolean>('testExplorer.showOutput')) {
-			await vscode.commands.executeCommand('testing.showMostRecentOutput');
-		}
+      run.started(item);
 
-		let success = true;
-		const subItems: string[] = [];
-		for (const [pkg, items] of collected.entries()) {
-			if (!pkg.uri) continue;
-			const isMod = isInMod(pkg) || (await isModSupported(pkg.uri, true));
-			const goConfig = getGoConfig(pkg.uri);
-			const flags = getTestFlags(goConfig);
-			const includeBench = getGoConfig(pkg.uri).get('testExplorer.alwaysRunBenchmarks');
+      const exec: vscode.TaskExecution = await vscode.commands.executeCommand('starcoin.testFunction', moveTest.name);
+      const exitCode = await getTaskResult(exec);
+      if (exitCode !== 0) {
+        this.logger.info(`Test ${moveTest.name} failed`);
+        item.error = `Test ${moveTest.name} failed`;
+        run.failed(item, { message: 'Test failed!' });
+      } else {
+        run.passed(item);
+      }
 
-			// If any of the tests are test suite methods, add all test functions that call `suite.Run`
-			const hasTestMethod = items.some(({ item }) => this.resolver.isTestMethod.has(item));
-			if (hasTestMethod) {
-				const add: TestItem[] = [];
-				pkg.children.forEach((file) => {
-					file.children.forEach((test) => {
-						if (!this.resolver.isTestSuiteFunc.has(test)) return;
-						if (items.some(({ item }) => item === test)) return;
-						add.push(test);
-					});
-				});
-				items.push(...add.map((item) => ({ item })));
-			}
+      if (token?.isCancellationRequested) {
+        break;
+      }
+    }
 
-			// Separate tests and benchmarks and mark them as queued for execution.
-			// Clear any sub tests/benchmarks generated by a previous run.
-			const tests: Record<string, TestItem> = {};
-			const benchmarks: Record<string, TestItem> = {};
-			for (const { item, explicitlyIncluded } of items) {
-				const { kind, name = '' } = GoTest.parseId(item.id);
-				if (/[/#]/.test(name)) subItems.push(name);
+    run.end();
 
-				// When the user clicks the run button on a package, they expect all
-				// of the tests within that package to run - they probably don't
-				// want to run the benchmarks. So if a benchmark is not explicitly
-				// selected, don't run benchmarks. But the user may disagree, so
-				// behavior can be changed with `go.testExplorerRunBenchmarks`.
-				// However, if the user clicks the run button on a file or package
-				// that contains benchmarks and nothing else, they likely expect
-				// those benchmarks to run.
-				if (kind === 'benchmark' && !explicitlyIncluded && !includeBench && !(hasBench && !hasNonBench)) {
-					continue;
-				}
+    return true;
+  }
 
-				item.error = undefined;
-				run.enqueued(item);
-
-				// Remove subtests created dynamically from test output
-				item.children.forEach((child) => {
-					if (this.resolver.isDynamicSubtest.has(child)) {
-						dispose(this.resolver, child);
-					}
-				});
-
-				if (kind === 'benchmark') {
-					benchmarks[name] = item;
-				} else {
-					tests[name] = item;
-				}
-			}
-
-			const record = new Map<string, string[]>();
-			const concat = !!goConfig.get<boolean>('testExplorer.concatenateMessages');
-
-			// https://github.com/golang/go/issues/39904
-			if (subItems.length > 0 && Object.keys(tests).length + Object.keys(benchmarks).length > 1) {
-				outputChannel.appendLine(
-					`The following tests in ${pkg.uri} failed to run, as go test will only run a sub-test or sub-benchmark if it is by itself:`
-				);
-				Object.keys(tests)
-					.concat(Object.keys(benchmarks))
-					.forEach((x) => outputChannel.appendLine(x));
-				outputChannel.show();
-				vscode.window.showErrorMessage(
-					`Cannot run the selected tests in package ${pkg.label} - see the Go output panel for details`
-				);
-				continue;
-			}
-
-			const config = {
-				flags,
-				isMod,
-				goConfig,
-				cancel: token,
-
-				run,
-				options,
-				pkg,
-				record,
-				concat
-			};
-
-			// Run tests
-			if (!options.kind) {
-				const r = await this.runGoTest({ ...config, functions: tests });
-				if (!r) success = false;
-			} else {
-				for (const name in tests) {
-					const r = await this.runGoTest({ ...config, functions: { [name]: tests[name] } });
-					if (!r) success = false;
-				}
-			}
-
-			// Run benchmarks
-			if (!options.kind) {
-				const r = await this.runGoTest({ ...config, isBenchmark: true, functions: benchmarks });
-				if (!r) success = false;
-			} else {
-				for (const name in benchmarks) {
-					const r = await this.runGoTest({
-						...config,
-						isBenchmark: true,
-						functions: { [name]: benchmarks[name] }
-					});
-					if (!r) success = false;
-				}
-			}
-
-			if (token?.isCancellationRequested) {
-				break;
-			}
-		}
-
-		run.end();
-
-		this.profiler.postRun();
-
-		return success;
-	}
-
-    // Recursively find all tests, benchmarks, and examples within a
-	// module/package/etc, minus exclusions. Map tests to the package they are
-	// defined in, and track files.
-	async collectTests(
-		item: vscode.TestItem,
-		explicitlyIncluded: boolean,
-		excluded: readonly vscode.TestItem[],
-		functions: Map<vscode.TestItem, CollectedTest[]>,
-		files: Set<vscode.TestItem>
-	) {
-		for (let i = item; i.parent; i = i.parent) {
-			if (excluded.indexOf(i) >= 0) {
-				return;
-			}
-		}
-
-		const { name } = parseMoveTestId(item.id);
-		if (!name) {
-			if (item.children.size === 0) {
-				await this.resolver.resolve(item);
-			}
-
-			await forEachAsync(item.children, (child) => {
-				return this.collectTests(child, false, excluded, functions, files);
-			});
-			return;
-		}
-
-		function getFile(item: TestItem): TestItem | undefined {
-			const { kind } = GoTest.parseId(item.id);
-			if (kind === 'file') return item;
-			return item.parent && getFile(item.parent);
-		}
-
-		const file = getFile(item);
-		if (file) {
-			files.add(file);
-		}
-
-		const pkg = file?.parent;
-		if (!pkg) return;
-		if (functions.has(pkg)) {
-			functions.get(pkg)?.push({ item, explicitlyIncluded });
-		} else {
-			functions.set(pkg, [{ item, explicitlyIncluded }]);
-		}
-		return;
-	}
-
+  // Collect tests
+  collecteTests(request: vscode.TestRunRequest, collected: Set<CollectedTest>) {
+    if (request.include !== undefined) {
+      for (const test of request.include) {
+        collected.add({ item: test, explicitlyIncluded: true });
+      }
+    }
+  }
 }

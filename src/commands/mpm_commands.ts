@@ -221,6 +221,19 @@ export const mpmTestFile: CommandFactory = (ctx: IDEExtensionContext) => {
   };
 };
 
+export const mpmTestFunction = (ctx: IDEExtensionContext) => {
+  return async (filter: string): Promise<void> => {
+    const document = window.activeTextEditor?.document;
+    if (!document) {
+      throw new Error('No document opened');
+    }
+
+    return mpmExecute(ctx, 'testUnit', 'package test', Marker.None, {
+      shellArgs: ['--filter', filter]
+    });
+  };
+};
+
 export const mpmPublish: CommandFactory = (ctx: IDEExtensionContext) => {
   return async (): Promise<void> => {
     return mpmExecute(ctx, 'publish', 'sandbox publish', Marker.None);

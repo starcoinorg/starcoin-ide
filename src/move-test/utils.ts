@@ -6,14 +6,13 @@ export type FileSystem = Pick<vscode.FileSystem, 'readFile' | 'readDirectory'>;
 
 // The subset of vscode.workspace that is used by the test explorer.
 export interface Workspace
-	extends Pick<typeof vscode.workspace, 'workspaceFolders' | 'getWorkspaceFolder' | 'textDocuments'> {
-	// use custom FS type
-	readonly fs: FileSystem;
+  extends Pick<typeof vscode.workspace, 'workspaceFolders' | 'getWorkspaceFolder' | 'textDocuments'> {
+  // use custom FS type
+  readonly fs: FileSystem;
 
-	// only include one overload
-	openTextDocument(uri: vscode.Uri): Thenable<vscode.TextDocument>;
+  // only include one overload
+  openTextDocument(uri: vscode.Uri): Thenable<vscode.TextDocument>;
 }
-
 
 /**
  * Gen Move test id
