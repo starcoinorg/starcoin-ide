@@ -44,14 +44,6 @@ export class MoveTestResolver {
     return it(this.items);
   }
 
-  public updateGoTestContext() {
-    const items: Array<string> = [];
-    for (const item of this.allItems) {
-      items.push(item.id);
-    }
-    vscode.commands.executeCommand('setContext', 'go.tests', items);
-  }
-
   // Processes a Move document, calling processSymbol for each symbol in the
   // document.
   //
@@ -64,7 +56,7 @@ export class MoveTestResolver {
     const symbols = await this.provideDocumentSymbols(doc);
 
     for (const symbol of symbols) {
-      await this.processSymbol(doc, item, seen, symbol);
+      await this.processSymbol(doc, item, seen, [], symbol);
     }
 
     item.children.forEach((child) => {
@@ -155,11 +147,17 @@ export class MoveTestResolver {
     doc: vscode.TextDocument,
     file: vscode.TestItem,
     seen: Set<string>,
+    parents: Array<string>,
     symbol: vscode.DocumentSymbol
   ) {
     // Recursively process symbols that are nested
     if (symbol.kind !== vscode.SymbolKind.Function && symbol.kind !== vscode.SymbolKind.Method) {
-      for (const sym of symbol.children) await this.processSymbol(doc, file, seen, sym);
+      const parentName = symbol.name
+
+      for (const sym of symbol.children) {
+        await this.processSymbol(doc, file, seen, parents.concat(parentName), sym);
+      }
+
       return;
     }
 
@@ -168,8 +166,9 @@ export class MoveTestResolver {
       return;
     }
 
-    seen.add(symbol.name);
-    const item = this.getOrCreateItem(file, symbol.name, doc.uri, 'func', symbol.name);
+    const longName = parents.concat(symbol.name).join("::")
+    seen.add(longName);
+    const item = this.getOrCreateItem(file, longName, doc.uri, 'func', longName);
     item.range = symbol.range;
     this.all.set(item.id, item);
   }
