@@ -30,20 +30,6 @@ export class MoveTestResolver {
     return this.ctrl.items;
   }
 
-  get allItems() {
-    function* it(coll: vscode.TestItemCollection): Generator<vscode.TestItem> {
-      const arr: vscode.TestItem[] = [];
-      coll.forEach((x) => arr.push(x));
-
-      for (const item of arr) {
-        yield item;
-        yield* it(item.children);
-      }
-    }
-
-    return it(this.items);
-  }
-
   // Processes a Move document, calling processSymbol for each symbol in the
   // document.
   //
@@ -152,7 +138,7 @@ export class MoveTestResolver {
   ) {
     // Recursively process symbols that are nested
     if (symbol.kind !== vscode.SymbolKind.Function && symbol.kind !== vscode.SymbolKind.Method) {
-      const parentName = symbol.name
+      const parentName = symbol.name;
 
       for (const sym of symbol.children) {
         await this.processSymbol(doc, file, seen, parents.concat(parentName), sym);
@@ -166,7 +152,7 @@ export class MoveTestResolver {
       return;
     }
 
-    const longName = parents.concat(symbol.name).join("::")
+    const longName = parents.concat(symbol.name).join('::');
     seen.add(longName);
     const item = this.getOrCreateItem(file, longName, doc.uri, 'func', longName);
     item.range = symbol.range;

@@ -7,8 +7,8 @@ import * as vscode from 'vscode';
 
 import { IDEExtensionContext } from './context';
 import { Logger } from './log';
+import { MoveTestExplorer } from './move-test';
 import * as commands from './commands';
-import { MoveTestExplorer } from './move-test/explore';
 
 /**
  * Name of the namespace to shorten all access points

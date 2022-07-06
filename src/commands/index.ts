@@ -9,7 +9,7 @@ export * from './mpm_commands';
 type CommandCallback<T extends unknown[]> = (...args: T) => Promise<unknown> | unknown;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type CommandFactory<T extends unknown[] = any[]> = (ideCtx: IDEExtensionContext) => CommandCallback<T>;
+export type CommandFactory<T extends unknown[] = any[]> = (ideCtx: IDEExtensionContext, ...args:any) => CommandCallback<T>;
 
 export function createRegisterCommand(ctx: IDEExtensionContext) {
   return function registerCommand(name: string, fn: CommandFactory) {

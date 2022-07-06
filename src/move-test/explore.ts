@@ -11,7 +11,7 @@ export const isVscodeTestingAPIAvailable =
   'object' === typeof (vscode as any).tests && 'function' === typeof (vscode as any).tests.createTestController;
 
 export class MoveTestExplorer {
-  static setup(ctx: IDEExtensionContext): MoveTestExplorer {
+  static setup(ctx: IDEExtensionContext) {
     if (!isVscodeTestingAPIAvailable) throw new Error('VSCode Testing API is unavailable');
 
     const ctrl = vscode.tests.createTestController('move', 'Move Test Explorer');
@@ -45,6 +45,11 @@ export class MoveTestExplorer {
     );
 
     ctx.vscode.subscriptions.push(ctrl);
+
+    // register commands
+    ctx.vscode.subscriptions.push(vscode.commands.registerCommand('starcoin.tests', function(){
+       return inst.items
+    }));
 
     return inst;
   }
@@ -80,7 +85,6 @@ export class MoveTestExplorer {
     }
 
     await this.resolver.processDocument(doc, ranges);
-    this.resolver.updateGoTestContext();
   }
 
   /* ***** Listeners ***** */
@@ -94,5 +98,9 @@ export class MoveTestExplorer {
       e.document,
       e.contentChanges.map((x) => x.range)
     );
+  }
+
+  get items() {
+    return this.resolver.items
   }
 }
