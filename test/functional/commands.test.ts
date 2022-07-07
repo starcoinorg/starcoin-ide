@@ -331,7 +331,10 @@ suite('Starcoin-IDE.functional.test', () => {
         await sleep(1000);
 
         // 3. execute testFile command
-        const exec: vscode.TaskExecution = await vscode.commands.executeCommand('starcoin.testFunction', 'this_is_a_test');
+        const exec: vscode.TaskExecution = await vscode.commands.executeCommand(
+          'starcoin.testFunction',
+          'this_is_a_test'
+        );
         const exitCode = await getTaskResult(exec);
         await sleep(1000);
         assert.strictEqual(0, exitCode);

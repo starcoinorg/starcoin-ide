@@ -47,9 +47,11 @@ export class MoveTestExplorer {
     ctx.vscode.subscriptions.push(ctrl);
 
     // register commands
-    ctx.vscode.subscriptions.push(vscode.commands.registerCommand('starcoin.tests', function(){
-       return inst.allItems
-    }));
+    ctx.vscode.subscriptions.push(
+      vscode.commands.registerCommand('starcoin.tests', () => {
+        return inst.allItems;
+      })
+    );
 
     return inst;
   }
@@ -101,20 +103,20 @@ export class MoveTestExplorer {
   }
 
   get items() {
-    return this.resolver.items
+    return this.resolver.items;
   }
 
   get allItems() {
-		function* it(coll: vscode.TestItemCollection): Generator<vscode.TestItem> {
-			const arr: vscode.TestItem[] = [];
-			coll.forEach((x) => arr.push(x));
+    function* it(coll: vscode.TestItemCollection): Generator<vscode.TestItem> {
+      const arr: vscode.TestItem[] = [];
+      coll.forEach((x) => arr.push(x));
 
-			for (const item of arr) {
-				yield item;
-				yield* it(item.children);
-			}
-		}
+      for (const item of arr) {
+        yield item;
+        yield* it(item.children);
+      }
+    }
 
-		return it(this.items);
-	}
+    return it(this.items);
+  }
 }

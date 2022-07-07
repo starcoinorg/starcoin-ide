@@ -33,16 +33,16 @@ suite('Starcoin-IDE.functional.test', () => {
         await sleep(1000);
 
         // 3. execute testFile command
-        const tests:Generator<vscode.TestItem> = await vscode.commands.executeCommand('starcoin.tests');
+        const tests: Generator<vscode.TestItem> = await vscode.commands.executeCommand('starcoin.tests');
         assert.ok(tests);
 
-		const rootItem = tests.next();
-		assert.ok(rootItem);
-		assert.deepStrictEqual(rootItem.value.label, "SimpleNFT.move")
+        const rootItem = tests.next();
+        assert.ok(rootItem);
+        assert.deepStrictEqual(rootItem.value.label, 'SimpleNFT.move');
 
-		const testItem = tests.next();
-		assert.ok(testItem);
-		assert.deepStrictEqual(testItem.value.label, "this_is_a_test")
+        const testItem = tests.next();
+        assert.ok(testItem);
+        assert.deepStrictEqual(testItem.value.label, 'this_is_a_test');
       } catch (err) {
         assert.fail('Error in test command, error: ' + err);
       }

@@ -11,7 +11,6 @@ import * as assert from 'assert';
 import { MoveDownloader } from '../../src/download/move';
 
 suite('Downloader', () => {
-  
   suite('#isBinaryOutdated', () => {
     test('v1.5.1 should outdated when new release is v1.5.6', async () => {
       const loader = new MoveDownloader(path.join(os.tmpdir(), 'starcoin-ide', 'test', '' + new Date().getTime()));
