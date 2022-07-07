@@ -48,7 +48,7 @@ export class MoveTestExplorer {
 
     // register commands
     ctx.vscode.subscriptions.push(vscode.commands.registerCommand('starcoin.tests', function(){
-       return inst.items
+       return inst.allItems
     }));
 
     return inst;
@@ -103,4 +103,18 @@ export class MoveTestExplorer {
   get items() {
     return this.resolver.items
   }
+
+  get allItems() {
+		function* it(coll: vscode.TestItemCollection): Generator<vscode.TestItem> {
+			const arr: vscode.TestItem[] = [];
+			coll.forEach((x) => arr.push(x));
+
+			for (const item of arr) {
+				yield item;
+				yield* it(item.children);
+			}
+		}
+
+		return it(this.items);
+	}
 }

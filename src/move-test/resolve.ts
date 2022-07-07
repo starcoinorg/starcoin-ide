@@ -154,7 +154,7 @@ export class MoveTestResolver {
 
     const longName = parents.concat(symbol.name).join('::');
     seen.add(longName);
-    const item = this.getOrCreateItem(file, longName, doc.uri, 'func', longName);
+    const item = this.getOrCreateItem(file, symbol.name, doc.uri, 'func', longName);
     item.range = symbol.range;
     this.all.set(item.id, item);
   }
