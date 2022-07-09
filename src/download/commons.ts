@@ -192,7 +192,7 @@ function isZip(release: Release): boolean {
  * @returns
  */
 export function hasBinary(loader: Downloader): boolean {
-  return fs.existsSync(loader.executatePath);
+  return fs.existsSync(loader.executatePath) && fs.existsSync(loader.versionPath);
 }
 
 /**

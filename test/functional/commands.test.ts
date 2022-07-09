@@ -310,5 +310,37 @@ suite('Starcoin-IDE.functional.test', () => {
         assert.fail('Error in test command, error: ' + err);
       }
     });
+
+    test('test starcoin test function command', async () => {
+      const ext = vscode.extensions.getExtension('starcoinorg.starcoin-ide');
+      assert.ok(ext);
+
+      await ext.activate();
+      await sleep(1000);
+
+      try {
+        // 1. get workdir
+        let workDir = '';
+        if (vscode.workspace.workspaceFolders) {
+          workDir = vscode.workspace.workspaceFolders[0].uri.fsPath;
+        }
+
+        // 2. open doc
+        const docs = await vscode.workspace.openTextDocument(path.join(workDir, 'sources/SimpleNFT.move'));
+        await vscode.window.showTextDocument(docs);
+        await sleep(1000);
+
+        // 3. execute testFile command
+        const exec: vscode.TaskExecution = await vscode.commands.executeCommand(
+          'starcoin.testFunction',
+          'this_is_a_test'
+        );
+        const exitCode = await getTaskResult(exec);
+        await sleep(1000);
+        assert.strictEqual(0, exitCode);
+      } catch (err) {
+        assert.fail('Error in test command, error: ' + err);
+      }
+    });
   });
 });

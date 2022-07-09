@@ -7,6 +7,7 @@ import * as vscode from 'vscode';
 
 import { IDEExtensionContext } from './context';
 import { Logger } from './log';
+import { MoveTestExplorer } from './move-test';
 import * as commands from './commands';
 
 /**
@@ -37,11 +38,13 @@ export async function activate(ctx: vscode.ExtensionContext): Promise<void> {
 
   await commands.checkAndUpdateAll(ideCtx)();
   await commands.startLanguageServer(ideCtx)();
+  MoveTestExplorer.setup(ideCtx);
 
   registerCommand('starcoin.build', commands.mpmBuild);
   registerCommand('starcoin.testUnit', commands.mpmTestUnit);
   registerCommand('starcoin.testIntegration', commands.mpmTestIntegration);
   registerCommand('starcoin.testFile', commands.mpmTestFile);
+  registerCommand('starcoin.testFunction', commands.mpmTestFunction);
   registerCommand('starcoin.publish', commands.mpmPublish);
   registerCommand('starcoin.doctor', commands.mpmDoctor);
   registerCommand('starcoin.checkCompatibility', commands.mpmCheckCompatibility);
