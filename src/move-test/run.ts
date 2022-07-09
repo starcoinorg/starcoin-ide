@@ -47,7 +47,13 @@ export class MoveTestRunner {
 
       run.started(item);
 
-      const exec: vscode.TaskExecution = await vscode.commands.executeCommand('starcoin.testFunction', moveTest.name);
+      const tokens = moveTest.name.split('::');
+      let testFunc = moveTest.name;
+      if (tokens.length > 0) {
+        testFunc = tokens[tokens.length - 1];
+      }
+
+      const exec: vscode.TaskExecution = await vscode.commands.executeCommand('starcoin.testFunction', testFunc);
       const exitCode = await getTaskResult(exec);
       if (exitCode !== 0) {
         this.logger.info(`Test ${moveTest.name} failed`);
