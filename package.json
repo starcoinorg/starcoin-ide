@@ -125,9 +125,9 @@
 		"copy-test-files": "copyfiles \"test/**/*.move\" \"test/**/*.exp\" \"test/**/*.toml\" \"test/**/*.code-workspace\" out",
 		"test-compile": "tsc -p ./ && npm run copy-test-files",
 		"test:unit": "npm run test-compile && node ./out/test/unit/runTest.js",
-		"test:functional:move-test": "MOCHA_grep=**/move-test.test.js node ./out/test/functional/runTest.js",
-		"test:functional:download": "MOCHA_grep=**/download.test.js node ./out/test/functional/runTest.js",
-		"test:functional:commands": "MOCHA_grep=**/commands.test.js node ./out/test/functional/runTest.js",
+		"test:functional:move-test": "cross-env MOCHA_grep=**/move-test.test.js node ./out/test/functional/runTest.js",
+		"test:functional:download": "cross-env MOCHA_grep=**/download.test.js node ./out/test/functional/runTest.js",
+		"test:functional:commands": "cross-env MOCHA_grep=**/commands.test.js node ./out/test/functional/runTest.js",
 		"test:functional": "npm run clean && npm run compile && npm run test-compile && npm run test:functional:download && npm run test:functional:move-test && npm run test:functional:commands",
 		"test": "npm run test:unit && npm run test:functional",
 		"lint": "gts lint src test",
@@ -169,8 +169,9 @@
 		"@types/node": "^14.0.1",
 		"@types/vscode": "^1.43.0",
 		"@vscode/test-electron": "^2.0.0",
-		"esbuild": "0.12.21",
 		"copyfiles": "2.4.1",
+		"cross-env": "^7.0.3",
+		"esbuild": "0.12.21",
 		"eslint-plugin-prettier": "^4.0.0",
 		"gts": "3.1.0",
 		"mocha": "^8.2.1",
@@ -190,7 +191,7 @@
 		"node-version-compare": "^1.0.3",
 		"rimraf": "^3.0.2",
 		"unzipper": "^0.10.11",
-		"wget-improved": "^3.3.0",
-		"vscode-languageclient": "6.1.4"
+		"vscode-languageclient": "6.1.4",
+		"wget-improved": "^3.3.0"
 	}
 }
