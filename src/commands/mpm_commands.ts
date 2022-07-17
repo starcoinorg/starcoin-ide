@@ -130,8 +130,15 @@ function mpmExecute(
 
   // Fix file format in windows
   if (process.platform === 'win32') {
-    const sourceDir = Path.join(dir, 'integration-tests');
-    dos2unix(sourceDir, '**/*.exp');
+    const intDir = Path.join(dir, 'integration-tests');
+    if (fs.existsSync(intDir)) {
+      dos2unix(intDir, '**/*.exp');
+    }
+
+    const specDir = Path.join(dir, 'spectests');
+    if (fs.existsSync(specDir)) {
+      dos2unix(specDir, '**/*.exp');
+    }
   }
 
   // fix HOME env not set in windows
