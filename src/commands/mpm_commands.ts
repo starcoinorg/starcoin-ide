@@ -207,7 +207,7 @@ export const mpmTestFile: CommandFactory = (ctx: IDEExtensionContext) => {
     const extension = Path.extname(path);
     const fileName = Path.basename(path, extension);
 
-    if (path.indexOf('integration-tests') > -1) {
+    if (path.indexOf('integration-tests') > -1 || path.indexOf('spectests') > -1) {
       return mpmExecute(ctx, 'testIntegration', 'integration-test', Marker.None, {
         shellArgs: [fileName]
       });
