@@ -147,8 +147,20 @@ export class MoveTestResolver {
       return;
     }
 
-    const match = symbol.detail.indexOf('test') > 0;
-    if (!match) {
+    // If the symbol has no tag, it is not a test
+    if (symbol.detail === '') {
+      return;
+    }
+
+    // Check if the symbol is a test
+    try {
+      const tags: Array<string> = JSON.parse(symbol.detail);
+      const match = tags && tags.includes('test');
+      if (!match) {
+        return;
+      }
+    } catch (e) {
+      // parse failed, ignore
       return;
     }
 

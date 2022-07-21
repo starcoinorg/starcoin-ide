@@ -72,6 +72,7 @@ module  SNFT::SimpleNFTScripts{
 		Self::mint_with_image(sender, name, image_url, description);
 	}
 
+
 	public(script) fun mint_with_image(sender: signer, name: vector<u8>, image_url: vector<u8>, description: vector<u8>){
 		let metadata = NFT::new_meta_with_image(name, image_url, description);
 		let nft = SimpleNFT::mint(&sender,metadata);
@@ -91,9 +92,20 @@ module  SNFT::SimpleNFTScripts{
 		NFTGallery::deposit(&sender, nft);
 	}
 
+	#[test_only] // OK
+	fun this_is_a_test_only_func() {
+		
+	}
+
 	#[test] // OK
 	fun this_is_a_test() {
 		
+	}
+
+	#[test] // OK
+	#[expected_failure] // Allowed failure
+	fun this_is_a_failed_test() {
+		abort 1
 	}
 	
 }

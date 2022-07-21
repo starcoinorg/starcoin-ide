@@ -91,9 +91,20 @@ module  SNFT::SimpleNFTScripts{
 		NFTGallery::deposit(&sender, nft);
 	}
 
+	#[test_only] // OK
+	fun this_is_a_test_only_func() {
+		
+	}
+
 	#[test] // OK
 	fun this_is_a_test() {
 		
+	}
+
+	#[test] // OK
+	#[expected_failure] // Allowed failure
+	fun this_is_a_failed_test() {
+		abort 1
 	}
 
 }

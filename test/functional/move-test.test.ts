@@ -47,7 +47,11 @@ suite('Starcoin-IDE.functional.test', () => {
 
         const testItem = tests.next();
         assert.ok(testItem);
-        assert.deepStrictEqual(testItem.value.label, 'this_is_a_test');
+        assert.deepStrictEqual(testItem.value.label, 'this_is_a_failed_test');
+
+        const testItem2 = tests.next();
+        assert.ok(testItem2);
+        assert.deepStrictEqual(testItem2.value.label, 'this_is_a_test');
       } catch (err) {
         assert.fail('Error in test command, error: ' + err);
       }
