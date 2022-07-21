@@ -14,14 +14,14 @@ export function run(): Promise<void> {
   const mocha = new Mocha({
     ui: 'tdd',
     color: true,
-    grep: process.env.MOCHA_grep,
-    timeout: 1000 * 60 * 20
+    timeout: 1000 * 60 * 20,
+    parallel: false
   });
 
   const testsRoot = path.resolve(__dirname, '.');
 
   return new Promise((c, e) => {
-    glob('**/download.test.js', { cwd: testsRoot }, (err, files) => {
+    glob(process.env.MOCHA_grep || '', { cwd: testsRoot }, (err, files) => {
       if (err) {
         return e(err);
       }
