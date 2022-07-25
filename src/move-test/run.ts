@@ -90,7 +90,7 @@ export class MoveTestRunner {
     } else {
       item.children.forEach((child) => {
         this.collecteItem(child, collected);
-      })
+      });
     }
   }
 }
