@@ -76,9 +76,21 @@ export class MoveTestRunner {
   // Collect tests
   collecteTests(request: vscode.TestRunRequest, collected: Set<CollectedTest>) {
     if (request.include !== undefined) {
-      for (const test of request.include) {
-        collected.add({ item: test, explicitlyIncluded: true });
+      for (const item of request.include) {
+        this.collecteItem(item, collected);
       }
+    }
+  }
+
+  collecteItem(item: vscode.TestItem, collected: Set<CollectedTest>) {
+    const moveTest = parseMoveTestId(item.id);
+
+    if (moveTest.kind === 'func') {
+      collected.add({ item: item, explicitlyIncluded: true });
+    } else {
+      item.children.forEach((child) => {
+        this.collecteItem(child, collected);
+      })
     }
   }
 }
