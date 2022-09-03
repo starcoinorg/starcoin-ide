@@ -30,7 +30,7 @@ suite('Starcoin-IDE.functional.test', () => {
         // 2. open doc
         const docs = await vscode.workspace.openTextDocument(path.join(workDir, 'sources/SimpleNFT.move'));
         await vscode.window.showTextDocument(docs);
-        await sleep(1000);
+        await sleep(3000);
 
         // 3. execute testFile command
         const tests: Generator<vscode.TestItem> = await vscode.commands.executeCommand('starcoin.tests');
