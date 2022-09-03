@@ -37,7 +37,7 @@ export class MoveTestRunner {
     this.logger.info('Running tests...');
 
     const collected = new Set<CollectedTest>();
-    this.collecteTests(request, collected);
+    this.collectTests(request, collected);
 
     const run = this.ctrl.createTestRun(request);
 
@@ -74,22 +74,23 @@ export class MoveTestRunner {
   }
 
   // Collect tests
-  collecteTests(request: vscode.TestRunRequest, collected: Set<CollectedTest>) {
+  collectTests(request: vscode.TestRunRequest, collected: Set<CollectedTest>) {
     if (request.include !== undefined) {
       for (const item of request.include) {
-        this.collecteItem(item, collected);
+        this.collectItem(item, collected);
       }
     }
   }
 
-  collecteItem(item: vscode.TestItem, collected: Set<CollectedTest>) {
+  // Collect item recursion
+  collectItem(item: vscode.TestItem, collected: Set<CollectedTest>) {
     const moveTest = parseMoveTestId(item.id);
 
     if (moveTest.kind === 'func') {
       collected.add({ item: item, explicitlyIncluded: true });
     } else {
       item.children.forEach((child) => {
-        this.collecteItem(child, collected);
+        this.collectItem(child, collected);
       });
     }
   }
