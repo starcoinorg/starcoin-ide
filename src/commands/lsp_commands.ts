@@ -36,5 +36,9 @@ export const startLanguageServer: CommandFactory = (ctx: IDEExtensionContext) =>
     const disposable = client.start();
     ctx.vscode.subscriptions.push(disposable);
     ctx.languageClient = client;
+
+    // Wait for the Move Language Server initialization to complete,
+    // especially the first symbol table parsing is completed
+    await client.onReady();
   };
 };
