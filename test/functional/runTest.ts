@@ -23,11 +23,11 @@ async function main(): Promise<void> {
   const testWorkspace = path.resolve(__dirname, './demos/simple-nft-mpm');
   let testWorkspacePath = path.resolve(testWorkspace, './simple-nft.code-workspace');
   if (process.platform === 'win32') {
-    testWorkspacePath = path.resolve(testWorkspace, './simple-nft.code-workspace');
+    testWorkspacePath = path.resolve(testWorkspace, './simple-nft-win.code-workspace');
   }
 
   // Install vscode and depends extension
-  const vscodeVersion = '1.69.2';
+  const vscodeVersion = '1.64.0';
   const vscodeExecutablePath = await downloadAndUnzipVSCode(vscodeVersion);
   const [cli, ...args] = resolveCliArgsFromVSCodeExecutablePath(vscodeExecutablePath);
   cp.spawnSync(cli, [...args, '--install-extension', 'damirka.move-syntax', '--force'], {
