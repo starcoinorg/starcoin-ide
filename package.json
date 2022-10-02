@@ -120,8 +120,10 @@
 		"vscode:prepublish": "rm dist/*; npm run compile",
 		"copy-demo-files": "copyfiles \"demo/**/*.move\" \"demo/**/*.exp\" \"demo/**/*.toml\" \"demo/**/*.code-workspace\" out",
 		"dev-compile": "tsc -p ./ && npm run copy-demo-files",
+		"pre-run": "npm run clean && npm run dev-compile && npm run watch",
 		"dev": "npm run clean && npm run compile && npm run dev-compile && node ./out/demo/run.js",
-		"watch": "tsc -watch -p ./",
+		"watch": "webpack --watch",
+		"watch-tests": "tsc -p . -w --outDir out",
 		"copy-test-files": "copyfiles \"test/**/*.move\" \"test/**/*.exp\" \"test/**/*.toml\" \"test/**/*.code-workspace\" out",
 		"test-compile": "tsc -p ./ && npm run copy-test-files",
 		"test:unit": "npm run test-compile && node ./out/test/unit/runTest.js",
@@ -180,7 +182,10 @@
 		"request-progress": "^3.0.0",
 		"standard-version": "^9.3.1",
 		"typescript": "^4.1.3",
-		"vsce": "^1.77.0"
+		"vsce": "^1.77.0",
+		"webpack": "^5.74.0",
+   		"webpack-cli": "^4.10.0",
+		"ts-loader": "^9.3.1"
 	},
 	"dependencies": {
 		"@types/unzipper": "^0.10.5",
