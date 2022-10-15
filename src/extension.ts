@@ -9,6 +9,8 @@ import { IDEExtensionContext } from './context';
 import { Logger } from './log';
 import { MoveTestExplorer } from './move-test';
 import * as commands from './commands';
+import { Config } from './config/config';
+import { getWorkspaceDir } from './utils';
 
 /**
  * Name of the namespace to shorten all access points
@@ -22,11 +24,15 @@ const NAMESPACE = 'starcoin';
 const EXTENSION = 'starcoinorg.starcoin-ide';
 
 export async function activate(ctx: vscode.ExtensionContext): Promise<void> {
+  const log = new Logger();
+  const workspaceDir = getWorkspaceDir();
+
   const ideCtx: IDEExtensionContext = {
     namespace: NAMESPACE,
     extension: EXTENSION,
     vscode: ctx,
-    logger: new Logger(),
+    logger: log,
+    config: new Config(log, workspaceDir),
     activate,
     deactivate
   };
