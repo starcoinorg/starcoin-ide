@@ -271,7 +271,7 @@ suite('Starcoin-IDE.functional.test', () => {
         await sleep(1000);
 
         // 3. execute testFile command
-        const exec: vscode.TaskExecution = await vscode.commands.executeCommand('starcoin.testFile');
+        const exec: vscode.TaskExecution = await vscode.commands.executeCommand('starcoin.testUnitFile');
         const exitCode = await getTaskResult(exec);
         await sleep(1000);
         assert.strictEqual(0, exitCode);
@@ -302,7 +302,7 @@ suite('Starcoin-IDE.functional.test', () => {
         await sleep(1000);
 
         // 3. execute testFile command
-        const exec: vscode.TaskExecution = await vscode.commands.executeCommand('starcoin.testFile');
+        const exec: vscode.TaskExecution = await vscode.commands.executeCommand('starcoin.testIntegrationFile');
         const exitCode = await getTaskResult(exec);
         await sleep(1000);
         assert.strictEqual(0, exitCode);
@@ -331,7 +331,102 @@ suite('Starcoin-IDE.functional.test', () => {
         await sleep(1000);
 
         // 3. execute testFile command
-        const exec: vscode.TaskExecution = await vscode.commands.executeCommand('starcoin.testFile');
+        const exec: vscode.TaskExecution = await vscode.commands.executeCommand('starcoin.testIntegrationFile');
+        const exitCode = await getTaskResult(exec);
+        await sleep(1000);
+        assert.strictEqual(0, exitCode);
+      } catch (err) {
+        assert.fail('Error in test command, error: ' + err);
+      }
+    });
+
+    test('test starcoin test file command for update functional test baseline', async () => {
+      const ext = vscode.extensions.getExtension('starcoinorg.starcoin-ide');
+      assert.ok(ext);
+
+      await ext.activate();
+      await sleep(1000);
+
+      try {
+        // 1. get workdir
+        let workDir = '';
+        if (vscode.workspace.workspaceFolders) {
+          workDir = vscode.workspace.workspaceFolders[0].uri.fsPath;
+        }
+
+        // 2. open doc
+        const docs = await vscode.workspace.openTextDocument(
+          path.join(workDir, 'integration-tests/test_simple_nft.move')
+        );
+        await vscode.window.showTextDocument(docs);
+        await sleep(1000);
+
+        // 3. execute testFile command
+        const exec: vscode.TaskExecution = await vscode.commands.executeCommand(
+          'starcoin.updateIntegrationTestBaseline'
+        );
+        const exitCode = await getTaskResult(exec);
+        await sleep(1000);
+        assert.strictEqual(0, exitCode);
+      } catch (err) {
+        assert.fail('Error in test command, error: ' + err);
+      }
+    });
+
+    test('test starcoin test file command for update functional test baseline with old spectests dir', async () => {
+      const ext = vscode.extensions.getExtension('starcoinorg.starcoin-ide');
+      assert.ok(ext);
+
+      await ext.activate();
+      await sleep(1000);
+
+      try {
+        // 1. get workdir
+        let workDir = '';
+        if (vscode.workspace.workspaceFolders) {
+          workDir = vscode.workspace.workspaceFolders[0].uri.fsPath;
+        }
+
+        // 2. open doc
+        const docs = await vscode.workspace.openTextDocument(path.join(workDir, 'spectests/test_simple_nft.move'));
+        await vscode.window.showTextDocument(docs);
+        await sleep(1000);
+
+        // 3. execute testFile command
+        const exec: vscode.TaskExecution = await vscode.commands.executeCommand(
+          'starcoin.updateIntegrationTestBaseline'
+        );
+        const exitCode = await getTaskResult(exec);
+        await sleep(1000);
+        assert.strictEqual(0, exitCode);
+      } catch (err) {
+        assert.fail('Error in test command, error: ' + err);
+      }
+    });
+
+    test('test starcoin test file command for update functional test baseline with Move.toml', async () => {
+      const ext = vscode.extensions.getExtension('starcoinorg.starcoin-ide');
+      assert.ok(ext);
+
+      await ext.activate();
+      await sleep(1000);
+
+      try {
+        // 1. get workdir
+        let workDir = '';
+        if (vscode.workspace.workspaceFolders) {
+          workDir = vscode.workspace.workspaceFolders[0].uri.fsPath;
+        }
+
+        // 2. open doc
+        const docs = await vscode.workspace.openTextDocument(path.join(workDir, 'Move.toml'));
+        await vscode.window.showTextDocument(docs);
+        await sleep(1000);
+
+        // 3. execute testFile command
+        const exec: vscode.TaskExecution = await vscode.commands.executeCommand(
+          'starcoin.updateIntegrationTestBaseline'
+        );
         const exitCode = await getTaskResult(exec);
         await sleep(1000);
         assert.strictEqual(0, exitCode);
