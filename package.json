@@ -93,28 +93,13 @@
 				},
 				{
 					"when": "resourceFilename == Move.toml",
-					"command": "starcoin.publish",
+					"command": "starcoin.checkCompatibility",
 					"group": "2_starcoin@5"
 				},
 				{
 					"when": "resourceFilename == Move.toml",
-					"command": "starcoin.doctor",
-					"group": "2_starcoin@6"
-				},
-				{
-					"when": "resourceFilename == Move.toml",
-					"command": "starcoin.checkCompatibility",
-					"group": "2_starcoin@7"
-				},
-				{
-					"when": "resourceFilename == Move.toml",
 					"command": "starcoin.release",
-					"group": "2_starcoin@8"
-				},
-				{
-					"when": "resourceFilename == Move.toml",
-					"command": "starcoin.clean",
-					"group": "2_starcoin@9"
+					"group": "2_starcoin@6"
 				},
 				{
 					"when": "resourceExtname == .move && resourceDirname =~ /.*sources.*/",
@@ -165,28 +150,13 @@
 				},
 				{
 					"when": "resourceFilename == Move.toml",
-					"command": "starcoin.publish",
+					"command": "starcoin.checkCompatibility",
 					"group": "2_starcoin@5"
 				},
 				{
 					"when": "resourceFilename == Move.toml",
-					"command": "starcoin.doctor",
-					"group": "2_starcoin@6"
-				},
-				{
-					"when": "resourceFilename == Move.toml",
-					"command": "starcoin.checkCompatibility",
-					"group": "2_starcoin@7"
-				},
-				{
-					"when": "resourceFilename == Move.toml",
 					"command": "starcoin.release",
-					"group": "2_starcoin@8"
-				},
-				{
-					"when": "resourceFilename == Move.toml",
-					"command": "starcoin.clean",
-					"group": "2_starcoin@9"
+					"group": "2_starcoin@6"
 				},
 				{
 					"when": "resourceExtname == .move && resourceDirname =~ /.*sources.*/",
