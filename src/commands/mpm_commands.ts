@@ -256,11 +256,11 @@ export const mpmUpdateIntegrationTestBaseline: CommandFactory = (ctx: IDEExtensi
 
     if (path.endsWith('Move.toml')) {
       return mpmExecute(ctx, 'testIntegration', 'integration-test', Marker.None, {
-        shellArgs: ["--ub"]
+        shellArgs: ['--ub']
       });
     } else {
       return mpmExecute(ctx, 'testIntegration', 'integration-test', Marker.None, {
-        shellArgs: [fileName, "--ub"]
+        shellArgs: [fileName, '--ub']
       });
     }
   };

@@ -362,7 +362,9 @@ suite('Starcoin-IDE.functional.test', () => {
         await sleep(1000);
 
         // 3. execute testFile command
-        const exec: vscode.TaskExecution = await vscode.commands.executeCommand('starcoin.updateIntegrationTestBaseline');
+        const exec: vscode.TaskExecution = await vscode.commands.executeCommand(
+          'starcoin.updateIntegrationTestBaseline'
+        );
         const exitCode = await getTaskResult(exec);
         await sleep(1000);
         assert.strictEqual(0, exitCode);
@@ -386,14 +388,14 @@ suite('Starcoin-IDE.functional.test', () => {
         }
 
         // 2. open doc
-        const docs = await vscode.workspace.openTextDocument(
-          path.join(workDir, 'spectests/test_simple_nft.move')
-        );
+        const docs = await vscode.workspace.openTextDocument(path.join(workDir, 'spectests/test_simple_nft.move'));
         await vscode.window.showTextDocument(docs);
         await sleep(1000);
 
         // 3. execute testFile command
-        const exec: vscode.TaskExecution = await vscode.commands.executeCommand('starcoin.updateIntegrationTestBaseline');
+        const exec: vscode.TaskExecution = await vscode.commands.executeCommand(
+          'starcoin.updateIntegrationTestBaseline'
+        );
         const exitCode = await getTaskResult(exec);
         await sleep(1000);
         assert.strictEqual(0, exitCode);
@@ -417,14 +419,14 @@ suite('Starcoin-IDE.functional.test', () => {
         }
 
         // 2. open doc
-        const docs = await vscode.workspace.openTextDocument(
-          path.join(workDir, 'Move.toml')
-        );
+        const docs = await vscode.workspace.openTextDocument(path.join(workDir, 'Move.toml'));
         await vscode.window.showTextDocument(docs);
         await sleep(1000);
 
         // 3. execute testFile command
-        const exec: vscode.TaskExecution = await vscode.commands.executeCommand('starcoin.updateIntegrationTestBaseline');
+        const exec: vscode.TaskExecution = await vscode.commands.executeCommand(
+          'starcoin.updateIntegrationTestBaseline'
+        );
         const exitCode = await getTaskResult(exec);
         await sleep(1000);
         assert.strictEqual(0, exitCode);
