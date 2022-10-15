@@ -49,7 +49,9 @@ export async function activate(ctx: vscode.ExtensionContext): Promise<void> {
   registerCommand('starcoin.build', commands.mpmBuild);
   registerCommand('starcoin.testUnit', commands.mpmTestUnit);
   registerCommand('starcoin.testIntegration', commands.mpmTestIntegration);
-  registerCommand('starcoin.testFile', commands.mpmTestFile);
+  registerCommand('starcoin.updateIntegrationTestBaseline', commands.mpmUpdateIntegrationTestBaseline);
+  registerCommand('starcoin.testUnitFile', commands.mpmTestUnitFile);
+  registerCommand('starcoin.testIntegrationFile', commands.mpmTestIntegrationFile);
   registerCommand('starcoin.testFunction', commands.mpmTestFunction);
   registerCommand('starcoin.publish', commands.mpmPublish);
   registerCommand('starcoin.doctor', commands.mpmDoctor);

@@ -26,15 +26,23 @@
 			},
 			{
 				"command": "starcoin.testUnit",
-				"title": "Starcoin: Unit Test"
+				"title": "Starcoin: Run Unit Test"
 			},
 			{
 				"command": "starcoin.testIntegration",
-				"title": "Starcoin: Integration Test"
+				"title": "Starcoin: Run Integration Test"
 			},
 			{
-				"command": "starcoin.testFile",
-				"title": "Starcoin: Run Test"
+				"command": "starcoin.testUnitFile",
+				"title": "Starcoin: Run Unit Test"
+			},
+			{
+				"command": "starcoin.testIntegrationFile",
+				"title": "Starcoin: Run Integration Test"
+			},
+			{
+				"command": "starcoin.updateIntegrationTestBaseline",
+				"title": "Starcoin: Update Integration Test Baseline"
 			},
 			{
 				"command": "starcoin.publish",
@@ -80,33 +88,130 @@
 				},
 				{
 					"when": "resourceFilename == Move.toml",
-					"command": "starcoin.publish",
+					"command": "starcoin.updateIntegrationTestBaseline",
 					"group": "2_starcoin@4"
 				},
 				{
 					"when": "resourceFilename == Move.toml",
-					"command": "starcoin.doctor",
+					"command": "starcoin.publish",
 					"group": "2_starcoin@5"
 				},
 				{
 					"when": "resourceFilename == Move.toml",
-					"command": "starcoin.checkCompatibility",
+					"command": "starcoin.doctor",
 					"group": "2_starcoin@6"
 				},
 				{
 					"when": "resourceFilename == Move.toml",
-					"command": "starcoin.release",
+					"command": "starcoin.checkCompatibility",
 					"group": "2_starcoin@7"
 				},
 				{
 					"when": "resourceFilename == Move.toml",
-					"command": "starcoin.clean",
+					"command": "starcoin.release",
 					"group": "2_starcoin@8"
 				},
 				{
-					"when": "resourceExtname == .move",
-					"command": "starcoin.testFile",
+					"when": "resourceFilename == Move.toml",
+					"command": "starcoin.clean",
+					"group": "2_starcoin@9"
+				},
+				{
+					"when": "resourceExtname == .move && resourceDirname =~ /.*sources.*/",
+					"command": "starcoin.testUnitFile",
 					"group": "2_starcoin@2"
+				},
+				{
+					"when": "resourceExtname == .move && resourceDirname =~ /.*integration-test.*/",
+					"command": "starcoin.testIntegrationFile",
+					"group": "2_starcoin@3"
+				},
+				{
+					"when": "resourceExtname == .move && resourceDirname =~ /.*spectests.*/",
+					"command": "starcoin.testIntegrationFile",
+					"group": "2_starcoin@3"
+				},
+				{
+					"when": "resourceExtname == .move && resourceDirname =~ /.*integration-test.*/",
+					"command": "starcoin.updateIntegrationTestBaseline",
+					"group": "2_starcoin@4"
+				},
+				{
+					"when": "resourceExtname == .move && resourceDirname =~ /.*spectests.*/",
+					"command": "starcoin.updateIntegrationTestBaseline",
+					"group": "2_starcoin@4"
+				}
+			],
+			"editor/context": [
+				{
+					"when": "resourceFilename == Move.toml",
+					"command": "starcoin.build",
+					"group": "2_starcoin@1"
+				},
+				{
+					"when": "resourceFilename == Move.toml",
+					"command": "starcoin.testUnit",
+					"group": "2_starcoin@2"
+				},
+				{
+					"when": "resourceFilename == Move.toml",
+					"command": "starcoin.testIntegration",
+					"group": "2_starcoin@3"
+				},
+				{
+					"when": "resourceFilename == Move.toml",
+					"command": "starcoin.updateIntegrationTestBaseline",
+					"group": "2_starcoin@4"
+				},
+				{
+					"when": "resourceFilename == Move.toml",
+					"command": "starcoin.publish",
+					"group": "2_starcoin@5"
+				},
+				{
+					"when": "resourceFilename == Move.toml",
+					"command": "starcoin.doctor",
+					"group": "2_starcoin@6"
+				},
+				{
+					"when": "resourceFilename == Move.toml",
+					"command": "starcoin.checkCompatibility",
+					"group": "2_starcoin@7"
+				},
+				{
+					"when": "resourceFilename == Move.toml",
+					"command": "starcoin.release",
+					"group": "2_starcoin@8"
+				},
+				{
+					"when": "resourceFilename == Move.toml",
+					"command": "starcoin.clean",
+					"group": "2_starcoin@9"
+				},
+				{
+					"when": "resourceExtname == .move && resourceDirname =~ /.*sources.*/",
+					"command": "starcoin.testUnitFile",
+					"group": "2_starcoin@2"
+				},
+				{
+					"when": "resourceExtname == .move && resourceDirname =~ /.*integration-test.*/",
+					"command": "starcoin.testIntegrationFile",
+					"group": "2_starcoin@3"
+				},
+				{
+					"when": "resourceExtname == .move && resourceDirname =~ /.*spectests.*/",
+					"command": "starcoin.testIntegrationFile",
+					"group": "2_starcoin@3"
+				},
+				{
+					"when": "resourceExtname == .move && resourceDirname =~ /.*integration-test.*/",
+					"command": "starcoin.updateIntegrationTestBaseline",
+					"group": "2_starcoin@4"
+				},
+				{
+					"when": "resourceExtname == .move && resourceDirname =~ /.*spectests.*/",
+					"command": "starcoin.updateIntegrationTestBaseline",
+					"group": "2_starcoin@4"
 				}
 			]
 		}
