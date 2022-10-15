@@ -159,8 +159,8 @@ function mpmExecute(
 
   const commandOpts = ideCtx.config.getCommandOptions(`mpm ${command}`);
   ideCtx.logger.info(`Command mpm ${command} opts: ` + JSON.stringify(commandOpts));
-  if ("OPTIONS" in commandOpts) {
-    args = args.concat(commandOpts["OPTIONS"]);
+  if ('OPTIONS' in commandOpts) {
+    args = args.concat(commandOpts['OPTIONS']);
   }
 
   if (cmdOpts?.shellArgs) {
