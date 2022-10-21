@@ -44,3 +44,12 @@ export function getTaskResult(taskExecution: vscode.TaskExecution): Promise<numb
     );
   });
 }
+
+export function getWorkspaceDir(): string {
+  const workspaceFolders = vscode.workspace.workspaceFolders;
+  if (!workspaceFolders) {
+    return '';
+  }
+
+  return workspaceFolders[0].uri.fsPath;
+}

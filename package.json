@@ -1,6 +1,6 @@
 {
 	"name": "starcoin-ide",
-	"version": "0.7.3-alpha",
+	"version": "0.7.6-alpha",
 	"description": "Starcoin IDE for VSCode",
 	"publisher": "starcoinorg",
 	"displayName": "Starcoin IDE",
@@ -26,15 +26,23 @@
 			},
 			{
 				"command": "starcoin.testUnit",
-				"title": "Starcoin: Unit Test"
+				"title": "Starcoin: Run Unit Test"
 			},
 			{
 				"command": "starcoin.testIntegration",
-				"title": "Starcoin: Integration Test"
+				"title": "Starcoin: Run Integration Test"
 			},
 			{
-				"command": "starcoin.testFile",
-				"title": "Starcoin: Run Test"
+				"command": "starcoin.testUnitFile",
+				"title": "Starcoin: Run Unit Test"
+			},
+			{
+				"command": "starcoin.testIntegrationFile",
+				"title": "Starcoin: Run Integration Test"
+			},
+			{
+				"command": "starcoin.updateIntegrationTestBaseline",
+				"title": "Starcoin: Update Integration Test Baseline"
 			},
 			{
 				"command": "starcoin.publish",
@@ -80,33 +88,100 @@
 				},
 				{
 					"when": "resourceFilename == Move.toml",
-					"command": "starcoin.publish",
+					"command": "starcoin.updateIntegrationTestBaseline",
 					"group": "2_starcoin@4"
 				},
 				{
 					"when": "resourceFilename == Move.toml",
-					"command": "starcoin.doctor",
+					"command": "starcoin.checkCompatibility",
 					"group": "2_starcoin@5"
 				},
 				{
 					"when": "resourceFilename == Move.toml",
-					"command": "starcoin.checkCompatibility",
+					"command": "starcoin.release",
 					"group": "2_starcoin@6"
+				},
+				{
+					"when": "resourceExtname == .move && resourceDirname =~ /.*sources.*/",
+					"command": "starcoin.testUnitFile",
+					"group": "2_starcoin@2"
+				},
+				{
+					"when": "resourceExtname == .move && resourceDirname =~ /.*integration-test.*/",
+					"command": "starcoin.testIntegrationFile",
+					"group": "2_starcoin@3"
+				},
+				{
+					"when": "resourceExtname == .move && resourceDirname =~ /.*spectests.*/",
+					"command": "starcoin.testIntegrationFile",
+					"group": "2_starcoin@3"
+				},
+				{
+					"when": "resourceExtname == .move && resourceDirname =~ /.*integration-test.*/",
+					"command": "starcoin.updateIntegrationTestBaseline",
+					"group": "2_starcoin@4"
+				},
+				{
+					"when": "resourceExtname == .move && resourceDirname =~ /.*spectests.*/",
+					"command": "starcoin.updateIntegrationTestBaseline",
+					"group": "2_starcoin@4"
+				}
+			],
+			"editor/context": [
+				{
+					"when": "resourceFilename == Move.toml",
+					"command": "starcoin.build",
+					"group": "2_starcoin@1"
+				},
+				{
+					"when": "resourceFilename == Move.toml",
+					"command": "starcoin.testUnit",
+					"group": "2_starcoin@2"
+				},
+				{
+					"when": "resourceFilename == Move.toml",
+					"command": "starcoin.testIntegration",
+					"group": "2_starcoin@3"
+				},
+				{
+					"when": "resourceFilename == Move.toml",
+					"command": "starcoin.updateIntegrationTestBaseline",
+					"group": "2_starcoin@4"
+				},
+				{
+					"when": "resourceFilename == Move.toml",
+					"command": "starcoin.checkCompatibility",
+					"group": "2_starcoin@5"
 				},
 				{
 					"when": "resourceFilename == Move.toml",
 					"command": "starcoin.release",
-					"group": "2_starcoin@7"
+					"group": "2_starcoin@6"
 				},
 				{
-					"when": "resourceFilename == Move.toml",
-					"command": "starcoin.clean",
-					"group": "2_starcoin@8"
-				},
-				{
-					"when": "resourceExtname == .move",
-					"command": "starcoin.testFile",
+					"when": "resourceExtname == .move && resourceDirname =~ /.*sources.*/",
+					"command": "starcoin.testUnitFile",
 					"group": "2_starcoin@2"
+				},
+				{
+					"when": "resourceExtname == .move && resourceDirname =~ /.*integration-test.*/",
+					"command": "starcoin.testIntegrationFile",
+					"group": "2_starcoin@3"
+				},
+				{
+					"when": "resourceExtname == .move && resourceDirname =~ /.*spectests.*/",
+					"command": "starcoin.testIntegrationFile",
+					"group": "2_starcoin@3"
+				},
+				{
+					"when": "resourceExtname == .move && resourceDirname =~ /.*integration-test.*/",
+					"command": "starcoin.updateIntegrationTestBaseline",
+					"group": "2_starcoin@4"
+				},
+				{
+					"when": "resourceExtname == .move && resourceDirname =~ /.*spectests.*/",
+					"command": "starcoin.updateIntegrationTestBaseline",
+					"group": "2_starcoin@4"
 				}
 			]
 		}
@@ -118,13 +193,12 @@
 		"bundle-watch": "npm run bundle -- --sourcemap --watch",
 		"compile": "npm run bundle",
 		"vscode:prepublish": "rm dist/*; npm run compile",
-		"copy-demo-files": "copyfiles \"demo/**/*.move\" \"demo/**/*.exp\" \"demo/**/*.toml\" \"demo/**/*.code-workspace\" out",
+		"copy-demo-files": "copyfiles \"demo/**/*.move\" \"demo/**/*.exp\" \"demo/**/*.toml\" \"demo/**/*.code-workspace\" \"demo/simple-nft-mpm/.starcoin-ide/config\" out",
 		"dev-compile": "tsc -p ./ && npm run copy-demo-files",
 		"pre-run": "npm run clean && npm run dev-compile && npm run watch",
 		"dev": "npm run clean && npm run compile && npm run dev-compile && node ./out/demo/run.js",
-		"watch": "webpack --watch",
-		"watch-tests": "tsc -p . -w --outDir out",
-		"copy-test-files": "copyfiles \"test/**/*.move\" \"test/**/*.exp\" \"test/**/*.toml\" \"test/**/*.code-workspace\" out",
+		"watch": "tsc -watch -p ./",
+		"copy-test-files": "copyfiles \"test/**/*.move\" \"test/**/*.exp\" \"test/**/*.toml\" \"test/**/*.code-workspace\" \"test/**/*/.starcoin-ide/config\" out",
 		"test-compile": "tsc -p ./ && npm run copy-test-files",
 		"test:unit": "npm run test-compile && node ./out/test/unit/runTest.js",
 		"test:functional:move-test": "npm run test-compile && cross-env MOCHA_grep=**/move-test.test.js node ./out/test/functional/runTest.js",
@@ -188,6 +262,7 @@
 		"ts-loader": "^9.3.1"
 	},
 	"dependencies": {
+		"@iarna/toml": "^2.2.5",
 		"@types/unzipper": "^0.10.5",
 		"destroy": "^1.2.0",
 		"fs-extra": "10.0.1",
