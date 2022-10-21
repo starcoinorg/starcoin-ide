@@ -157,12 +157,18 @@ function mpmExecute(
     args = args.concat(command.split(' '));
   }
 
-  if (path) {
-    args = args.concat(path);
+  const commandOpts = ideCtx.config.getCommandOptions(`mpm ${command}`);
+  ideCtx.logger.info(`Command mpm ${command} opts: ` + JSON.stringify(commandOpts));
+  if ('OPTIONS' in commandOpts) {
+    args = args.concat(commandOpts['OPTIONS']);
   }
 
   if (cmdOpts?.shellArgs) {
     args = args.concat(cmdOpts.shellArgs);
+  }
+
+  if (path) {
+    args = args.concat(path);
   }
 
   if (cmdOpts?.cwd) {
@@ -206,7 +212,7 @@ export const mpmTestIntegration: CommandFactory = (ctx: IDEExtensionContext) => 
   };
 };
 
-export const mpmTestFile: CommandFactory = (ctx: IDEExtensionContext) => {
+export const mpmTestUnitFile: CommandFactory = (ctx: IDEExtensionContext) => {
   return async (uri): Promise<void> => {
     const document = window.activeTextEditor?.document;
     const cwd = getFileDir(uri);
@@ -218,18 +224,48 @@ export const mpmTestFile: CommandFactory = (ctx: IDEExtensionContext) => {
     const extension = Path.extname(path);
     const fileName = Path.basename(path, extension);
 
-    if (path.indexOf('integration-tests') > -1 || path.indexOf('spectests') > -1) {
+    return mpmExecute(ctx, 'testUnit', 'package test', Marker.None, {
+      shellArgs: ['--filter', fileName]
+    });
+  };
+};
+
+export const mpmTestIntegrationFile: CommandFactory = (ctx: IDEExtensionContext) => {
+  return async (): Promise<void> => {
+    const document = window.activeTextEditor?.document;
+    if (!document) {
+      throw new Error('No document opened');
+    }
+
+    const path = document.uri.fsPath.toString();
+    const extension = Path.extname(path);
+    const fileName = Path.basename(path, extension);
+
+    return mpmExecute(ctx, 'testIntegration', 'integration-test', Marker.None, {
+      shellArgs: [fileName]
+    });
+  };
+};
+
+export const mpmUpdateIntegrationTestBaseline: CommandFactory = (ctx: IDEExtensionContext) => {
+  return async (): Promise<void> => {
+    const document = window.activeTextEditor?.document;
+    if (!document) {
+      throw new Error('No document opened');
+    }
+
+    const path = document.uri.fsPath.toString();
+    const extension = Path.extname(path);
+    const fileName = Path.basename(path, extension);
+
+    if (path.endsWith('Move.toml')) {
       return mpmExecute(ctx, 'testIntegration', 'integration-test', Marker.None, {
-        shellArgs: [fileName],
-        cwd
-      });
-    } else if (path.indexOf('sources') > -1) {
-      return mpmExecute(ctx, 'testUnit', 'package test', Marker.None, {
-        shellArgs: ['--filter', fileName],
-        cwd
+        shellArgs: ['--ub']
       });
     } else {
-      throw new Error('No sources or integration-tests file selected!');
+      return mpmExecute(ctx, 'testIntegration', 'integration-test', Marker.None, {
+        shellArgs: [fileName, '--ub']
+      });
     }
   };
 };
