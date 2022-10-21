@@ -186,26 +186,30 @@ function mpmExecute(
 // same interface execute(), so see it below for the details.
 
 export const mpmBuild: CommandFactory = (ctx: IDEExtensionContext) => {
-  return async (): Promise<void> => {
-    return mpmExecute(ctx, 'build', 'package build', Marker.None);
+  return async (uri): Promise<void> => {
+    const cwd = getFileDir(uri);
+    return mpmExecute(ctx, 'build', 'package build', Marker.None, { cwd });
   };
 };
 
 export const mpmTestUnit: CommandFactory = (ctx: IDEExtensionContext) => {
-  return async (): Promise<void> => {
-    return mpmExecute(ctx, 'testUnit', 'package test', Marker.None);
+  return async (uri): Promise<void> => {
+    const cwd = getFileDir(uri);
+    mpmExecute(ctx, 'testUnit', 'package test', Marker.None, { cwd });
   };
 };
 
 export const mpmTestIntegration: CommandFactory = (ctx: IDEExtensionContext) => {
-  return async (): Promise<void> => {
-    return mpmExecute(ctx, 'testIntegration', 'integration-test', Marker.None);
+  return async (uri): Promise<void> => {
+    const cwd = getFileDir(uri);
+    return mpmExecute(ctx, 'testIntegration', 'integration-test', Marker.None, { cwd });
   };
 };
 
 export const mpmTestFile: CommandFactory = (ctx: IDEExtensionContext) => {
-  return async (): Promise<void> => {
+  return async (uri): Promise<void> => {
     const document = window.activeTextEditor?.document;
+    const cwd = getFileDir(uri);
     if (!document) {
       throw new Error('No document opened');
     }
@@ -216,11 +220,13 @@ export const mpmTestFile: CommandFactory = (ctx: IDEExtensionContext) => {
 
     if (path.indexOf('integration-tests') > -1 || path.indexOf('spectests') > -1) {
       return mpmExecute(ctx, 'testIntegration', 'integration-test', Marker.None, {
-        shellArgs: [fileName]
+        shellArgs: [fileName],
+        cwd
       });
     } else if (path.indexOf('sources') > -1) {
       return mpmExecute(ctx, 'testUnit', 'package test', Marker.None, {
-        shellArgs: ['--filter', fileName]
+        shellArgs: ['--filter', fileName],
+        cwd
       });
     } else {
       throw new Error('No sources or integration-tests file selected!');
@@ -279,3 +285,10 @@ export const mpmClean: CommandFactory = (ctx: IDEExtensionContext) => {
     return mpmExecute(ctx, 'clean', 'sandbox clean', Marker.None);
   };
 };
+
+function getFileDir(uri: vscode.Uri): string | undefined {
+  if (!uri) {
+    return undefined;
+  }
+  return vscode.Uri.joinPath(uri, '../').fsPath;
+}

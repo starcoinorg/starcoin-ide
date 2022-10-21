@@ -120,7 +120,7 @@
 		"vscode:prepublish": "rm dist/*; npm run compile",
 		"copy-demo-files": "copyfiles \"demo/**/*.move\" \"demo/**/*.exp\" \"demo/**/*.toml\" \"demo/**/*.code-workspace\" out",
 		"dev-compile": "tsc -p ./ && npm run copy-demo-files",
-		"pre-run": "npm run clean && npm run dev-compile && npm run watch",
+		"pre-run": "npm run clean & npm run dev-compile & npm run watch",
 		"dev": "npm run clean && npm run compile && npm run dev-compile && node ./out/demo/run.js",
 		"watch": "webpack --watch",
 		"watch-tests": "tsc -p . -w --outDir out",
