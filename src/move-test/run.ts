@@ -46,7 +46,9 @@ export class MoveTestRunner {
       const moveTest = parseMoveTestId(item.id);
 
       run.started(item);
-
+      if (moveTest.name === undefined) {
+        throw new Error('moveTest name error!');
+      }
       const tokens = moveTest.name.split('::');
       let testFunc = moveTest.name;
       if (tokens.length > 0) {
