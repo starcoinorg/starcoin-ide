@@ -7,7 +7,7 @@
 			"label": "Prerun",
 			"type": "npm",
 			"script": "pre-run",
-			"problemMatcher":"$ts-webpack-watch",
+			"problemMatcher": "$ts-webpack-watch",
 			"isBackground": true,
 			"presentation": {
 				"reveal": "never",
