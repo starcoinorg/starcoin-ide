@@ -225,13 +225,15 @@ export const mpmTestUnitFile: CommandFactory = (ctx: IDEExtensionContext) => {
     const fileName = Path.basename(path, extension);
 
     return mpmExecute(ctx, 'testUnit', 'package test', Marker.None, {
-      shellArgs: ['--filter', fileName]
+      shellArgs: ['--filter', fileName],
+      cwd
     });
   };
 };
 
 export const mpmTestIntegrationFile: CommandFactory = (ctx: IDEExtensionContext) => {
-  return async (): Promise<void> => {
+  return async (uri): Promise<void> => {
+    const cwd = getFileDir(uri);
     const document = window.activeTextEditor?.document;
     if (!document) {
       throw new Error('No document opened');
@@ -242,13 +244,15 @@ export const mpmTestIntegrationFile: CommandFactory = (ctx: IDEExtensionContext)
     const fileName = Path.basename(path, extension);
 
     return mpmExecute(ctx, 'testIntegration', 'integration-test', Marker.None, {
-      shellArgs: [fileName]
+      shellArgs: [fileName],
+      cwd
     });
   };
 };
 
 export const mpmUpdateIntegrationTestBaseline: CommandFactory = (ctx: IDEExtensionContext) => {
-  return async (): Promise<void> => {
+  return async (uri): Promise<void> => {
+    const cwd = getFileDir(uri);
     const document = window.activeTextEditor?.document;
     if (!document) {
       throw new Error('No document opened');
@@ -260,11 +264,13 @@ export const mpmUpdateIntegrationTestBaseline: CommandFactory = (ctx: IDEExtensi
 
     if (path.endsWith('Move.toml')) {
       return mpmExecute(ctx, 'testIntegration', 'integration-test', Marker.None, {
-        shellArgs: ['--ub']
+        shellArgs: ['--ub'],
+        cwd
       });
     } else {
       return mpmExecute(ctx, 'testIntegration', 'integration-test', Marker.None, {
-        shellArgs: [fileName, '--ub']
+        shellArgs: [fileName, '--ub'],
+        cwd
       });
     }
   };
@@ -284,33 +290,38 @@ export const mpmTestFunction = (ctx: IDEExtensionContext) => {
 };
 
 export const mpmPublish: CommandFactory = (ctx: IDEExtensionContext) => {
-  return async (): Promise<void> => {
-    return mpmExecute(ctx, 'publish', 'sandbox publish', Marker.None);
+  return async (uri): Promise<void> => {
+    const cwd = getFileDir(uri);
+    return mpmExecute(ctx, 'publish', 'sandbox publish', Marker.None, { cwd });
   };
 };
 
 export const mpmDoctor: CommandFactory = (ctx: IDEExtensionContext) => {
-  return async (): Promise<void> => {
-    return mpmExecute(ctx, 'doctor', 'sandbox doctor', Marker.None);
+  return async (uri): Promise<void> => {
+    const cwd = getFileDir(uri);
+    return mpmExecute(ctx, 'doctor', 'sandbox doctor', Marker.None, { cwd });
   };
 };
 
 export const mpmCheckCompatibility: CommandFactory = (ctx: IDEExtensionContext) => {
-  return async (): Promise<void> => {
-    return mpmExecute(ctx, 'checkCompatibility', 'check-compatibility', Marker.None);
+  return async (uri): Promise<void> => {
+    const cwd = getFileDir(uri);
+    return mpmExecute(ctx, 'checkCompatibility', 'check-compatibility', Marker.None, { cwd });
   };
 };
 
 export const mpmRelease: CommandFactory = (ctx: IDEExtensionContext) => {
-  return async (): Promise<void> => {
-    return mpmExecute(ctx, 'release', 'release', Marker.None);
+  return async (uri): Promise<void> => {
+    const cwd = getFileDir(uri);
+    return mpmExecute(ctx, 'release', 'release', Marker.None, { cwd });
   };
 };
 
 export const mpmClean: CommandFactory = (ctx: IDEExtensionContext) => {
-  return async (): Promise<void> => {
+  return async (uri): Promise<void> => {
     // clean release dir
     const workDir = getWorkdirPath();
+    const cwd = getFileDir(uri);
     const releaseDir = Path.join(workDir, 'release');
     if (fs.existsSync(releaseDir)) {
       fse.rmdirSync(releaseDir, {
@@ -318,7 +329,7 @@ export const mpmClean: CommandFactory = (ctx: IDEExtensionContext) => {
       });
     }
 
-    return mpmExecute(ctx, 'clean', 'sandbox clean', Marker.None);
+    return mpmExecute(ctx, 'clean', 'sandbox clean', Marker.None, { cwd });
   };
 };
 
@@ -326,5 +337,8 @@ function getFileDir(uri: vscode.Uri): string | undefined {
   if (!uri) {
     return undefined;
   }
-  return vscode.Uri.joinPath(uri, '../').fsPath;
+  if (uri.scheme === 'file') {
+    return vscode.Uri.joinPath(uri, '../').fsPath;
+  }
+  return uri.fsPath;
 }

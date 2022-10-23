@@ -97,13 +97,13 @@ module  SNFT::SimpleNFTScripts{
 	}
 
 	#[test] // OK
-	fun this_is_a_test() {
+	fun this_is_subprject_test() {
 		
 	}
 
 	#[test] // OK
 	#[expected_failure] // Allowed failure
-	fun this_is_a_failed_test() {
+	fun this_is_subproject_failed_test() {
 		abort 1
 	}
 
