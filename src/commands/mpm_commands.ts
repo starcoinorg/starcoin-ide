@@ -333,12 +333,20 @@ export const mpmClean: CommandFactory = (ctx: IDEExtensionContext) => {
   };
 };
 
+/**
+ * Get the closest folder path, As shown in the vscode.Url
+ *
+ * @param uri
+ * @returns fsPath
+ */
 function getFileDir(uri: vscode.Uri): string | undefined {
   if (!uri) {
     return undefined;
   }
+  // if file uri, return the closest folder path
   if (uri.scheme === 'file') {
     return vscode.Uri.joinPath(uri, '../').fsPath;
   }
+  // TODO add more scheme check
   return uri.fsPath;
 }
