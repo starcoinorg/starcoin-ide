@@ -201,7 +201,7 @@ export const mpmBuild: CommandFactory = (ctx: IDEExtensionContext) => {
 export const mpmTestUnit: CommandFactory = (ctx: IDEExtensionContext) => {
   return async (uri): Promise<void> => {
     const cwd = getFileDir(uri);
-    mpmExecute(ctx, 'testUnit', 'package test', Marker.None, { cwd });
+    return mpmExecute(ctx, 'testUnit', 'package test', Marker.None, { cwd });
   };
 };
 
