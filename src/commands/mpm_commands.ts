@@ -193,7 +193,15 @@ function mpmExecute(
 
 export const mpmBuild: CommandFactory = (ctx: IDEExtensionContext) => {
   return async (uri): Promise<void> => {
-    const cwd = getFileDir(uri);
+    let cwd = getFileDir(uri);
+    if (!cwd) {
+      const wp = await window.showQuickPick((await vscode.workspace.findFiles('**/Move.toml')).flatMap((v, index) => {
+        return v.fsPath;
+      }));
+      if(wp) {
+        cwd = getFileDir(vscode.Uri.parse(wp));
+      }
+    }
     return mpmExecute(ctx, 'build', 'package build', Marker.None, { cwd });
   };
 };
