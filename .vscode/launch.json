@@ -1,0 +1,57 @@
+// A launch configuration that compiles the extension and then opens it inside a new window
+// Use IntelliSense to learn about possible attributes.
+// Hover to view descriptions of existing attributes.
+// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Run Extension",
+			"type": "extensionHost",
+			"request": "launch",
+			"args": [
+				"${workspaceFolder}/out/demo/simple-nft-mpm/simple-nft.code-workspace",
+				// "--disable-extensions",
+				"--extensionDevelopmentPath=${workspaceFolder}"
+			],
+			"outFiles": [
+				"${workspaceFolder}/dist/**/*.js"
+			],
+			"preLaunchTask": "Prerun"
+		},
+		{
+			"name": "Unit Tests",
+			"type": "extensionHost",
+			"request": "launch",
+			"runtimeExecutable": "${execPath}",
+			"args": [
+				"${workspaceFolder}/out/demo/simple-nft-mpm/simple-nft.code-workspace",
+				// "--disable-extensions",
+				"--extensionDevelopmentPath=${workspaceFolder}",
+				"--extensionTestsPath=${workspaceFolder}/out/test/unit/index.js"
+			],
+			"outFiles": [
+				"${workspaceFolder}/dist/**/*.js",
+				"${workspaceFolder}/out/**/*.js"
+			],
+			"preLaunchTask": "Pretest",
+		},
+		{
+			"name": "Functional Tests",
+			"type": "extensionHost",
+			"request": "launch",
+			// "runtimeExecutable": "${execPath}",
+			"args": [
+				"${workspaceFolder}/out/test/functional/demos/simple-nft-mpm/simple-nft.code-workspace",
+				// "--disable-extensions",
+				"--extensionDevelopmentPath=${workspaceFolder}",
+				"--extensionTestsPath=${workspaceFolder}/out/test/functional/index.js"
+			],
+			"outFiles": [
+				"${workspaceFolder}/dist/**/*.js",
+				"${workspaceFolder}/out/**/*.js"
+			],
+			"preLaunchTask": "Pretest"
+		}
+	]
+}
