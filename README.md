@@ -17,6 +17,18 @@ or right-click the Move.toml and select the command Run from the context menu th
 or right-click the Move file in the source folder to run unit tests, 
 or right-click the Move file in the integration tests folder to run integration tests or update integration test baseline.
 
+## Support custom build options
+
+Users can create a .starcoin-ide/config file in the Move project root directory to customize the options of the mpm subcommand
+
+```toml
+[mpm.package.build]
+OPTIONS=["--doc", "--abi", "--force"]
+
+[mpm.integration-test]
+OPTIONS=["--current-as-stdlib"]
+```
+
 ## Syntax highlighting
 
 This extension uses [vscode-move-syntax](https://marketplace.visualstudio.com/items?itemName=damirka.move-syntax) extension as a dependency for syntax highlighting.

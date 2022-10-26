@@ -1,6 +1,6 @@
 {
 	"name": "starcoin-ide",
-	"version": "0.7.8-alpha",
+	"version": "0.7.8",
 	"description": "Starcoin IDE for VSCode",
 	"publisher": "starcoinorg",
 	"displayName": "Starcoin IDE",
