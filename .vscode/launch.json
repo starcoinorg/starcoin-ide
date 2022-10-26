@@ -27,14 +27,31 @@
 			"args": [
 				"${workspaceFolder}/out/demo/simple-nft-mpm/simple-nft.code-workspace",
 				// "--disable-extensions",
-				"--extensionDevelopmentPath=${workspaceFolder}/out/test/unit",
-				"--extensionTestsPath=${workspaceFolder}/out/test/unit/index"
+				"--extensionDevelopmentPath=${workspaceFolder}",
+				"--extensionTestsPath=${workspaceFolder}/out/test/unit/index.js"
 			],
 			"outFiles": [
-				"${workspaceFolder}/out/**/*.js",
-				"${workspaceFolder}/dist/**/*.js"
+				"${workspaceFolder}/dist/**/*.js",
+				"${workspaceFolder}/out/**/*.js"
 			],
-			"preLaunchTask": "Prerun"
+			"preLaunchTask": "Pretest",
+		},
+		{
+			"name": "Functional Tests",
+			"type": "extensionHost",
+			"request": "launch",
+			// "runtimeExecutable": "${execPath}",
+			"args": [
+				"${workspaceFolder}/out/test/functional/demos/simple-nft-mpm/simple-nft.code-workspace",
+				// "--disable-extensions",
+				"--extensionDevelopmentPath=${workspaceFolder}",
+				"--extensionTestsPath=${workspaceFolder}/out/test/functional/index.js"
+			],
+			"outFiles": [
+				"${workspaceFolder}/dist/**/*.js",
+				"${workspaceFolder}/out/**/*.js"
+			],
+			"preLaunchTask": "Pretest"
 		}
 	]
 }

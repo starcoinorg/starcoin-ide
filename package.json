@@ -207,6 +207,7 @@
 		"test:functional": "npm run clean && npm run compile && npm run test:functional:download && npm run test:functional:move-test && npm run test:functional:commands",
 		"test": "npm run test:unit && npm run test:functional",
 		"lint": "gts lint src test",
+		"pre-test": "npm run clean && npm run test-compile && webpack watch",
 		"fix-lint": "gts fix src test",
 		"format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
 		"package": "vsce package",
