@@ -301,6 +301,11 @@ export const mpmClean: CommandFactory = (ctx: IDEExtensionContext) => {
   };
 };
 
+/**
+ * Open patelle list to select a move package
+ * 
+ * @returns 
+ */
 async function selectMoveProjectFile(): Promise<vscode.Uri> {
   // select all move package folder via finding Move.toml
   return await vscode.workspace.findFiles('**/Move.toml').then<vscode.Uri>((options) => {
