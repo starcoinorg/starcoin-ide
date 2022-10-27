@@ -66,7 +66,6 @@ async function mpmExecute(
 ): Promise<Thenable<any>> {
   // Check uri, or select from patelle list manually
   uri = uri ? uri : await selectMoveProjectFile();
-  
   const extPath = vscode.extensions.getExtension(ideCtx.extension)?.extensionPath;
 
   if (!extPath) {
@@ -231,19 +230,13 @@ export const mpmUpdateIntegrationTestBaseline: CommandFactory = (ctx: IDEExtensi
     const path = document.uri.fsPath.toString();
     const extension = Path.extname(path);
     const fileName = Path.basename(path, extension);
-
+    let shellArgs;
     if (path.endsWith('Move.toml')) {
-      return mpmExecute(ctx, 'testIntegration', 'integration-test', Marker.None, uri, { shellArgs: ['--ub'] });
+      shellArgs = ['--ub'];
     } else {
-      return mpmExecute(
-        ctx,
-        'testIntegration',
-        'integration-test',
-        Marker.None,
-        uri,
-        { shellArgs: [fileName, '--ub'] }
-      );
+      shellArgs = [fileName, '--ub'];
     }
+    return mpmExecute(ctx, 'testIntegration', 'integration-test', Marker.None, uri, { shellArgs });
   };
 };
 
@@ -303,8 +296,7 @@ export const mpmClean: CommandFactory = (ctx: IDEExtensionContext) => {
 
 /**
  * Open patelle list to select a move package
- * 
- * @returns 
+ * @returns Promise<vscode.Uri>
  */
 async function selectMoveProjectFile(): Promise<vscode.Uri> {
   // select all move package folder via finding Move.toml
