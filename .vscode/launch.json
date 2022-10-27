@@ -18,9 +18,7 @@
 				"${workspaceFolder}/dist/**/*.js"
 			],
 			
-			"preLaunchTask": "Prerun",
-			"stopAll": true
-			// "postDebugTask": "Prerun"
+			"preLaunchTask": "Prerun"
 		},
 		{
 			"name": "Unit Tests",

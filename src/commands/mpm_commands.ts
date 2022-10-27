@@ -22,26 +22,6 @@ enum Marker {
 }
 
 /**
- * Get current open document workdir
- *
- * @returns
- */
-async function getWorkdirPath(uri?: vscode.Uri): Promise<vscode.Uri> {
-  uri = uri ? uri : await selectMoveProjectFile();
-  if (!uri) {
-    throw new Error('No document opened');
-  }
-
-  const workdir = vscode.workspace.getWorkspaceFolder(uri);
-  if (!workdir) {
-    throw new Error('Unable to read workspace folder');
-  }
-
-  // Current working (project) directory to set absolute paths.
-  return workdir.uri;
-}
-
-/**
  * Options for a shell execution
  */
 interface CommandExecutionOptions {
@@ -81,21 +61,17 @@ async function mpmExecute(
   task: string,
   command: string,
   fileMarker: Marker,
-  cmdOpts?: CommandExecutionOptions,
-  uri?: vscode.Uri
+  uri?: vscode.Uri,
+  cmdOpts?: CommandExecutionOptions
 ): Promise<Thenable<any>> {
+  // Check uri, or select from patelle list manually
   uri = uri ? uri : await selectMoveProjectFile();
   
-  // const document = window.activeTextEditor?.document;
   const extPath = vscode.extensions.getExtension(ideCtx.extension)?.extensionPath;
 
   if (!extPath) {
     return Promise.reject('Unable to find the extension');
   }
-
-  // if (!document) {
-  //   return Promise.reject('No document opened');
-  // }
 
   const configuration = vscode.workspace.getConfiguration(ideCtx.namespace, uri);
   if (!configuration) {
@@ -226,7 +202,7 @@ export const mpmTestUnitFile: CommandFactory = (ctx: IDEExtensionContext) => {
     const extension = Path.extname(path);
     const fileName = Path.basename(path, extension);
 
-    return mpmExecute(ctx, 'testUnit', 'package test', Marker.None, { shellArgs: ['--filter', fileName] }, uri);
+    return mpmExecute(ctx, 'testUnit', 'package test', Marker.None, uri, { shellArgs: ['--filter', fileName] });
   };
 };
 
@@ -241,7 +217,7 @@ export const mpmTestIntegrationFile: CommandFactory = (ctx: IDEExtensionContext)
     const extension = Path.extname(path);
     const fileName = Path.basename(path, extension);
 
-    return mpmExecute(ctx, 'testIntegration', 'integration-test', Marker.None, { shellArgs: [fileName] }, uri);
+    return mpmExecute(ctx, 'testIntegration', 'integration-test', Marker.None, uri, { shellArgs: [fileName] });
   };
 };
 
@@ -257,15 +233,15 @@ export const mpmUpdateIntegrationTestBaseline: CommandFactory = (ctx: IDEExtensi
     const fileName = Path.basename(path, extension);
 
     if (path.endsWith('Move.toml')) {
-      return mpmExecute(ctx, 'testIntegration', 'integration-test', Marker.None, { shellArgs: ['--ub'] }, uri);
+      return mpmExecute(ctx, 'testIntegration', 'integration-test', Marker.None, uri, { shellArgs: ['--ub'] });
     } else {
       return mpmExecute(
         ctx,
         'testIntegration',
         'integration-test',
         Marker.None,
-        { shellArgs: [fileName, '--ub'] },
-        uri
+        uri,
+        { shellArgs: [fileName, '--ub'] }
       );
     }
   };
@@ -278,7 +254,7 @@ export const mpmTestFunction = (ctx: IDEExtensionContext) => {
       throw new Error('No document opened');
     }
 
-    return mpmExecute(ctx, 'testUnit', 'package test', Marker.None, {
+    return mpmExecute(ctx, 'testUnit', 'package test', Marker.None, undefined, {
       shellArgs: ['--filter', filter]
     });
   };
@@ -310,22 +286,24 @@ export const mpmRelease: CommandFactory = (ctx: IDEExtensionContext) => {
 
 export const mpmClean: CommandFactory = (ctx: IDEExtensionContext) => {
   return async (uri): Promise<void> => {
-    // clean release dir
-    const workDirUri = await getWorkdirPath(uri);
-    const releaseDir = Path.join(workDirUri.fsPath, 'release');
+    // cd target move package dir, clean release dir
+    if (!uri) {
+      uri = await selectMoveProjectFile();
+    }
+    const releaseDir = Path.join(getCwd(uri), 'release');
     if (fs.existsSync(releaseDir)) {
       fse.rmdirSync(releaseDir, {
         recursive: true
       });
     }
 
-    return mpmExecute(ctx, 'clean', 'sandbox clean', Marker.None, undefined, uri ? uri : workDirUri);
+    return mpmExecute(ctx, 'clean', 'sandbox clean', Marker.None, uri);
   };
 };
 
-async function selectMoveProjectFile(): Promise<vscode.Uri | undefined> {
+async function selectMoveProjectFile(): Promise<vscode.Uri> {
   // select all move package folder via finding Move.toml
-  return await vscode.workspace.findFiles('**/Move.toml').then<vscode.Uri | undefined>((options) => {
+  return await vscode.workspace.findFiles('**/Move.toml').then<vscode.Uri>((options) => {
     if (options.length === 0) {
       Promise.reject('No move package find');
     }
