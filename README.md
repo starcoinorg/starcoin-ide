@@ -2,7 +2,7 @@
 
 ![这是图片](/img/show_case.jpg "Magic Gardens")
 
-This is the repository for the [Starcoin IDE](https://marketplace.visualstudio.com/items?itemName=starcoinorg.starcoin-ide).
+This is the repository for the [Starcoin IDE](https://marketplace.visualstudio.com/items?itemName=starcoinorg.starcoin-ide) vscode plugin.
 
 ## Available commands
 
@@ -13,6 +13,7 @@ This extension wraps around Starcoin's `mpm` and provides quick access to the fo
 - Starcoin: Integration Test - `mpm integration-test` - runs integration tests in the current project
 - Starcoin: Check Compatibility - `mpm check-compatibility` - Check compatibility of the current project's modules comparing with remote chain state
 - Starcoin: Release - `mpm release` - release the package to `release/` directories
+- Starcoin: Open deploy page - Open [the page](https://movetool.app/constract/deploy) to deploy the release blob
 
 To run any of these commands, use [VSCode's command palette](https://code.visualstudio.com/docs/getstarted/userinterface#_command-palette),
 or right-click the Move.toml and select the command Run from the context menu that appears,
