@@ -1,5 +1,7 @@
 # Starcoin IDE
 
+![这是图片](/img/show_case.jpg "Magic Gardens")
+
 This is the repository for [the Starcoin IDE](https://marketplace.visualstudio.com/items?itemName=starcoinorg.starcoin-ide).
 
 ## Available commands
