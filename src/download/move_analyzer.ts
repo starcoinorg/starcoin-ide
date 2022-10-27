@@ -30,11 +30,11 @@ export class MoveAnalyzerDownloader {
   }
 
   get latestVersion(): string {
-    return 'v0.3.0';
+    return 'v0.3.1';
   }
 
   get latestStableVersion(): string {
-    return 'v0.1.1';
+    return 'v0.2.3';
   }
 
   get executatePath(): string {
@@ -62,7 +62,7 @@ export class MoveAnalyzerDownloader {
   }
 
   async checkRelease(version: string): Promise<any> {
-    return checkNewRelease(this, 'yubing744/starcoin-move', version, 'move');
+    return checkNewRelease(this, 'starcoinorg/move', version, 'move');
   }
 
   isBinaryOutdated(latest: string): boolean {
