@@ -6,6 +6,7 @@ import * as vscode from 'vscode';
 import { dos2unix } from '../utils';
 import { CommandFactory } from '.';
 import { IDEExtensionContext } from '../context';
+import { SelectionRangeRequest } from 'vscode-languageclient';
 
 const { window, tasks, Task, ShellExecution } = vscode;
 
@@ -193,29 +194,21 @@ function mpmExecute(
 
 export const mpmBuild: CommandFactory = (ctx: IDEExtensionContext) => {
   return async (uri): Promise<void> => {
-    let cwd = getFileDir(uri);
-    if (!cwd) {
-      const wp = await window.showQuickPick((await vscode.workspace.findFiles('**/Move.toml')).flatMap((v, index) => {
-        return v.fsPath;
-      }));
-      if(wp) {
-        cwd = getFileDir(vscode.Uri.parse(wp));
-      }
-    }
+    const cwd = await getFileDir(uri);
     return mpmExecute(ctx, 'build', 'package build', Marker.None, { cwd });
   };
 };
 
 export const mpmTestUnit: CommandFactory = (ctx: IDEExtensionContext) => {
   return async (uri): Promise<void> => {
-    const cwd = getFileDir(uri);
+    const cwd = await getFileDir(uri);
     return mpmExecute(ctx, 'testUnit', 'package test', Marker.None, { cwd });
   };
 };
 
 export const mpmTestIntegration: CommandFactory = (ctx: IDEExtensionContext) => {
   return async (uri): Promise<void> => {
-    const cwd = getFileDir(uri);
+    const cwd = await getFileDir(uri);
     return mpmExecute(ctx, 'testIntegration', 'integration-test', Marker.None, { cwd });
   };
 };
@@ -223,7 +216,7 @@ export const mpmTestIntegration: CommandFactory = (ctx: IDEExtensionContext) => 
 export const mpmTestUnitFile: CommandFactory = (ctx: IDEExtensionContext) => {
   return async (uri): Promise<void> => {
     const document = window.activeTextEditor?.document;
-    const cwd = getFileDir(uri);
+    const cwd = await getFileDir(uri);
     if (!document) {
       throw new Error('No document opened');
     }
@@ -241,7 +234,7 @@ export const mpmTestUnitFile: CommandFactory = (ctx: IDEExtensionContext) => {
 
 export const mpmTestIntegrationFile: CommandFactory = (ctx: IDEExtensionContext) => {
   return async (uri): Promise<void> => {
-    const cwd = getFileDir(uri);
+    const cwd = await getFileDir(uri);
     const document = window.activeTextEditor?.document;
     if (!document) {
       throw new Error('No document opened');
@@ -260,7 +253,7 @@ export const mpmTestIntegrationFile: CommandFactory = (ctx: IDEExtensionContext)
 
 export const mpmUpdateIntegrationTestBaseline: CommandFactory = (ctx: IDEExtensionContext) => {
   return async (uri): Promise<void> => {
-    const cwd = getFileDir(uri);
+    const cwd = await getFileDir(uri);
     const document = window.activeTextEditor?.document;
     if (!document) {
       throw new Error('No document opened');
@@ -299,28 +292,28 @@ export const mpmTestFunction = (ctx: IDEExtensionContext) => {
 
 export const mpmPublish: CommandFactory = (ctx: IDEExtensionContext) => {
   return async (uri): Promise<void> => {
-    const cwd = getFileDir(uri);
+    const cwd = await getFileDir(uri);
     return mpmExecute(ctx, 'publish', 'sandbox publish', Marker.None, { cwd });
   };
 };
 
 export const mpmDoctor: CommandFactory = (ctx: IDEExtensionContext) => {
   return async (uri): Promise<void> => {
-    const cwd = getFileDir(uri);
+    const cwd = await getFileDir(uri);
     return mpmExecute(ctx, 'doctor', 'sandbox doctor', Marker.None, { cwd });
   };
 };
 
 export const mpmCheckCompatibility: CommandFactory = (ctx: IDEExtensionContext) => {
   return async (uri): Promise<void> => {
-    const cwd = getFileDir(uri);
+    const cwd = await getFileDir(uri);
     return mpmExecute(ctx, 'checkCompatibility', 'check-compatibility', Marker.None, { cwd });
   };
 };
 
 export const mpmRelease: CommandFactory = (ctx: IDEExtensionContext) => {
   return async (uri): Promise<void> => {
-    const cwd = getFileDir(uri);
+    const cwd = await getFileDir(uri);
     return mpmExecute(ctx, 'release', 'release', Marker.None, { cwd });
   };
 };
@@ -329,7 +322,7 @@ export const mpmClean: CommandFactory = (ctx: IDEExtensionContext) => {
   return async (uri): Promise<void> => {
     // clean release dir
     const workDir = getWorkdirPath();
-    const cwd = getFileDir(uri);
+    const cwd = await getFileDir(uri);
     const releaseDir = Path.join(workDir, 'release');
     if (fs.existsSync(releaseDir)) {
       fse.rmdirSync(releaseDir, {
@@ -347,9 +340,27 @@ export const mpmClean: CommandFactory = (ctx: IDEExtensionContext) => {
  * @param uri
  * @returns fsPath
  */
-function getFileDir(uri: vscode.Uri): string | undefined {
+async function getFileDir(uri: vscode.Uri): Promise<string | undefined> {
+  // if !uri == true, means commands event is fired by patelle
   if (!uri) {
-    return undefined;
+    // select all move package folder via finding Move.toml
+    const selections = await vscode.workspace.findFiles('**/Move.toml');
+    if (selections.length === 0) {
+      return undefined;
+    }
+    // Only one move-project, return the Move.toml file folder path
+    if (selections.length === 1) {
+      return getFileDir(selections[0]);
+    }
+    // Exists multi move package, user confirm which one will run
+    const wp = await window.showQuickPick(
+      selections.flatMap((v) => {
+        return v.fsPath;
+      })
+    );
+    if (wp) {
+      return getFileDir(vscode.Uri.parse(wp));
+    }
   }
   // if file uri, return the closest folder path
   if (uri.scheme === 'file') {

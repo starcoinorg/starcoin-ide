@@ -10,8 +10,9 @@
 			"problemMatcher": "$ts-webpack-watch",
 			"isBackground": true,
 			"presentation": {
-				"reveal": "never",
-				"group": "watchers"
+				"reveal": "always",
+				"group": "watchers",
+				"close": true
 			},
 			"group": {
 				"kind": "build"

@@ -17,7 +17,10 @@
 			"outFiles": [
 				"${workspaceFolder}/dist/**/*.js"
 			],
-			"preLaunchTask": "Prerun"
+			
+			"preLaunchTask": "Prerun",
+			"stopAll": true
+			// "postDebugTask": "Prerun"
 		},
 		{
 			"name": "Unit Tests",
