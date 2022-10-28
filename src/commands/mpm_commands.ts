@@ -22,26 +22,6 @@ enum Marker {
 }
 
 /**
- * Get current open document workdir
- *
- * @returns
- */
-function getWorkdirPath(): string {
-  const document = window.activeTextEditor?.document;
-  if (!document) {
-    throw new Error('No document opened');
-  }
-
-  const workdir = vscode.workspace.getWorkspaceFolder(document.uri);
-  if (!workdir) {
-    throw new Error('Unable to read workspace folder');
-  }
-
-  // Current working (project) directory to set absolute paths.
-  return workdir.uri.fsPath;
-}
-
-/**
  * Options for a shell execution
  */
 interface CommandExecutionOptions {
@@ -76,30 +56,28 @@ interface CommandExecutionOptions {
  * @param useFile
  * @returns
  */
-function mpmExecute(
+async function mpmExecute(
   ideCtx: IDEExtensionContext,
   task: string,
   command: string,
   fileMarker: Marker,
+  uri?: vscode.Uri,
   cmdOpts?: CommandExecutionOptions
-): Thenable<any> {
-  const document = window.activeTextEditor?.document;
+): Promise<Thenable<any>> {
+  // Check uri, or select from patelle list manually
+  uri = uri ? uri : await selectMoveProjectFile();
   const extPath = vscode.extensions.getExtension(ideCtx.extension)?.extensionPath;
 
   if (!extPath) {
     return Promise.reject('Unable to find the extension');
   }
 
-  if (!document) {
-    return Promise.reject('No document opened');
-  }
-
-  const configuration = vscode.workspace.getConfiguration(ideCtx.namespace, document.uri);
+  const configuration = vscode.workspace.getConfiguration(ideCtx.namespace, uri);
   if (!configuration) {
     return Promise.reject('Unable to read configuration folder');
   }
 
-  const workdir = vscode.workspace.getWorkspaceFolder(document.uri);
+  const workdir = vscode.workspace.getWorkspaceFolder(uri);
   if (!workdir) {
     return Promise.reject('Unable to read workdir folder');
   }
@@ -118,7 +96,7 @@ function mpmExecute(
       path = '';
       break;
     case Marker.ThisFile:
-      path = document.uri.fsPath.toString() || '';
+      path = uri.fsPath.toString() || '';
       break;
     case Marker.WorkDir:
       path = dir;
@@ -173,6 +151,9 @@ function mpmExecute(
 
   if (cmdOpts?.cwd) {
     opts.cwd = cmdOpts.cwd;
+  } else {
+    // set the file path as cwd
+    opts.cwd = getCwd(uri);
   }
 
   if (cmdOpts?.env) {
@@ -193,29 +174,25 @@ function mpmExecute(
 
 export const mpmBuild: CommandFactory = (ctx: IDEExtensionContext) => {
   return async (uri): Promise<void> => {
-    const cwd = getFileDir(uri);
-    return mpmExecute(ctx, 'build', 'package build', Marker.None, { cwd });
+    return mpmExecute(ctx, 'build', 'package build', Marker.None, uri);
   };
 };
 
 export const mpmTestUnit: CommandFactory = (ctx: IDEExtensionContext) => {
   return async (uri): Promise<void> => {
-    const cwd = getFileDir(uri);
-    return mpmExecute(ctx, 'testUnit', 'package test', Marker.None, { cwd });
+    return mpmExecute(ctx, 'testUnit', 'package test', Marker.None, uri);
   };
 };
 
 export const mpmTestIntegration: CommandFactory = (ctx: IDEExtensionContext) => {
   return async (uri): Promise<void> => {
-    const cwd = getFileDir(uri);
-    return mpmExecute(ctx, 'testIntegration', 'integration-test', Marker.None, { cwd });
+    return mpmExecute(ctx, 'testIntegration', 'integration-test', Marker.None, uri);
   };
 };
 
 export const mpmTestUnitFile: CommandFactory = (ctx: IDEExtensionContext) => {
   return async (uri): Promise<void> => {
     const document = window.activeTextEditor?.document;
-    const cwd = getFileDir(uri);
     if (!document) {
       throw new Error('No document opened');
     }
@@ -224,16 +201,12 @@ export const mpmTestUnitFile: CommandFactory = (ctx: IDEExtensionContext) => {
     const extension = Path.extname(path);
     const fileName = Path.basename(path, extension);
 
-    return mpmExecute(ctx, 'testUnit', 'package test', Marker.None, {
-      shellArgs: ['--filter', fileName],
-      cwd
-    });
+    return mpmExecute(ctx, 'testUnit', 'package test', Marker.None, uri, { shellArgs: ['--filter', fileName] });
   };
 };
 
 export const mpmTestIntegrationFile: CommandFactory = (ctx: IDEExtensionContext) => {
   return async (uri): Promise<void> => {
-    const cwd = getFileDir(uri);
     const document = window.activeTextEditor?.document;
     if (!document) {
       throw new Error('No document opened');
@@ -243,16 +216,12 @@ export const mpmTestIntegrationFile: CommandFactory = (ctx: IDEExtensionContext)
     const extension = Path.extname(path);
     const fileName = Path.basename(path, extension);
 
-    return mpmExecute(ctx, 'testIntegration', 'integration-test', Marker.None, {
-      shellArgs: [fileName],
-      cwd
-    });
+    return mpmExecute(ctx, 'testIntegration', 'integration-test', Marker.None, uri, { shellArgs: [fileName] });
   };
 };
 
 export const mpmUpdateIntegrationTestBaseline: CommandFactory = (ctx: IDEExtensionContext) => {
   return async (uri): Promise<void> => {
-    const cwd = getFileDir(uri);
     const document = window.activeTextEditor?.document;
     if (!document) {
       throw new Error('No document opened');
@@ -261,18 +230,13 @@ export const mpmUpdateIntegrationTestBaseline: CommandFactory = (ctx: IDEExtensi
     const path = document.uri.fsPath.toString();
     const extension = Path.extname(path);
     const fileName = Path.basename(path, extension);
-
+    let shellArgs;
     if (path.endsWith('Move.toml')) {
-      return mpmExecute(ctx, 'testIntegration', 'integration-test', Marker.None, {
-        shellArgs: ['--ub'],
-        cwd
-      });
+      shellArgs = ['--ub'];
     } else {
-      return mpmExecute(ctx, 'testIntegration', 'integration-test', Marker.None, {
-        shellArgs: [fileName, '--ub'],
-        cwd
-      });
+      shellArgs = [fileName, '--ub'];
     }
+    return mpmExecute(ctx, 'testIntegration', 'integration-test', Marker.None, uri, { shellArgs });
   };
 };
 
@@ -283,7 +247,7 @@ export const mpmTestFunction = (ctx: IDEExtensionContext) => {
       throw new Error('No document opened');
     }
 
-    return mpmExecute(ctx, 'testUnit', 'package test', Marker.None, {
+    return mpmExecute(ctx, 'testUnit', 'package test', Marker.None, undefined, {
       shellArgs: ['--filter', filter]
     });
   };
@@ -291,47 +255,71 @@ export const mpmTestFunction = (ctx: IDEExtensionContext) => {
 
 export const mpmPublish: CommandFactory = (ctx: IDEExtensionContext) => {
   return async (uri): Promise<void> => {
-    const cwd = getFileDir(uri);
-    return mpmExecute(ctx, 'publish', 'sandbox publish', Marker.None, { cwd });
+    return mpmExecute(ctx, 'publish', 'sandbox publish', Marker.None, uri);
   };
 };
 
 export const mpmDoctor: CommandFactory = (ctx: IDEExtensionContext) => {
   return async (uri): Promise<void> => {
-    const cwd = getFileDir(uri);
-    return mpmExecute(ctx, 'doctor', 'sandbox doctor', Marker.None, { cwd });
+    return mpmExecute(ctx, 'doctor', 'sandbox doctor', Marker.None, uri);
   };
 };
 
 export const mpmCheckCompatibility: CommandFactory = (ctx: IDEExtensionContext) => {
   return async (uri): Promise<void> => {
-    const cwd = getFileDir(uri);
-    return mpmExecute(ctx, 'checkCompatibility', 'check-compatibility', Marker.None, { cwd });
+    return mpmExecute(ctx, 'checkCompatibility', 'check-compatibility', Marker.None, uri);
   };
 };
 
 export const mpmRelease: CommandFactory = (ctx: IDEExtensionContext) => {
   return async (uri): Promise<void> => {
-    const cwd = getFileDir(uri);
-    return mpmExecute(ctx, 'release', 'release', Marker.None, { cwd });
+    return mpmExecute(ctx, 'release', 'release', Marker.None, uri);
   };
 };
 
 export const mpmClean: CommandFactory = (ctx: IDEExtensionContext) => {
   return async (uri): Promise<void> => {
-    // clean release dir
-    const workDir = getWorkdirPath();
-    const cwd = getFileDir(uri);
-    const releaseDir = Path.join(workDir, 'release');
+    // cd target move package dir, clean release dir
+    if (!uri) {
+      uri = await selectMoveProjectFile();
+    }
+    const releaseDir = Path.join(getCwd(uri), 'release');
     if (fs.existsSync(releaseDir)) {
       fse.rmdirSync(releaseDir, {
         recursive: true
       });
     }
 
-    return mpmExecute(ctx, 'clean', 'sandbox clean', Marker.None, { cwd });
+    return mpmExecute(ctx, 'clean', 'sandbox clean', Marker.None, uri);
   };
 };
+
+/**
+ * Open patelle list to select a move package
+ * @returns Promise<vscode.Uri>
+ */
+async function selectMoveProjectFile(): Promise<vscode.Uri> {
+  // select all move package folder via finding Move.toml
+  return await vscode.workspace.findFiles('**/Move.toml').then<vscode.Uri>((options) => {
+    if (options.length === 0) {
+      Promise.reject('No move package find');
+    }
+    // Only one move-project, return the Move.toml file folder path
+    if (options.length === 1) {
+      return options[0];
+    }
+    // Exists multi move package, user confirm which one will run
+    return window
+      .showQuickPick(
+        options.flatMap((v) => {
+          return v.fsPath;
+        })
+      )
+      .then((selected) => {
+        return selected ? vscode.Uri.parse(selected) : Promise.reject('Please select a package file');
+      });
+  });
+}
 
 /**
  * Get the closest folder path, As shown in the vscode.Url
@@ -339,13 +327,13 @@ export const mpmClean: CommandFactory = (ctx: IDEExtensionContext) => {
  * @param uri
  * @returns fsPath
  */
-function getFileDir(uri: vscode.Uri): string | undefined {
-  if (!uri) {
-    return undefined;
-  }
-  // if file uri, return the closest folder path
+function getCwd(uri: vscode.Uri) {
   if (uri.scheme === 'file') {
-    return vscode.Uri.joinPath(uri, '../').fsPath;
+    const isFile = fs.statSync(uri.fsPath).isFile();
+    // if file uri, return the closest folder path, else return default branch result
+    if (isFile) {
+      return vscode.Uri.joinPath(uri, '../').fsPath;
+    }
   }
   // TODO add more scheme check
   return uri.fsPath;

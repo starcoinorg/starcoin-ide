@@ -10,6 +10,21 @@
 			"problemMatcher": "$ts-webpack-watch",
 			"isBackground": true,
 			"presentation": {
+				"reveal": "always",
+				"group": "watchers",
+				"close": true
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"label": "Pretest",
+			"type": "npm",
+			"script": "pre-test",
+			"problemMatcher": "$ts-webpack-watch",
+			"isBackground": true,
+			"presentation": {
 				"reveal": "never",
 				"group": "watchers"
 			},
