@@ -1,6 +1,6 @@
 {
 	"name": "starcoin-ide",
-	"version": "0.7.6-alpha",
+	"version": "0.7.9",
 	"description": "Starcoin IDE for VSCode",
 	"publisher": "starcoinorg",
 	"displayName": "Starcoin IDE",
@@ -67,6 +67,10 @@
 			{
 				"command": "starcoin.reloadExtension",
 				"title": "Starcoin: reload extension"
+			},
+			{
+				"command": "starcoin.openDeployPage",
+				"title": "Starcoin: Open Deploy Page"
 			}
 		],
 		"menus": {
@@ -100,6 +104,11 @@
 					"when": "resourceFilename == Move.toml",
 					"command": "starcoin.release",
 					"group": "2_starcoin@6"
+				},
+				{
+					"when": "resourceFilename == Move.toml",
+					"command": "starcoin.openDeployPage",
+					"group": "2_starcoin@7"
 				},
 				{
 					"when": "resourceExtname == .move && resourceDirname =~ /.*sources.*/",
@@ -157,6 +166,11 @@
 					"when": "resourceFilename == Move.toml",
 					"command": "starcoin.release",
 					"group": "2_starcoin@6"
+				},
+				{
+					"when": "resourceFilename == Move.toml",
+					"command": "starcoin.openDeployPage",
+					"group": "2_starcoin@7"
 				},
 				{
 					"when": "resourceExtname == .move && resourceDirname =~ /.*sources.*/",

@@ -5,6 +5,7 @@ export { reloadExtension } from './reload_extension';
 export { checkAndUpdateAll } from './update_tools';
 export { startLanguageServer } from './lsp_commands';
 export * from './mpm_commands';
+export * from './open_page_commands';
 
 type CommandCallback<T extends unknown[]> = (...args: T) => Promise<unknown> | unknown;
 

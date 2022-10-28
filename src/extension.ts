@@ -58,6 +58,7 @@ export async function activate(ctx: vscode.ExtensionContext): Promise<void> {
   registerCommand('starcoin.checkCompatibility', commands.mpmCheckCompatibility);
   registerCommand('starcoin.release', commands.mpmRelease);
   registerCommand('starcoin.clean', commands.mpmClean);
+  registerCommand('starcoin.openDeployPage', commands.openDeployPage);
 }
 
 export function deactivate(): void {}
