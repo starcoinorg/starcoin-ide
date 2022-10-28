@@ -328,9 +328,9 @@ async function selectMoveProjectFile(): Promise<vscode.Uri> {
  * @returns fsPath
  */
 function getCwd(uri: vscode.Uri) {
-  // if file uri, return the closest folder path
   if (uri.scheme === 'file') {
     const isFile = fs.statSync(uri.path).isFile();
+    // if file uri, return the closest folder path, else return default branch result
     if (isFile) {
       return vscode.Uri.joinPath(uri, '../').fsPath;
     }
